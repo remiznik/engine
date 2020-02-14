@@ -1,10 +1,18 @@
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
 #include <windows.h>
+
+#include "scene.h"
+#include "rectangle.h"
+
+#include <memory>
 
 int  main()
 {
-	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+
+	engine::Scene scene;
+	auto rectangle = std::make_shared<engine::Rectangle>();
+	scene.addShape(rectangle);
+		
 	sf::CircleShape shape(100.f);
 	shape.setFillColor(sf::Color::Green);
 
@@ -17,16 +25,9 @@ int  main()
 		//throw;
 	}
 
-	while (window.isOpen())
+	while (true)
 	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-		}
-
-		
+	
 
 		char c[10];
 		sprintf_s(c, "%f", lastTime);
@@ -43,12 +44,10 @@ int  main()
 		float fps = 1.f / (currentTime - lastTime);
 		lastTime = currentTime;
 
-		window.clear();
+		
+		scene.draw();
 		
 		
-		window.draw(shape);
-		window.draw(text);
-		window.display();
 	}
 
 	return 0;

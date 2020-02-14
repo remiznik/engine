@@ -18,6 +18,8 @@ set ( MAIN_SRCS
     src/shape.cpp
     src/scene.h
     src/scene.cpp
+    src/rectangle.h
+    src/rectangle.cpp    
 )
 source_group( "src" FILES ${MAIN_SRCS} )
 
