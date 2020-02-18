@@ -3,6 +3,7 @@
 
 #include "scene.h"
 #include "rectangle.h"
+#include "fps_lock.h"
 
 #include <memory>
 
@@ -11,14 +12,11 @@ int  main()
 
 	engine::Scene scene;
 	auto rectangle = std::make_shared<engine::Rectangle>();
-	scene.addShape(rectangle);
-		
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
-
+	scene.addShape(rectangle);		
+	
 	sf::Clock clock;
 	float lastTime = 0;
-	
+	utils::FpsLock lock(20);
 	sf::Font font;
 	if (!font.loadFromFile("../arial.ttf"))
 	{
@@ -27,27 +25,11 @@ int  main()
 
 	while (true)
 	{
-	
 
-		char c[10];
-		sprintf_s(c, "%f", lastTime);
+		if (!scene.draw())
+			break;
 		
-		
-		sf::Text text;
-		text.setCharacterSize(24); 
-		text.setString(sf::String(c));
-		text.setFillColor(sf::Color::Red);
-		text.setFont(font);
-		
-
-		float currentTime = clock.restart().asSeconds();
-		float fps = 1.f / (currentTime - lastTime);
-		lastTime = currentTime;
-
-		
-		scene.draw();
-		
-		
+		lock.update();
 	}
 
 	return 0;

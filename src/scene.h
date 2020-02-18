@@ -13,7 +13,7 @@ namespace engine
 		Scene();
 
 		void addShape(const std::shared_ptr<Shape>& shape);
-		void draw();
+		bool draw();
 	private:
 		std::vector<std::shared_ptr<Shape>> shapes_;
 		sf::RenderWindow renderTarget_;

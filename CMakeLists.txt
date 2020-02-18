@@ -20,6 +20,8 @@ set ( MAIN_SRCS
     src/scene.cpp
     src/rectangle.h
     src/rectangle.cpp    
+	src/fps_lock.h
+	src/fps_lock.cpp
 )
 source_group( "src" FILES ${MAIN_SRCS} )
 

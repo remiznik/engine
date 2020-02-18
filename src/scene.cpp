@@ -1,11 +1,13 @@
 #include "scene.h"
 #include "shape.h"
 
+#include <SFML/Window/Event.hpp>
+
 namespace engine
 {
 
 	Scene::Scene() :
-		renderTarget_(sf::VideoMode(200, 200), "SFML works!")
+		renderTarget_(sf::VideoMode(500, 500), "SFML works!")
 	{		
 	}
 
@@ -13,13 +15,29 @@ namespace engine
 	{
 		shapes_.push_back(shape);
 	}
-	void Scene::draw()
+
+	bool Scene::draw()
 	{
-		renderTarget_.clear();
-		for (auto shape: shapes_)
+		if (renderTarget_.isOpen())
 		{
-			shape->draw(renderTarget_);
+			sf::Event event;
+			while (renderTarget_.pollEvent(event))
+			{
+				// Close window: exit
+				if (event.type == sf::Event::Closed)
+				{
+					renderTarget_.close();
+					return false;
+				}
+			}
+
+			renderTarget_.clear();
+			for (auto shape : shapes_)
+			{
+				shape->draw(renderTarget_);
+			}
+			renderTarget_.display();
 		}
-		renderTarget_.display();
+		return true;
 	}
 }
