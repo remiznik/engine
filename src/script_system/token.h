@@ -1,6 +1,8 @@
+#include <string>
+
 namespace script_system
 {
-	enum class Token
+	enum class TokenType
 	{
 		// Single-character tokens.                      
 		LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
@@ -19,6 +21,16 @@ namespace script_system
 		AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
 		PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 
-		EOF
+		EndOF
+	};
+
+	class Token
+	{
+	public:
+		TokenType type;
+		std::string lexeme;
+		int line;
+
+		Token(TokenType type, const std::string& lexeme, int line);		
 	};
 }

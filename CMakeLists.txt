@@ -11,6 +11,8 @@ set(SFML_DIR "${SFML_PACKAGE_DIR}/lib/cmake")
 include_directories("${SFML_PACKAGE_DIR}/include")
 link_directories("${SFML_PACKAGE_DIR}/lib")
 
+add_subdirectory ("src/script_system")
+
 # setup project
 set ( MAIN_SRCS
 	src/main.cpp
@@ -25,15 +27,12 @@ set ( MAIN_SRCS
 )
 source_group( "main" FILES ${MAIN_SRCS} )
 
-set(SCRIPT_SYSTEM_SRC 
-    src/script_system/token.h
-)
-source_group( "script_system" FILES ${SCRIPT_SYSTEM_SRC} )
-
 # add the executable
-add_executable(${PROJECT_NAME} ${MAIN_SRCS} ${SCRIPT_SYSTEM_SRC})
+add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
-target_link_libraries(${PROJECT_NAME} debug sfml-graphics-d sfml-system-d sfml-window-d)
+
+target_link_libraries(${PROJECT_NAME} debug sfml-graphics-d sfml-system-d sfml-window-d script_system)
+
 #target_link_libraries(${PROJECT_NAME} optimized sfml-graphics sfml-system sfml-window)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
