@@ -21,12 +21,17 @@ set ( MAIN_SRCS
     src/rectangle.h
     src/rectangle.cpp    
 	src/fps_lock.h
-	src/fps_lock.cpp
+	src/fps_lock.cpp    
 )
-source_group( "src" FILES ${MAIN_SRCS} )
+source_group( "main" FILES ${MAIN_SRCS} )
+
+set(SCRIPT_SYSTEM_SRC 
+    src/script_system/token.h
+)
+source_group( "script_system" FILES ${SCRIPT_SYSTEM_SRC} )
 
 # add the executable
-add_executable(${PROJECT_NAME} ${MAIN_SRCS})
+add_executable(${PROJECT_NAME} ${MAIN_SRCS} ${SCRIPT_SYSTEM_SRC})
 
 target_link_libraries(${PROJECT_NAME} debug sfml-graphics-d sfml-system-d sfml-window-d)
 #target_link_libraries(${PROJECT_NAME} optimized sfml-graphics sfml-system sfml-window)
