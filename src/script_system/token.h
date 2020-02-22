@@ -31,6 +31,8 @@ namespace script_system
 		std::string lexeme;
 		int line;
 
-		Token(TokenType type, const std::string& lexeme, int line);		
+		Token(TokenType type, const std::string& lexeme, int line);	
+
+		std::string toString() const;
 	};
 }
