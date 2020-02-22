@@ -1,6 +1,10 @@
 set(SCRIPT_SYSTEM_SRC 
     token.h
     token.cpp
+    scanner.h
+    scanner.cpp
+    script.h
+    script.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 
