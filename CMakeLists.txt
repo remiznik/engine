@@ -22,7 +22,11 @@ include_directories("${SFML_PACKAGE_DIR}/include")
 link_directories("${SFML_PACKAGE_DIR}/${LIB_NAME}")
 message("${SFML_PACKAGE_DIR}/${LIB_NAME}" )
 
+add_subdirectory ("src/core")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
+
 add_subdirectory ("src/script_system")
+
 
 # setup project
 set ( MAIN_SRCS
@@ -43,7 +47,7 @@ add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
 #target_link_libraries(${PROJECT_NAME} debug sfml-graphics sfml-system-d sfml-window-d script_system)
-target_link_libraries(${PROJECT_NAME} optimized sfml-graphics sfml-system sfml-window script_system)
+target_link_libraries(${PROJECT_NAME} optimized sfml-graphics sfml-system sfml-window core script_system )
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

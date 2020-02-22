@@ -2,8 +2,7 @@
 
 namespace script_system
 {
-	Scanner::Scanner()
-	{
-		
-	}
+	Scanner::Scanner(const string& source ) 
+		: source_(source)
+	{}
 }

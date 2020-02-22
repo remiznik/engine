@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
-#include <vector>
+
+#include "core/types.h"
 
 #include "token.h"
 
@@ -9,10 +9,10 @@ namespace script_system
 	class Scanner
 	{
 		public:
-			Scanner();
+			Scanner(const string& source);
 
 	private:
-		std::string source_;
-		std::vector<TokenType> tokens_;
+		string source_;
+		vector<TokenType> tokens_;
 	};
 }
