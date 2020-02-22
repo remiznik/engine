@@ -1,3 +1,4 @@
+#pragma once
 #include "shape.h"
 
 #include <SFML/Graphics/RectangleShape.hpp>

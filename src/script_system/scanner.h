@@ -1,4 +1,8 @@
+#pragma once
 #include <string>
+#include <vector>
+
+#include "token.h"
 
 namespace script_system
 {
@@ -6,5 +10,9 @@ namespace script_system
 	{
 		public:
 			Scanner();
+
+	private:
+		std::string source_;
+		std::vector<TokenType> tokens_;
 	};
 }

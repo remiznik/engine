@@ -1,3 +1,5 @@
+#pragma once
+
 namespace sf
 {
 	class RenderWindow;
