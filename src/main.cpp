@@ -1,6 +1,8 @@
 #include <SFML/Graphics.hpp>
 
 
+#include "script_system/script.h"
+
 #include "scene.h"
 #include "rectangle.h"
 #include "fps_lock.h"
@@ -9,6 +11,7 @@
 
 int  main()
 {
+	script_system::Script script;
 
 	engine::Scene scene;
 	auto rectangle = std::make_shared<engine::Rectangle>();
