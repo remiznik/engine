@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include <windows.h>
+
 
 #include "scene.h"
 #include "rectangle.h"
