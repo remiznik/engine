@@ -64,6 +64,20 @@ namespace script_system
 		tokens_.push_back(Token(type, lexeme, value, line_));
 	}
 
+	bool Scanner::match(char expected)
+	{
+		if (isEnd()) return false;
+		if (source_[current_] != expected) return false;
+
+		current_++;
+		return true;
+	}
+
+	char Scanner::peek()
+	{
+		if (isEnd()) return '\0';
+		return source_[current_];
+	}
 
 
 	void Scanner::scanToken()
@@ -81,6 +95,23 @@ namespace script_system
 		case '+': addToken(TokenType::PLUS); break;
 		case ';': addToken(TokenType::SEMICOLON); break;
 		case '*': addToken(TokenType::STAR); break;
+		case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
+		case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+		case '<': addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS); break;
+		case '>': addToken(match('>') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
+		case '/':
+		{
+			if (match('/'))
+			{
+				// comment gose until end of line
+				while(peek() != '\n' && !isEnd()) advance();
+			}
+			else
+			{
+				addToken(TokenType::SLASH);
+			}			
+		}
+
 		default:
 		{
 			auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);

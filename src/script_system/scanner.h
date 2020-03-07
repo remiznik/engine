@@ -18,10 +18,13 @@ namespace script_system
 
 	private:
 		bool isEnd();
+		bool match(char expected);
+		char peek();
 		void scanToken();
 		void addToken(TokenType type);
 		void addToken(TokenType type, core::Value value);
 		char advance();
+
 
 	private:
 		core::Logger& loggre_;
