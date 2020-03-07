@@ -91,8 +91,8 @@ namespace script_system
 		};
 	}
 
-	Token::Token(TokenType type, const std::string& lexeme, int line)
-		: type(type), lexeme(lexeme), line(line)
+	Token::Token(TokenType type, const std::string& lexeme, core::Value value, int line)
+		: type(type), lexeme(lexeme), value(value), line(line)
 	{
 	}
 

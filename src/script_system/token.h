@@ -1,5 +1,7 @@
 #include <string>
 
+#include "core/value.h"
+
 namespace script_system
 {
 	enum class TokenType
@@ -30,8 +32,9 @@ namespace script_system
 		TokenType type;
 		std::string lexeme;
 		int line;
+		core::Value value;
 
-		Token(TokenType type, const std::string& lexeme, int line);	
+		Token(TokenType type, const std::string& lexeme, core::Value value, int line);	
 
 		std::string toString() const;
 	};
