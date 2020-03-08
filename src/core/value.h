@@ -1,5 +1,8 @@
 #pragma once
+
 #include "core/types.h"
+#include "core/any_value.h"
+
 
 namespace core
 {
@@ -8,8 +11,11 @@ namespace core
     public:
         Value();
         Value(const string& value);
+        Value(const Value& othe);
+
 
     private:
-        string value_;
+      ValueType type_ { ValueType::None };
+      AnyValue value_; 
     };
 }

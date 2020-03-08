@@ -5,6 +5,9 @@ set(CORE_SRC
     value.cpp
     logger.h
     logger.cpp
+    any_value.h
+    value_impl.h
+    value_impl.cpp
 )
 add_library( core ${CORE_SRC} )
 target_link_libraries(core optimized sfml-graphics)
