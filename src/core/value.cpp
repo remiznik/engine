@@ -1,4 +1,5 @@
 #include "value.h"
+#include "value_impl.h"
 
 namespace core
 {
@@ -12,7 +13,9 @@ namespace core
 
     Value::Value(const Value& other)
     {
-        type_ = other.type_;
-        //value_ = other.value_;
+        getValueImpl(type_)->freeValue(value_);
+        getValueImpl(type_)->copyValue(other.value_, value_);
+
+        type_ = other.type_;        
     }
 }

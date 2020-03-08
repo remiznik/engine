@@ -19,7 +19,9 @@ namespace script_system
 	private:
 		bool isEnd();
 		bool match(char expected);
+		bool isDigit(char c) const;
 		char peek();
+		void getNumber();
 		void getString();
 		void scanToken();
 		void addToken(TokenType type);

@@ -46,6 +46,11 @@ namespace script_system
 	{
 		return current_ >= source_.size();
 	}
+	
+	bool Scanner::isDigit(char c) const 
+	{
+		return c >= '0' && c <= '9';
+	}
 
 	char Scanner::advance()
 	{
@@ -77,6 +82,13 @@ namespace script_system
 	{
 		if (isEnd()) return '\0';
 		return source_[current_];
+	}
+
+	void Scanner::getNumber()
+	{
+		while(isDigit(peek())) advance();
+
+		if (peek() == '.' && isDigit(peekNext()))
 	}
 
 	void Scanner::getString()
@@ -141,8 +153,15 @@ namespace script_system
 
 			default:
 			{
-				auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);
-				loggre_.write(msg);
+				if (isDigit(c))
+				{
+					getNumber();
+				}
+				else
+				{
+					auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);
+					loggre_.write(msg);
+				}
 				break;
 			}
 		}
