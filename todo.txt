@@ -1,0 +1,2 @@
+1. Value must work with int, double, string 
+2. Rework log Error for Scanner

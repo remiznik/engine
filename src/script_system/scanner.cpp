@@ -79,46 +79,72 @@ namespace script_system
 		return source_[current_];
 	}
 
+	void Scanner::getString()
+	{
+		while(peek() != '"' && !isEnd()) {
+			if (peek() == '\n') line_++;
+			advance();
+		}
+
+		if (isEnd())
+		{
+			auto msg = ScannerErrorMessage(string("Untermnated string"), line_);
+			loggre_.write(msg);	
+			return;
+		}
+
+		advance();
+
+		auto text = source_.substr(start_ + 1, current_ + 1);
+		addToken(TokenType::STRING, core::Value(text));
+	}
 
 	void Scanner::scanToken()
 	{
 		char c = advance();
 		switch (c)
 		{
-		case '(': addToken(TokenType::LEFT_PAREN); break;
-		case ')': addToken(TokenType::RIGHT_PAREN); break;
-		case '{': addToken(TokenType::LEFT_BRACE); break;
-		case '}': addToken(TokenType::RIGHT_BRACE); break;
-		case ',': addToken(TokenType::COMMA); break;
-		case '.': addToken(TokenType::DOT); break;
-		case '-': addToken(TokenType::MINUS); break;		
-		case '+': addToken(TokenType::PLUS); break;
-		case ';': addToken(TokenType::SEMICOLON); break;
-		case '*': addToken(TokenType::STAR); break;
-		case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
-		case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
-		case '<': addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS); break;
-		case '>': addToken(match('>') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
-		case '/':
-		{
-			if (match('/'))
+			case '(': addToken(TokenType::LEFT_PAREN); break;
+			case ')': addToken(TokenType::RIGHT_PAREN); break;
+			case '{': addToken(TokenType::LEFT_BRACE); break;
+			case '}': addToken(TokenType::RIGHT_BRACE); break;
+			case ',': addToken(TokenType::COMMA); break;
+			case '.': addToken(TokenType::DOT); break;
+			case '-': addToken(TokenType::MINUS); break;		
+			case '+': addToken(TokenType::PLUS); break;
+			case ';': addToken(TokenType::SEMICOLON); break;
+			case '*': addToken(TokenType::STAR); break;
+			case '!': addToken(match('=') ? TokenType::BANG_EQUAL : TokenType::BANG); break;
+			case '=': addToken(match('=') ? TokenType::EQUAL_EQUAL : TokenType::EQUAL); break;
+			case '<': addToken(match('=') ? TokenType::LESS_EQUAL : TokenType::LESS); break;
+			case '>': addToken(match('>') ? TokenType::GREATER_EQUAL : TokenType::GREATER); break;
+			case '/':
 			{
-				// comment gose until end of line
-				while(peek() != '\n' && !isEnd()) advance();
+				if (match('/'))
+				{
+					// comment gose until end of line
+					while(peek() != '\n' && !isEnd()) advance();
+				}
+				else
+				{
+					addToken(TokenType::SLASH);
+				}			
 			}
-			else
+			case ' ':
+			case '\r':
+			case '\t':
+				break;
+			case '\n':
+				line_++;
+				break;
+			case '"': getString(); break;
+
+			default:
 			{
-				addToken(TokenType::SLASH);
-			}			
-		}
-
-		default:
-		{
-			auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);
-			loggre_.write(msg);
-			break;
-		}
-
+				auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);
+				loggre_.write(msg);
+				break;
+			}
 		}
 
 	}

@@ -20,6 +20,7 @@ namespace script_system
 		bool isEnd();
 		bool match(char expected);
 		char peek();
+		void getString();
 		void scanToken();
 		void addToken(TokenType type);
 		void addToken(TokenType type, core::Value value);

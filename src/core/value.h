@@ -1,4 +1,5 @@
 #pragma once
+#include "core/types.h"
 
 namespace core
 {
@@ -6,5 +7,9 @@ namespace core
     {
     public:
         Value();
+        Value(const string& value);
+
+    private:
+        string value_;
     };
 }
