@@ -7,6 +7,11 @@ namespace core
         : type_(ValueType::None)
     {}
 
+    Value::Value(double value)
+        : type_(ValueType::Double)
+    {}
+
+
     Value::Value(const string& value)
         : type_(ValueType::String)
     {}

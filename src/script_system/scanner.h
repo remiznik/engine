@@ -21,6 +21,7 @@ namespace script_system
 		bool match(char expected);
 		bool isDigit(char c) const;
 		char peek();
+		char peekNext();
 		void getNumber();
 		void getString();
 		void scanToken();

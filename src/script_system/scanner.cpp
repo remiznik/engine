@@ -89,6 +89,14 @@ namespace script_system
 		while(isDigit(peek())) advance();
 
 		if (peek() == '.' && isDigit(peekNext()))
+		{
+			advance();
+
+			while(isDigit(peek())) advance();
+		}
+
+		auto text = source_.substr(start_, current_);
+		addToken(TokenType::NUMBER, core::Value(std::stod(text)))
 	}
 
 	void Scanner::getString()

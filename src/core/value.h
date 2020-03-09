@@ -12,6 +12,7 @@ namespace core
         Value();
         Value(const string& value);
         Value(const Value& othe);
+        Value(double value);
 
 
     private:
