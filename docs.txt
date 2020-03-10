@@ -1,2 +1,26 @@
+# script language
+https://craftinginterpreters.com/
+https://solarianprogrammer.com/2018/01/10/writing-minimal-x86-64-jit-compiler-cpp/
+https://github.com/DmitrySoshnikov/asmjit
+
 # game engine 
+
+## scene graph1
+https://en.wikipedia.org/wiki/Quadtree
 https://www.gamedev.net/forums/topic/349829-scene-graph-resources/
+
+## memory menegment 
+https://www.gamedev.net/articles/programming/general-and-gameplay-programming/c-custom-memory-allocation-r3010/
+https://github.com/mtrebi/memory-allocators
+http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/
+
+## parall
+rcu algorithms 
+http://scrutator.me/post/2012/12/18/new-ctors-p2.aspx
+http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx
+
+# maybe need 
+https://habr.com/ru/post/34321  наибольшая возростаюшая последовательность 
+
+# videos 
+https://www.youtube.com/watch?v=LLCgPUYLkSE
