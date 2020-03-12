@@ -20,11 +20,14 @@ namespace script_system
 		bool isEnd();
 		bool match(char expected);
 		bool isDigit(char c) const;
+		bool isAlpha(char c) const;
+		bool isAlphaNumeric(char c) const;
 		char peek();
 		char peekNext();
 		void getNumber();
 		void getString();
 		void scanToken();
+		void identifier();
 		void addToken(TokenType type);
 		void addToken(TokenType type, core::Value value);
 		char advance();
@@ -35,8 +38,8 @@ namespace script_system
 		string source_;
 		vector<Token> tokens_;
 
-		uint start_ {0};
-		uint current_{0};
-		uint line_ {1};
+		int start_ {0};
+		int current_{0};
+		int line_ {1};
 	};
 }

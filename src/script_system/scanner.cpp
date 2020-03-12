@@ -23,6 +23,30 @@ namespace script_system
 			int line_;
 		};
 
+		map<string, TokenType> keywords()
+		{
+			static map<string, TokenType> keywords_
+			{
+				{ "and", TokenType::AND},
+				{ "class", TokenType::CLASS },
+				{ "else", TokenType::ELSE },
+				{ "false", TokenType::FALSE },
+				{ "for", TokenType::FOR },
+				{ "fun", TokenType::FUN },
+				{ "if", TokenType::IF },
+				{ "nil", TokenType::NIL },
+				{ "or", TokenType::OR },
+				{ "print", TokenType::PRINT },
+				{ "return", TokenType::RETURN },
+				{ "super", TokenType::SUPER },
+				{ "this", TokenType::THIS },
+				{ "true", TokenType::TRUE },
+				{ "var", TokenType::VAR },
+				{ "while", TokenType::WHILE },			
+			};
+			return keywords_;
+		}
+
 	}
 
 	Scanner::Scanner(core::Logger& logger)
@@ -96,7 +120,13 @@ namespace script_system
 		}
 
 		auto text = source_.substr(start_, current_);
-		addToken(TokenType::NUMBER, core::Value(std::stod(text)))
+		addToken(TokenType::NUMBER, core::Value(std::stod(text)));
+	}
+
+	char Scanner::peekNext()
+	{
+		if (current_ + 1 >= source_.size()) return '\0';
+		return source_[current_ + 1];
 	}
 
 	void Scanner::getString()
@@ -117,6 +147,31 @@ namespace script_system
 
 		auto text = source_.substr(start_ + 1, current_ + 1);
 		addToken(TokenType::STRING, core::Value(text));
+	}
+
+	void Scanner::identifier()
+	{
+		while (isAlphaNumeric(peek())) advance();
+		string text = source_.substr(start_, current_);
+
+
+		auto t = keywords().find(text);
+		if (t != keywords().end())
+			addToken(t->second);
+		else
+			addToken(TokenType::IDENTIFIER);
+	}
+
+	bool Scanner::isAlpha(char c) const 
+	{
+		return (c >= 'a' && c <= 'z') ||
+			(c >= 'A' && c <= 'Z') ||
+			c == '_';
+	}
+
+	bool Scanner::isAlphaNumeric(char c) const
+	{
+		return isAlpha(c) || isDigit(c);
 	}
 
 	void Scanner::scanToken()
@@ -164,6 +219,10 @@ namespace script_system
 				if (isDigit(c))
 				{
 					getNumber();
+				}
+				else if (isAlpha(c))
+				{
+					identifier();
 				}
 				else
 				{
