@@ -23,4 +23,9 @@ namespace core
 
         type_ = other.type_;        
     }
+
+	void Value::freeData()
+	{
+		getValueImpl(type_)->freeValue(value_);
+	}
 }

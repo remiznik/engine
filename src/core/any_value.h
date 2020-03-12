@@ -7,13 +7,18 @@ namespace core
     {
         AnyValue()
         {            
+			reset();
         }     
+
+		explicit AnyValue(int i) : i(i) {};
+		explicit AnyValue(double d) : d(d) {};
+		explicit AnyValue(const string& s) : s(s) {};
         ~AnyValue()
         {}
 
         void reset()
         {
-            
+			memset(this, 0, sizeof(AnyValue)); 
         }
 
         int i;
