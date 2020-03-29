@@ -5,6 +5,11 @@ set(SCRIPT_SYSTEM_SRC
     scanner.cpp
     script.h
     script.cpp
+    ast.h
+    ast.cpp
+    ast_visitor.h
+    ast_printer.h
+    ast_printer.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

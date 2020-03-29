@@ -30,7 +30,7 @@ namespace script_system
 	{
 	public:
 		TokenType type;
-		std::string lexeme;
+		string lexeme;
 		int line;
 		core::Value value;
 

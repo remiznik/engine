@@ -19,6 +19,8 @@ namespace core
 			freeData();
 		}
 
+    template<typename Type> Type get() const;
+
 	private:
 		void freeData();
 
@@ -26,4 +28,8 @@ namespace core
       ValueType type_ { ValueType::None };
       AnyValue value_; 
     };
+
+    // TODO add check type
+    template<> inline string	Value::get<string>() const	{ return value_.s; }
 }
+
