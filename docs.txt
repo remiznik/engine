@@ -1,7 +1,12 @@
 # script language
 https://craftinginterpreters.com/
+https://gameprogrammingpatterns.com/bytecode.html
 https://solarianprogrammer.com/2018/01/10/writing-minimal-x86-64-jit-compiler-cpp/
 https://github.com/DmitrySoshnikov/asmjit
+https://github.com/jamesdhutton/Interpreter
+https://www.codeproject.com/Articles/10115/Crafting-an-interpreter-Part-1-Parsing-and-Grammar
+https://ruslanspivak.com/lsbasi-part1/ simple interpreter
+
 
 # game engine 
 
@@ -13,6 +18,7 @@ https://www.gamedev.net/forums/topic/349829-scene-graph-resources/
 https://www.gamedev.net/articles/programming/general-and-gameplay-programming/c-custom-memory-allocation-r3010/
 https://github.com/mtrebi/memory-allocators
 http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/
+https://gameprogrammingpatterns.com/data-locality.html data locality
 
 ## parall
 rcu algorithms 
