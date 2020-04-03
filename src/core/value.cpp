@@ -9,8 +9,15 @@ namespace core
 
     Value::Value(double value)
         : type_(ValueType::Double)
-    {}
+    {
+		value_.d = value;
+	}
 
+	Value::Value(int value)
+		: type_(ValueType::Integer)
+	{
+		value_.i = value;
+	}
 
     Value::Value(const string& value)
         : type_(ValueType::String)

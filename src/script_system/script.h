@@ -11,6 +11,8 @@ namespace script_system
 	public:
 		Script();
 
+		void run();
+
 	private:
 		Scanner scanner_;
 		core::Logger logger_;

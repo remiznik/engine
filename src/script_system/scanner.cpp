@@ -2,6 +2,7 @@
 
 namespace script_system
 {
+	using namespace parser;
 	namespace {
 		class ScannerErrorMessage : public core::LogMessage
 		{

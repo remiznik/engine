@@ -8,80 +8,83 @@
 
 namespace script_system
 {
-	class Expr
-	{		
-	public:
-		virtual void accept(AstVisitor* visitor) = 0;
-	};
+	namespace parser {
 
-	class Binary : public Expr
-	{
-	public:
-		Binary(const shared_ptr<Expr>& l, Token o, const shared_ptr<Expr>& r)
-			: left(l), oper(o), right(r)
+		class Expr
 		{
+		public:
+			virtual void accept(AstVisitor* visitor) = 0;
+		};
 
-		}
-
-		void accept(AstVisitor* visitor) override
+		class Binary : public Expr
 		{
-			visitor->visit(this);
-		}
+		public:
+			Binary(const shared_ptr<Expr>& l, Token o, const shared_ptr<Expr>& r)
+				: left(l), oper(o), right(r)
+			{
 
-		shared_ptr<Expr> left;
-		Token oper;
-		shared_ptr<Expr> right;
+			}
 
-	};
+			void accept(AstVisitor* visitor) override
+			{
+				visitor->visit(this);
+			}
 
-	class Grouping : public Expr
-	{
-	public:
-		Grouping(const shared_ptr<Expr>& e)
-			: expression(e)
+			shared_ptr<Expr> left;
+			Token oper;
+			shared_ptr<Expr> right;
+
+		};
+
+		class Grouping : public Expr
 		{
+		public:
+			Grouping(const shared_ptr<Expr>& e)
+				: expression(e)
+			{
 
-		}
-		void accept(AstVisitor* visitor) override
+			}
+			void accept(AstVisitor* visitor) override
+			{
+				visitor->visit(this);
+			}
+
+			shared_ptr<Expr> expression;
+		};
+
+		class Literal : public Expr
 		{
-			visitor->visit(this);
-		}
+		public:
+			Literal(core::Value v)
+				: value(v)
+			{
 
-		shared_ptr<Expr> expression;
-	};
+			}
 
-	class Literal : public Expr
-	{
-	public:
-		Literal(core::Value v)
-			: value(v)
+			void accept(AstVisitor* visitor) override
+			{
+				visitor->visit(this);
+			}
+
+			core::Value value;
+		};
+
+		class Unary : public Expr
 		{
+		public:
+			Unary(Token o, const shared_ptr<Expr>& r)
+				: right(r), oper(o)
+			{
 
-		}
+			}
 
-		void accept(AstVisitor* visitor) override
-		{
-			visitor->visit(this);
-		}
+			void accept(AstVisitor* visitor) override
+			{
+				visitor->visit(this);
+			}
 
-		core::Value value;
-	};
-
-	class Unary : public Expr
-	{
-	public:
-		Unary(Token o, const shared_ptr<Expr>& r)
-			: right(r), oper(o)
-		{
-
-		}
-
-		void accept(AstVisitor* visitor) override
-		{
-			visitor->visit(this);
-		}
-
-		Token oper;
-		shared_ptr<Expr> right;
-	};
+			Token oper;
+			shared_ptr<Expr> right;
+		};
+	}
 }

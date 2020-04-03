@@ -8,6 +8,7 @@
 int  main()
 {
 	script_system::Script script;
+	script.run();
 	engine::Scene scene;
 
 	auto rectangle = std::make_shared<engine::Rectangle>();

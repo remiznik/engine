@@ -13,6 +13,7 @@ namespace core
         Value(const string& value);
         Value(const Value& othe);
         Value(double value);
+		Value(int value);
 
 		~Value()
 		{

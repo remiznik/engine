@@ -1,9 +1,9 @@
-#include <string>
+#pragma once
 
 #include "core/value.h"
 
-namespace script_system
-{
+namespace script_system {
+namespace parser {
 	enum class TokenType
 	{
 		// Single-character tokens.                      
@@ -34,8 +34,9 @@ namespace script_system
 		int line;
 		core::Value value;
 
-		Token(TokenType type, const std::string& lexeme, core::Value value, int line);	
+		Token(TokenType type, const string& lexeme, core::Value value, int line);	
 
-		std::string toString() const;
+		string toString() const;
 	};
+}
 }

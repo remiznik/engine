@@ -8,13 +8,13 @@
 
 namespace script_system
 {
-
+	
 	class Scanner
 	{
 	public:
 		Scanner(core::Logger& logger);
 
-		vector<Token> scan(const string& source);
+		vector<parser::Token> scan(const string& source);
 
 	private:
 		bool isEnd();
@@ -28,15 +28,15 @@ namespace script_system
 		void getString();
 		void scanToken();
 		void identifier();
-		void addToken(TokenType type);
-		void addToken(TokenType type, core::Value value);
+		void addToken(parser::TokenType type);
+		void addToken(parser::TokenType type, core::Value value);
 		char advance();
 
 
 	private:
 		core::Logger& loggre_;
 		string source_;
-		vector<Token> tokens_;
+		vector<parser::Token> tokens_;
 
 		int start_ {0};
 		int current_{0};
