@@ -16,6 +16,10 @@ namespace core
             {                
             }
 
+			virtual string toChars(const AnyValue& value) override
+			{
+				return "None Type";
+			}
         };
 
         class ValueImplInt : public ValueImpl
@@ -25,10 +29,16 @@ namespace core
             {
                 value.i = 0;
             }
+
             virtual void copyValue(const AnyValue& from, AnyValue& value) override
             {
                 value.i = from.i;
             }
+
+			virtual string toChars(const AnyValue& value) override
+			{
+				return std::to_string(value.i);
+			}
 
         };
 
@@ -43,6 +53,11 @@ namespace core
             {
                 value.d = from.d;
             }
+
+			virtual string toChars(const AnyValue& value) override
+			{
+				return std::to_string(value.i);
+			}
         };
 
         class ValueImplSting : public ValueImpl
@@ -56,6 +71,10 @@ namespace core
             {
                 value.s = from.s;
             }
+			virtual string toChars(const AnyValue& value) override
+			{
+				return value.s;
+			}
 
         };
 

@@ -6,7 +6,7 @@ namespace core
     Value::Value()
         : type_(ValueType::None)
     {}
-
+		
     Value::Value(double value)
         : type_(ValueType::Double)
     {
@@ -26,7 +26,8 @@ namespace core
     Value::Value(const Value& other)
     {
         getValueImpl(type_)->freeValue(value_);
-        getValueImpl(type_)->copyValue(other.value_, value_);
+
+        getValueImpl(other.type_)->copyValue(other.value_, value_);
 
         type_ = other.type_;        
     }
@@ -34,5 +35,10 @@ namespace core
 	void Value::freeData()
 	{
 		getValueImpl(type_)->freeValue(value_);
+	}
+
+	string Value::toChars() const
+	{
+		return getValueImpl(type_)->toChars(value_);
 	}
 }

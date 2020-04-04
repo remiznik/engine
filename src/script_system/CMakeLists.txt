@@ -14,6 +14,6 @@ set(SCRIPT_SYSTEM_SRC
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 
 
-target_link_libraries(script_system optimized core)
+target_link_libraries(script_system debug core)
 
 target_include_directories (script_system PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

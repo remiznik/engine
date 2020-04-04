@@ -10,19 +10,23 @@ namespace core
     {
     public:
         Value();
-        Value(const string& value);
-        Value(const Value& othe);
+		Value(const Value& othe);
+
+        Value(const string& value);        
         Value(double value);
 		Value(int value);
+		
+
 
 		~Value()
 		{
 			freeData();
 		}
 
-    template<typename Type> Type get() const;
+		template<typename T> T to() const;
 
 	private:
+		string toChars() const;
 		void freeData();
 
     private:
@@ -30,7 +34,7 @@ namespace core
       AnyValue value_; 
     };
 
-    // TODO add check type
-    template<> inline string	Value::get<string>() const	{ return value_.s; }
+        
+	template<> inline string		Value::to<string>() const { return toChars(); }
 }
 

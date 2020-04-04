@@ -7,23 +7,25 @@
 
 namespace script_system
 {
-	class Expr;
+	namespace parser {
+		class Expr;
 
-	class AstPrinter : public AstVisitor
-	{
-	public:
-		AstPrinter();
+		class AstPrinter : public AstVisitor
+		{
+		public:
+			AstPrinter();
 
-		string print(const shared_ptr<Expr>& expr);
+			string print(const shared_ptr<Expr>& expr);
 
-		virtual void visit(class Binary* expr) override;
-		virtual void visit(class Grouping* expr) override;
-		virtual void visit(class Literal* expr) override;
-		virtual void visit(class Unary* expr) override;
-	private:
-		void parenthesize(const string& name, const vector<shared_ptr<Expr>>& exprs);
-		void parenthesize(const vector<shared_ptr<Expr>>& exprs, const string& name);
+			virtual void visit(class Binary* expr) override;
+			virtual void visit(class Grouping* expr) override;
+			virtual void visit(class Literal* expr) override;
+			virtual void visit(class Unary* expr) override;
+		private:
+			void parenthesize(const string& name, const vector<shared_ptr<Expr>>& exprs);
+			void parenthesize(const vector<shared_ptr<Expr>>& exprs, const string& name);
 
-		string result_;
-	};
+			string result_;
+		};
+	}
 }
