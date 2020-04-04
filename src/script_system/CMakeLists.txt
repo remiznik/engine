@@ -10,6 +10,8 @@ set(SCRIPT_SYSTEM_SRC
     ast_visitor.h
     ast_printer.h
     ast_printer.cpp
+    parser.h
+    parser.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

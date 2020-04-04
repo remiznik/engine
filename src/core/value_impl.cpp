@@ -22,6 +22,23 @@ namespace core
 			}
         };
 
+        class ValueImplBool : public ValueImpl
+        {
+        public:
+            virtual void freeValue(AnyValue& value) override
+            {
+                value.reset();
+            }
+            virtual void copyValue(const AnyValue& from, AnyValue& value) override
+            {                
+            }
+
+			virtual string toChars(const AnyValue& value) override
+			{
+				return value.b ? "true" : "false";
+			}
+        };
+
         class ValueImplInt : public ValueImpl
         {
         public:
@@ -78,9 +95,10 @@ namespace core
 
         };
 
-        static std::array<ValueImpl*, sizeof(ValueType)> g_imps =
+        static std::array<ValueImpl*, 5> g_imps =
             {
                 new ValueImplNone,
+                new ValueImplBool,
                 new ValueImplInt,
                 new ValueImplDouble,
                 new ValueImplSting

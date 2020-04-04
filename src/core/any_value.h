@@ -13,6 +13,7 @@ namespace core
 		explicit AnyValue(int i) : i(i) {};
 		explicit AnyValue(double d) : d(d) {};
 		explicit AnyValue(const string& s) : s(s) {};
+        explicit AnyValue(bool b) : b(b) {}
         ~AnyValue()
         {}
 
@@ -21,6 +22,7 @@ namespace core
 			memset(this, 0, sizeof(AnyValue)); 
         }
 
+        bool b;
         int i;
         double d;
         string s;
@@ -29,6 +31,7 @@ namespace core
     enum class ValueType
     {
         None,
+        Bool,
         Integer,
         Double,
         String

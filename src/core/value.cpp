@@ -21,7 +21,15 @@ namespace core
 
     Value::Value(const string& value)
         : type_(ValueType::String)
-    {}
+    {
+        value_.s = value;
+    }
+
+    Value::Value(bool value)
+        : type_(ValueType::Bool)
+    {
+        value_.b = value;
+    }
 
     Value::Value(const Value& other)
     {

@@ -15,8 +15,8 @@ namespace core
         Value(const string& value);        
         Value(double value);
 		Value(int value);
+		Value(bool value);
 		
-
 
 		~Value()
 		{

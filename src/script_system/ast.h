@@ -16,6 +16,8 @@ namespace script_system
 			virtual void accept(AstVisitor* visitor) = 0;
 		};
 
+		using ExprPtr = shared_ptr<Expr>;
+
 		class Binary : public Expr
 		{
 		public:

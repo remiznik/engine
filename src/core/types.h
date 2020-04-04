@@ -14,3 +14,10 @@ using map = std::map<Key, T, Comparator>;
 
 template <class T>
 using shared_ptr = std::shared_ptr<T>;
+
+template<class T, class _Alloc = std::allocator<T>, class... _Types>
+shared_ptr<T> makeShared(_Types&&... _Args)
+{
+    static const _Alloc alloc;
+    return std::allocate_shared<T, _Alloc>(alloc, std::forward<_Types>(_Args)...);
+}
