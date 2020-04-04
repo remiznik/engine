@@ -56,6 +56,7 @@ namespace script_system
 
 	vector<Token> Scanner::scan(const string& source)
 	{
+		source_ = source;
 		while(!isEnd())
 		{
 			start_ = current_;
@@ -90,7 +91,7 @@ namespace script_system
 
 	void Scanner::addToken(TokenType type, core::Value value)
 	{
-		auto lexeme = source_.substr(start_, current_);
+		auto lexeme = source_.substr(start_, current_ - start_);
 		tokens_.push_back(Token(type, lexeme, value, line_));
 	}
 
