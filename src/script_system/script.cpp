@@ -16,7 +16,7 @@ namespace script_system
 
 	void Script::run()
 	{
-		auto tokens = scanner_.scan("6/3-1");
+		auto tokens = scanner_.scan("\"fsf\" + \"fdfs\"");
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		shared_ptr<Expr> exp = std::make_shared<Binary>(
@@ -26,8 +26,9 @@ namespace script_system
 			);
 		//shared_ptr<Expr> exp = std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)));
 			
-		AstPrinter printer;
-		auto result = printer.print(t);
+		
+		auto result = interpreter_.interpret(t);
+		
 		double x = 3;
 	}
 }

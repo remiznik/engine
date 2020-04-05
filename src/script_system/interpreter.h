@@ -3,6 +3,7 @@
 #include "core/value.h"
 
 #include "ast_visitor.h"
+#include "ast.h"
 
 namespace script_system
 {
@@ -12,10 +13,12 @@ namespace script_system
 		class Interpreter : public AstVisitor
 		{		
 			public:
-				core::Value visitLiteralExpr(Literal* expr);
-				core::Value visitGroupingExpr(Grouping* expr);
-				core::Value visitUnaryExpr(Unary* expr);
-				core::Value visitBinaryExpr(Binary* expr);
+				string interpret(ExprPtr expr);
+
+				core::Value visit(Literal* expr);
+				core::Value visit(Grouping* expr);
+				core::Value visit(Unary* expr);
+				core::Value visit(Binary* expr);
 
 				core::Value evaluate(Expr* expr);
 		};

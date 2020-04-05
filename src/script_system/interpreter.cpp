@@ -5,17 +5,24 @@
 namespace script_system{
     namespace parser {
 
-        core::Value Interpreter::visitLiteralExpr(Literal* expr)
+		string Interpreter::interpret(ExprPtr expr)
+		{
+			auto result = evaluate(expr.get());
+
+			return result.to<string>();
+		}
+
+        core::Value Interpreter::visit(Literal* expr)
         {
             return expr->value;
         }
 
-        core::Value Interpreter::visitGroupingExpr(Grouping* expr)
+        core::Value Interpreter::visit(Grouping* expr)
         {
             return evaluate(expr->expression.get());
         }
 
-        core::Value Interpreter::visitUnaryExpr(Unary* expr)
+        core::Value Interpreter::visit(Unary* expr)
         {
             core::Value rigth = evaluate(expr->right.get());
 
@@ -32,7 +39,7 @@ namespace script_system{
             return core::Value();
         }
 
-        core::Value Interpreter::visitBinaryExpr(Binary* expr)
+        core::Value Interpreter::visit(Binary* expr)
         {
             core::Value left = evaluate(expr->left.get());
             core::Value right = evaluate(expr->right.get());

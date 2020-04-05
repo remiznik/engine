@@ -3,6 +3,7 @@
 #include "core/logger.h"
 
 #include "scanner.h"
+#include "interpreter.h"
 
 namespace script_system
 {
@@ -15,6 +16,7 @@ namespace script_system
 
 	private:
 		Scanner scanner_;
+		parser::Interpreter interpreter_;
 		core::Logger logger_;
 	};
 }

@@ -143,7 +143,7 @@ namespace core
 
 			virtual string toChars(const AnyValue& value) const override
 			{
-				return std::to_string(value.i);
+				return std::to_string(value.d);
 			}
 
             virtual double toDouble(const AnyValue& value) const override
