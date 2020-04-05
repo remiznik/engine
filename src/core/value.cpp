@@ -49,4 +49,14 @@ namespace core
 	{
 		return getValueImpl(type_)->toChars(value_);
 	}
+
+    double Value::toDouble() const
+	{
+		return getValueImpl(type_)->toDouble(value_);
+	}
+
+    bool Value::toBool() const 
+    {
+        return getValueImpl(type_)->toBool(value_);
+    }
 }

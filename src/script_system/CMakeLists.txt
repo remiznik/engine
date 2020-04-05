@@ -12,6 +12,8 @@ set(SCRIPT_SYSTEM_SRC
     ast_printer.cpp
     parser.h
     parser.cpp
+    interpreter.h
+    interpreter.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

@@ -23,10 +23,14 @@ namespace core
 			freeData();
 		}
 
+		template<typename T> T get() const;		
+
 		template<typename T> T to() const;
 
 	private:
 		string toChars() const;
+		double toDouble() const;
+		bool toBool() const;
 		void freeData();
 
     private:
@@ -36,5 +40,8 @@ namespace core
 
         
 	template<> inline string		Value::to<string>() const { return toChars(); }
+
+	template<> inline double 		Value::get<double>() const { return toDouble(); }
+	template<> inline bool 			Value::get<bool>() const { return toBool(); }
 }
 

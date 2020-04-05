@@ -14,11 +14,12 @@ namespace script_system {
 			return result_;
 		}
 
-		void AstPrinter::visit(Binary* expr)
+		core::Value AstPrinter::visit(Binary* expr)
 		{
 			parenthesize(expr->oper.lexeme, { expr->left, expr->right });
 			//vector<shared_ptr<Expr>> exprs({ expr->left, expr->right });
 			//parenthesize(exprs, expr->oper.lexeme);
+			return core::Value();
 		}
 
 		void AstPrinter::parenthesize(const string & name, const vector<shared_ptr<Expr>>& exprs)
@@ -45,20 +46,23 @@ namespace script_system {
 
 		}
 
-		void AstPrinter::visit(Grouping * expr)
+		core::Value AstPrinter::visit(Grouping * expr)
 		{
 			parenthesize("group", { expr->expression });
+			return core::Value();
 		}
 
-		void AstPrinter::visit(Literal * expr)
+		core::Value AstPrinter::visit(Literal * expr)
 		{
 
 			result_.append(expr->value.to<string>());
+			return core::Value();
 		}
 
-		void AstPrinter::visit(Unary * expr)
+		core::Value AstPrinter::visit(Unary * expr)
 		{
 			parenthesize(expr->oper.lexeme, { expr->right });
+			return core::Value();
 		}
 
 	}

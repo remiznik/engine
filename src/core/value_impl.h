@@ -9,6 +9,8 @@ namespace core
         virtual void freeValue(AnyValue& value) = 0;
         virtual void copyValue(const AnyValue& from, AnyValue& value) = 0;
 		virtual string toChars(const AnyValue& value) = 0;
+        virtual double toDouble(const AnyValue& value) = 0;
+        virtual bool toBool(const AnyValue& value) = 0;
     };
 
     ValueImpl* getValueImpl(ValueType type);

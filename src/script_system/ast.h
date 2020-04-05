@@ -6,6 +6,7 @@
 #include "ast_visitor.h"
 #include "token.h"
 
+
 namespace script_system
 {
 	namespace parser {
@@ -13,7 +14,7 @@ namespace script_system
 		class Expr
 		{
 		public:
-			virtual void accept(AstVisitor* visitor) = 0;
+			virtual core::Value accept(AstVisitor* visitor) = 0;
 		};
 
 		using ExprPtr = shared_ptr<Expr>;
@@ -27,9 +28,9 @@ namespace script_system
 
 			}
 
-			void accept(AstVisitor* visitor) override
+			core::Value accept(AstVisitor* visitor) override
 			{
-				visitor->visit(this);
+				return visitor->visit(this);
 			}
 
 			shared_ptr<Expr> left;
@@ -46,9 +47,9 @@ namespace script_system
 			{
 
 			}
-			void accept(AstVisitor* visitor) override
+			core::Value accept(AstVisitor* visitor) override
 			{
-				visitor->visit(this);
+				return visitor->visit(this);
 			}
 
 			shared_ptr<Expr> expression;
@@ -63,9 +64,9 @@ namespace script_system
 
 			}
 
-			void accept(AstVisitor* visitor) override
+			core::Value accept(AstVisitor* visitor) override
 			{
-				visitor->visit(this);
+				return visitor->visit(this);
 			}
 
 			core::Value value;
@@ -80,9 +81,9 @@ namespace script_system
 
 			}
 
-			void accept(AstVisitor* visitor) override
+			core::Value accept(AstVisitor* visitor) override
 			{
-				visitor->visit(this);
+				return visitor->visit(this);
 			}
 
 			Token oper;

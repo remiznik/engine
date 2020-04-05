@@ -1,3 +1,4 @@
+#include "core/types.h"
 #include "core/value_impl.h"
 #include <array>
 
@@ -20,6 +21,16 @@ namespace core
 			{
 				return "None Type";
 			}
+
+            virtual double toDouble(const AnyValue& value) override
+			{
+				return 0;
+			}
+
+            virtual bool toBool(const AnyValue& value) override
+			{
+				return false;
+			}
         };
 
         class ValueImplBool : public ValueImpl
@@ -36,6 +47,16 @@ namespace core
 			virtual string toChars(const AnyValue& value) override
 			{
 				return value.b ? "true" : "false";
+			}
+
+            virtual double toDouble(const AnyValue& value) override
+			{
+				return value.b ? 1.0 : 0.0;
+			}
+
+            virtual bool toBool(const AnyValue& value) override
+			{
+				return value.b;
 			}
         };
 
@@ -57,6 +78,16 @@ namespace core
 				return std::to_string(value.i);
 			}
 
+            virtual double toDouble(const AnyValue& value) override
+			{
+				return double(value.i);
+			}
+
+            virtual bool toBool(const AnyValue& value) override
+			{
+				return value.i != 0;
+			}
+
         };
 
         class ValueImplDouble : public ValueImpl
@@ -75,6 +106,16 @@ namespace core
 			{
 				return std::to_string(value.i);
 			}
+
+            virtual double toDouble(const AnyValue& value) override
+			{
+				return value.d;
+			}
+
+            virtual bool toBool(const AnyValue& value) override
+			{
+				return value.d != 0.0;
+			}
         };
 
         class ValueImplSting : public ValueImpl
@@ -91,6 +132,16 @@ namespace core
 			virtual string toChars(const AnyValue& value) override
 			{
 				return value.s;
+			}
+
+            virtual double toDouble(const AnyValue& value) override
+			{
+				return std::stod(value.s);
+			}
+
+            virtual bool toBool(const AnyValue& value) override
+			{
+				return !value.s.empty();
 			}
 
         };
