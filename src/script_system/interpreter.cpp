@@ -56,10 +56,9 @@ namespace script_system{
 			case TokenType::LESS_EQUAL:
 				return core::Value(left.get<double>() <= right.get<double>());
 			case TokenType::BANG_EQUAL:
-				return core::Value(left.get<double>() != right.get<double>());
+				return core::Value(!(left == right));
 			case TokenType::EQUAL_EQUAL:
-				return core::Value(left.get<double>() == right.get<double>());
-            
+				return core::Value(left == right);
             default:
                 break;
             }

@@ -23,6 +23,10 @@ namespace core
 			freeData();
 		}
 
+		ValueType type() const { return type_; }
+
+		bool operator==(const Value& value) const;
+
 		template<typename T> T get() const;		
 
 		template<typename T> T to() const;
@@ -30,6 +34,7 @@ namespace core
 	private:
 		string toChars() const;
 		double toDouble() const;
+		int toInt() const;
 		bool toBool() const;
 		void freeData();
 
@@ -43,5 +48,7 @@ namespace core
 
 	template<> inline double 		Value::get<double>() const { return toDouble(); }
 	template<> inline bool 			Value::get<bool>() const { return toBool(); }
+	template<> inline int			Value::get<int>() const { return toInt(); }
+	template<> inline string		Value::get<string>() const { return toChars(); }
 }
 

@@ -40,6 +40,11 @@ namespace core
         type_ = other.type_;        
     }
 
+	bool Value::operator==(const Value& other) const 
+	{
+		return getValueImpl(type_)->equal(*this, other);
+	}
+
 	void Value::freeData()
 	{
 		getValueImpl(type_)->freeValue(value_);
@@ -59,4 +64,9 @@ namespace core
     {
         return getValueImpl(type_)->toBool(value_);
     }
+
+	int Value::toInt() const
+	{
+		return getValueImpl(type_)->toInt(value_);
+	}
 }
