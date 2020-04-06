@@ -8,6 +8,7 @@ set(CORE_SRC
     any_value.h
     value_impl.h
     value_impl.cpp
+	assert.h
 )
 add_library( core ${CORE_SRC} )
 

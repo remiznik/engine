@@ -16,7 +16,7 @@ namespace script_system
 
 	void Script::run()
 	{
-		auto tokens = scanner_.scan("\"fsf\" + \"fdfs\"");
+		auto tokens = scanner_.scan("\"fs\" + \"fdfs\"");
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		shared_ptr<Expr> exp = std::make_shared<Binary>(

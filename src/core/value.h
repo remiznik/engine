@@ -25,7 +25,8 @@ namespace core
 
 		ValueType type() const { return type_; }
 
-		bool operator==(const Value& value) const;
+		bool operator==(const Value& other) const;
+		Value operator+(const Value& other) const;
 
 		template<typename T> T get() const;		
 

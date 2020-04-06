@@ -45,6 +45,11 @@ namespace core
 		return getValueImpl(type_)->equal(*this, other);
 	}
 
+	Value Value::operator+(const Value& other) const
+	{
+		return getValueImpl(type_)->plus(*this, other);
+	}
+
 	void Value::freeData()
 	{
 		getValueImpl(type_)->freeValue(value_);

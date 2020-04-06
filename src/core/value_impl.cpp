@@ -1,4 +1,5 @@
 #include "core/types.h"
+#include "core/assert.h"
 #include "core/value_impl.h"
 #include "core/value.h"
 #include <array>
@@ -43,6 +44,12 @@ namespace core
 				return 0;
 			}
 
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(false);
+				return Value();
+			}
+
         };
 
         class ValueImplBool : public ValueImpl
@@ -83,6 +90,12 @@ namespace core
 			virtual int toInt(const AnyValue& value) const override
 			{
 				return int(toDouble(value));
+			}
+
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(false);
+				return Value();
 			}
         };
 
@@ -125,6 +138,12 @@ namespace core
 			virtual int toInt(const AnyValue& value) const override
 			{
 				return value.i;
+			}
+
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(other.type() == ValueType::Integer);
+				return self.get<int>() + other.get<int>();
 			}
 			
         };
@@ -170,6 +189,12 @@ namespace core
 				return int(toDouble(value));
 			}
 
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(other.type() == ValueType::Double);
+				return self.get<double>() + other.get<double>();
+			}
+
         };
 
         class ValueImplSting : public ValueImpl
@@ -210,6 +235,12 @@ namespace core
 			virtual int toInt(const AnyValue& value) const override
 			{
 				return int(toDouble(value));
+			}
+
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(other.type() == ValueType::String);
+				return self.get<string>() + other.get<string>();
 			}
 
         };

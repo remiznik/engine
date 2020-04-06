@@ -133,8 +133,10 @@ namespace script_system
 
 	void Scanner::getString()
 	{
-		while(peek() != '"' && !isEnd()) {
+		size_t count = 0;
+		while(peek() != '\"' && !isEnd()) {
 			if (peek() == '\n') line_++;
+			count++;
 			advance();
 		}
 
@@ -146,9 +148,10 @@ namespace script_system
 		}
 
 		advance();
+		advance();
 
-		auto text = source_.substr(start_ + 1, current_ + 1);
-		addToken(TokenType::STRING, core::Value(text));
+		auto text = source_.substr(start_ + 1, count);
+		tokens_.push_back(Token(TokenType::STRING, text, core::Value(text), line_));		
 	}
 
 	void Scanner::identifier()
