@@ -42,7 +42,7 @@ add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
 target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
-#target_link_libraries(${PROJECT_NAME} optimized core script_system graphics sfml-graphics sfml-system sfml-window)
+target_link_libraries(${PROJECT_NAME} optimized core script_system graphics sfml-graphics sfml-system sfml-window)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD

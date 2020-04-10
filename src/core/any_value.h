@@ -1,6 +1,8 @@
 #pragma once
 #include "types.h"
 
+#include <cstring>
+
 namespace core 
 {
    union AnyValue

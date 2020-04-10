@@ -89,5 +89,21 @@ namespace script_system
 			Token oper;
 			shared_ptr<Expr> right;
 		};
+
+		class Stmt : public Expr
+		{
+		public:
+			Stmt(const shared_ptr<Expr>& e, const shared_ptr<Expr>& p)
+				:expr(e), print(p)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			shared_ptr<Expr> expr;
+			shared_ptr<Expr> print;
+		}
 	}
 }
