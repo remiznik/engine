@@ -10,7 +10,15 @@ https://ruslanspivak.com/lsbasi-part1/ simple interpreter
 
 # game engine 
 
-## scene graph1
+## render
+### books
+    Physically Based Rendering: From Theory to Implementation
+    https://www.3dgep.com/learning-directx-12-1/ directx 12
+
+## engine
+    https://www.3dgep.com/cpp-fast-track-17-ai/
+
+## scene graph
 https://en.wikipedia.org/wiki/Quadtree
 https://www.gamedev.net/forums/topic/349829-scene-graph-resources/
 
@@ -20,7 +28,7 @@ https://github.com/mtrebi/memory-allocators
 http://dmitrysoshnikov.com/compilers/writing-a-memory-allocator/
 https://gameprogrammingpatterns.com/data-locality.html data locality
 
-## parall
+## parallel
 rcu algorithms 
 http://scrutator.me/post/2012/12/18/new-ctors-p2.aspx
 http://scrutator.me/post/2012/04/04/parallel-world-p1.aspx
