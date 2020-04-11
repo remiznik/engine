@@ -4,6 +4,7 @@
 
 #include "ast_visitor.h"
 #include "ast.h"
+#include "environment.h"
 
 namespace script_system
 {
@@ -25,6 +26,9 @@ namespace script_system
 				core::Value evaluate(Expr* expr);
 			private:
 				void execute(Expr* expr);
+
+			private:
+				Environment environment_;
 		};
 	}
 }

@@ -2,70 +2,17 @@
 
 #include "core/value.h"
 
+#include "token.h"
+
 namespace script_system {
-namespace parser {
-	enum class TokenType
+	class Environment
 	{
-		// Single-character tokens.                      
-		LEFT_PAREN, 
-		RIGHT_PAREN,
-		LEFT_BRACE,
-		RIGHT_BRACE,
-		COMMA,
-		DOT,
-		MINUS, 
-		PLUS, 
-		SEMICOLON, 
-		SLASH, 
-		STAR,
+	public:		
+		void define(const string& name, core::Value value);
+		core::Value get(parser::Token token);
 
-		// One or two character tokens.                  
-		BANG,
-		BANG_EQUAL,
-		EQUAL, 
-		EQUAL_EQUAL,
-		GREATER, 
-		GREATER_EQUAL,
-		LESS, 
-		LESS_EQUAL,
 
-		// Literals.                                     
-		IDENTIFIER, 
-		STRING, 
-		NUMBER,
-
-		// Keywords.                                     
-		AND, 
-		CLASS, 
-		ELSE, 
-		FALSE, 
-		FUN, 
-		FOR, 
-		IF, 
-		NIL, 
-		OR,
-		PRINT, 
-		RETURN, 
-		SUPER, 
-		THIS, 
-		TRUE, 
-		VAR, 
-		WHILE,
-
-		EndOF
+	private:
+		map<string, core::Value> values_;
 	};
-
-	class Token
-	{
-	public:
-		TokenType type;
-		string lexeme;
-		int line;
-		core::Value value;
-
-		Token(TokenType type, const string& lexeme, core::Value value, int line);	
-
-		string toString() const;
-	};
-}
 }
