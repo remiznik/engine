@@ -13,7 +13,8 @@ operator    -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "=" | "*" | "/";
 
 binary operator rules
 
-expression      -> equality;
+expression      -> assigment;
+assigment       -> IDENTIFIER "=" assigment | equality;
 equality        -> comprasion ( ("!=" | "==") comprasion )*;
 comprasion      -> addition ( ( ">" | ">=" | "<" | "<=) addition )*;
 addition        -> multiplication ( ("-" | "+" ) multiplication )*;

@@ -46,7 +46,7 @@ namespace core
 
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
-				ASSERT(false);
+				ASSERT(false, "Value None plus");
 				return Value();
 			}
 
@@ -94,7 +94,7 @@ namespace core
 
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
-				ASSERT(false);
+				ASSERT(false, "Value bool plus");
 				return Value();
 			}
         };
@@ -142,7 +142,7 @@ namespace core
 
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
-				ASSERT(other.type() == ValueType::Integer);
+				ASSERT(other.type() == ValueType::Integer, "Value Int pluse");
 				return self.get<int>() + other.get<int>();
 			}
 			
@@ -191,7 +191,7 @@ namespace core
 
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
-				ASSERT(other.type() == ValueType::Double);
+				ASSERT(other.type() == ValueType::Double, "Value double plus");
 				return self.get<double>() + other.get<double>();
 			}
 
@@ -239,7 +239,7 @@ namespace core
 
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
-				ASSERT(other.type() == ValueType::String);
+				ASSERT(other.type() == ValueType::String, "Value string plus");
 				return self.get<string>() + other.get<string>();
 			}
 

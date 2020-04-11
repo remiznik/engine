@@ -10,7 +10,8 @@ namespace core
     {
     public:
         Value();
-		Value(const Value& othe);
+		Value(const Value& other);
+		Value& operator=(const Value& other);
 
         Value(const string& value);        
         Value(double value);

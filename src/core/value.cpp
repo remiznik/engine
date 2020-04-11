@@ -37,8 +37,19 @@ namespace core
 
         getValueImpl(other.type_)->copyValue(other.value_, value_);
 
-        type_ = other.type_;        
+        type_ = other.type_;
     }
+
+	Value& Value::operator=(const Value& other)
+	{
+		getValueImpl(type_)->freeValue(value_);
+
+        getValueImpl(other.type_)->copyValue(other.value_, value_);
+
+        type_ = other.type_;        
+
+		return *this;
+	}
 
 	bool Value::operator==(const Value& other) const 
 	{

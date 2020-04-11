@@ -20,6 +20,7 @@ namespace script_system
 			vector<ExprPtr> parse();
 
 		private:
+			ExprPtr assignment();
 			ExprPtr	varDeclaration();
 			ExprPtr declaration();
 			ExprPtr expressionStatement();

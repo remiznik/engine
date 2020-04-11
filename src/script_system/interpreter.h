@@ -24,6 +24,8 @@ namespace script_system
 				core::Value visit(StmtPrint* expr) override;
 				core::Value visit(Var* expr) override;
 				core::Value visit(Variable* expr) override;
+				core::Value visit(Assign* expr) override;
+
 
 				core::Value evaluate(Expr* expr);
 			private:

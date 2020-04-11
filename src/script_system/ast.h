@@ -150,5 +150,21 @@ namespace script_system
 
 			Token name;
 		};
+
+		class Assign : public Expr
+		{
+		public:
+			Assign(Token n, const ExprPtr& v)
+				: name(n), value(v)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+			
+			Token name;
+			ExprPtr value;
+		};
 	}
 }

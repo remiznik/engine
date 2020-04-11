@@ -1,6 +1,8 @@
 #include "parser.h"
 #include "core/logger.h"
-#include <iostream>
+#include "core/assert.h"
+
+
 namespace script_system {
 namespace parser {
 
@@ -86,7 +88,28 @@ namespace parser {
 
     ExprPtr Parser::expression()
     {
-        return equality();
+        return assignment();
+    }
+
+    ExprPtr Parser::assignment()
+    {
+        ExprPtr expr = equality();
+
+        if (match({TokenType::EQUAL}))
+        {
+            Token equals = previous();
+            ExprPtr value = assignment();
+
+            Variable* variable = dynamic_cast<Variable*>(expr.get());
+            if (variable)
+            {
+                Token name = variable->name;
+                return makeShared<Assign>(name, value);
+            }
+            std::cout << equals.toString() << std::endl;
+            ASSERT(false, "Parser::assignmet");
+        }
+        return expr;
     }
 
     ExprPtr Parser::equality()

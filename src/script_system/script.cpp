@@ -18,7 +18,7 @@ namespace script_system
 
 	void Script::run()
 	{
-		auto tokens = scanner_.scan("var b=3;\n print b+2;\n print 2*3;");
+		auto tokens = scanner_.scan("var b=3;\n b = 1;\n print b+2;\n print 2*3;");
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		//shared_ptr<Expr> exp = std::make_shared<Binary>(

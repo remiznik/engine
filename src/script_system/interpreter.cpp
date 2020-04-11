@@ -115,6 +115,15 @@ namespace script_system{
             return environment_.get(expr->name);
         }
 
+        core::Value Interpreter::visit(Assign* expr)
+        {
+            core::Value val = evaluate(expr->value.get());
+
+            environment_.assign(expr->name, val);
+
+            return val;
+        }
+
         core::Value Interpreter::evaluate(Expr* expr)
         {
             return expr->accept(this);
