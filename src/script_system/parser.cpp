@@ -32,10 +32,37 @@ namespace parser {
     }
 
 
-	ExprPtr Parser::parse()
+	vector<ExprPtr> Parser::parse()
 	{
-		return expression();
+        vector<ExprPtr> statements;
+        while( !isAtEnd())
+        {
+            statements.push_back(statement());
+        }
+
+		return statements;
 	}
+
+    ExprPtr Parser::statement()
+    {
+        if (match({TokenType::PRINT})) return printStatement();
+
+        return expressionStatement();
+    }
+
+    ExprPtr Parser::printStatement()
+    {
+        auto value  = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return makeShared<StmtPrint>(value);
+    }
+
+    ExprPtr Parser::expressionStatement()
+    {
+        auto expr  = expression();
+        consume(TokenType::SEMICOLON, "Expect ; after value");
+        return makeShared<Stmt>(expr);
+    }
 
     ExprPtr Parser::expression()
     {

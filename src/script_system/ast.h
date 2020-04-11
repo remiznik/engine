@@ -90,11 +90,11 @@ namespace script_system
 			shared_ptr<Expr> right;
 		};
 
-		class Stmt : public Expr
+		class  Stmt : public Expr
 		{
 		public:
-			Stmt(const shared_ptr<Expr>& e, const shared_ptr<Expr>& p)
-				:expr(e), print(p)
+			Stmt(const ExprPtr& e)				
+				: expr(e)
 			{}
 
 			core::Value accept(AstVisitor* visitor) override
@@ -102,8 +102,22 @@ namespace script_system
 				return visitor->visit(this);
 			}
 
-			shared_ptr<Expr> expr;
-			shared_ptr<Expr> print;
-		}
+			ExprPtr expr;
+		};
+
+		class  StmtPrint : public Expr
+		{
+		public:
+			StmtPrint(const ExprPtr& p) 
+				: print(p)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+			
+			ExprPtr print;
+		};
 	}
 }

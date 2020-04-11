@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "interpreter.h"
 
 #include "ast.h"
@@ -5,12 +7,18 @@
 namespace script_system{
     namespace parser {
 
-		string Interpreter::interpret(ExprPtr expr)
+		void Interpreter::interpret(const vector<ExprPtr>& exprs)
 		{
-			auto result = evaluate(expr.get());
-
-			return result.to<string>();
+            for (auto expr : exprs)
+            {
+                execute(expr.get());
+            }			
 		}
+
+        void Interpreter::execute(Expr* expr)
+        {
+            evaluate(expr);
+        }
 
         core::Value Interpreter::visit(Literal* expr)
         {
@@ -70,6 +78,19 @@ namespace script_system{
                 break;
             }
 
+            return core::Value();
+        }
+
+        core::Value Interpreter::visit(Stmt* expr)
+        {
+            evaluate(expr);            
+            return core::Value();
+        }
+
+        core::Value Interpreter::visit(StmtPrint* expr)
+        {
+            auto val = evaluate(expr);            
+            std::cout << val.to<string>() << std::endl;           
             return core::Value();
         }
 

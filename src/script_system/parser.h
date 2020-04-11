@@ -17,9 +17,12 @@ namespace script_system
 				 : logger_(logger), tokens_(tokens)
 			{}
 
-			ExprPtr parse();
+			vector<ExprPtr> parse();
 
 		private:
+			ExprPtr expressionStatement();
+			ExprPtr printStatement();
+			ExprPtr statement();
 			ExprPtr expression();
 			ExprPtr equality();
 			ExprPtr comparison();

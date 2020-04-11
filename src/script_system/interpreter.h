@@ -13,14 +13,18 @@ namespace script_system
 		class Interpreter : public AstVisitor
 		{		
 			public:
-				string interpret(ExprPtr expr);
+				void interpret(const vector<ExprPtr>& expr);
 
 				core::Value visit(Literal* expr);
 				core::Value visit(Grouping* expr);
 				core::Value visit(Unary* expr);
 				core::Value visit(Binary* expr);
+				core::Value visit(Stmt* expr);
+				core::Value visit(StmtPrint* expr);				
 
 				core::Value evaluate(Expr* expr);
+			private:
+				void execute(Expr* expr);
 		};
 	}
 }

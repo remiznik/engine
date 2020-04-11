@@ -16,18 +16,18 @@ namespace script_system
 
 	void Script::run()
 	{
-		auto tokens = scanner_.scan("\"fs\" + \"fdfs\"");
+		auto tokens = scanner_.scan("print 1");
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
-		shared_ptr<Expr> exp = std::make_shared<Binary>(
-				std::make_shared<Unary>(Token(TokenType::MINUS, "-", core::Value(), -1), std::make_shared<Literal>(core::Value(123))),
-				Token(TokenType::STAR, "*", core::Value(), -1),
-				std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)))
-			);
+		//shared_ptr<Expr> exp = std::make_shared<Binary>(
+		//		std::make_shared<Unary>(Token(TokenType::MINUS, "-", core::Value(), -1), std::make_shared<Literal>(core::Value(123))),
+		//		Token(TokenType::STAR, "*", core::Value(), -1),
+		//		std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)))
+		//	);
 		//shared_ptr<Expr> exp = std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)));
 			
 		
-		auto result = interpreter_.interpret(t);
+		interpreter_.interpret(t);
 		
 		double x = 3;
 	}

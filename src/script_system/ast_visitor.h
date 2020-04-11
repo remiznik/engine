@@ -12,6 +12,8 @@ namespace script_system {
 			virtual core::Value visit(class Grouping* expr) = 0;
 			virtual core::Value visit(class Literal* expr) = 0;
 			virtual core::Value visit(class Unary* expr) = 0;
+			virtual core::Value visit(class Stmt* expr) = 0;
+			virtual core::Value visit(class StmtPrint* expr) = 0;
 		};
 	}
 }
