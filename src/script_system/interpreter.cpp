@@ -94,6 +94,27 @@ namespace script_system{
             return core::Value();
         }
 
+        core::Value Interpreter::visit(Var* expr)
+        {
+            core::Value value;
+            if (expr->initilize != nullptr)
+            {
+                core::Value value = evaluate(expr->initilize.get());
+                environment_.define(expr->name.lexeme, value);
+            }
+            else
+            {
+                environment_.define(expr->name.lexeme, core::Value());
+            }            
+            
+            return core::Value();
+        }
+
+        core::Value Interpreter::visit(Variable* expr)
+        {
+            return environment_.get(expr->name);
+        }
+
         core::Value Interpreter::evaluate(Expr* expr)
         {
             return expr->accept(this);

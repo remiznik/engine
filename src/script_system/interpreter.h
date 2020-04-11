@@ -16,12 +16,14 @@ namespace script_system
 			public:
 				void interpret(const vector<ExprPtr>& expr);
 
-				core::Value visit(Literal* expr);
-				core::Value visit(Grouping* expr);
-				core::Value visit(Unary* expr);
-				core::Value visit(Binary* expr);
-				core::Value visit(Stmt* expr);
-				core::Value visit(StmtPrint* expr);				
+				core::Value visit(Literal* expr) override;
+				core::Value visit(Grouping* expr) override; 
+				core::Value visit(Unary* expr) override;
+				core::Value visit(Binary* expr) override;
+				core::Value visit(Stmt* expr) override;
+				core::Value visit(StmtPrint* expr) override;
+				core::Value visit(Var* expr) override;
+				core::Value visit(Variable* expr) override;
 
 				core::Value evaluate(Expr* expr);
 			private:
