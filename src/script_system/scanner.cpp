@@ -1,5 +1,7 @@
 #include "scanner.h"
 
+#include <iostream>
+
 namespace script_system
 {
 	using namespace parser;
@@ -24,10 +26,8 @@ namespace script_system
 			int line_;
 		};
 
-		map<string, TokenType> keywords()
+		map<string, TokenType> keywords_
 		{
-			static map<string, TokenType> keywords_
-			{
 				{ "and", TokenType::AND},
 				{ "class", TokenType::CLASS },
 				{ "else", TokenType::ELSE },
@@ -44,9 +44,16 @@ namespace script_system
 				{ "true", TokenType::TRUE },
 				{ "var", TokenType::VAR },
 				{ "while", TokenType::WHILE },			
-			};
-			return keywords_;
+		};
+		bool hasKey(const string& key)
+		{
+			return keywords_.find(key) != keywords_.end();
 		}
+		TokenType getTokenType(const string& key)
+		{
+			return keywords_.find(key)->second;
+		}
+
 
 	}
 
@@ -63,7 +70,7 @@ namespace script_system
 			scanToken();			
 		}
 
-		tokens_.push_back(Token(TokenType::EndOF, "", core::Value(), line_));
+		tokens_.push_back(Token(TokenType::EndOF, "", core::Value(), line_));		
 		return tokens_;
 	}
 
@@ -92,7 +99,8 @@ namespace script_system
 	void Scanner::addToken(TokenType type, core::Value value)
 	{
 		auto lexeme = source_.substr(start_, current_ - start_);
-		tokens_.push_back(Token(type, lexeme, value, line_));
+		auto t = Token(type, lexeme, value, line_);
+		tokens_.push_back(t);
 	}
 
 	bool Scanner::match(char expected)
@@ -158,13 +166,15 @@ namespace script_system
 	{
 		while (isAlphaNumeric(peek())) advance();
 		string text = source_.substr(start_, current_);
-
-
-		auto t = keywords().find(text);
-		if (t != keywords().end())
-			addToken(t->second);
+		
+		if (hasKey(text))
+		{
+			addToken(getTokenType(text));
+		}			
 		else
+		{
 			addToken(TokenType::IDENTIFIER);
+		}
 	}
 
 	bool Scanner::isAlpha(char c) const 

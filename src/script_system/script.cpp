@@ -5,6 +5,8 @@
 #include "ast_printer.h"
 #include "parser.h"
 
+#include <iostream>
+
 namespace script_system
 {
 	using namespace parser;
@@ -16,7 +18,7 @@ namespace script_system
 
 	void Script::run()
 	{
-		auto tokens = scanner_.scan("print 1");
+		auto tokens = scanner_.scan("print 1;\n print 2;");
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		//shared_ptr<Expr> exp = std::make_shared<Binary>(

@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "core/logger.h"
-
+#include <iostream>
 namespace script_system {
 namespace parser {
 

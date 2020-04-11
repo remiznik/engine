@@ -83,14 +83,14 @@ namespace script_system{
 
         core::Value Interpreter::visit(Stmt* expr)
         {
-            evaluate(expr);            
+            evaluate(expr->expr.get());            
             return core::Value();
         }
 
         core::Value Interpreter::visit(StmtPrint* expr)
         {
-            auto val = evaluate(expr);            
-            std::cout << val.to<string>() << std::endl;           
+            auto val = evaluate(expr->print.get());            
+            std::cout << val.to<string>() << std::endl;
             return core::Value();
         }
 
