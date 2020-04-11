@@ -119,5 +119,36 @@ namespace script_system
 			
 			ExprPtr print;
 		};
+
+		class Var : public Expr
+		{
+		public:
+			Var(Token n, const ExprPtr& i)
+				: name(n), initilize(i)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+		
+			Token name;
+			ExprPtr initilize;
+		};
+
+		class Variable : public Expr
+		{
+		public:
+			Variable(Token n)
+				: name(n)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token name;
+		};
 	}
 }

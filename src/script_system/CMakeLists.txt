@@ -14,6 +14,8 @@ set(SCRIPT_SYSTEM_SRC
     parser.cpp
     interpreter.h
     interpreter.cpp
+    environment.h
+    environment.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

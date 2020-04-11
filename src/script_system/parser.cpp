@@ -37,11 +37,31 @@ namespace parser {
         vector<ExprPtr> statements;
         while( !isAtEnd())
         {
-            statements.push_back(statement());
+            statements.push_back(declaration());
         }
 
 		return statements;
 	}
+
+    ExprPtr Parser::declaration()
+    {
+        if (match({TokenType::VAR})) return varDeclaration();
+
+        return statement();
+    }
+
+    ExprPtr Parser::varDeclaration()
+    {
+        Token name = consume(TokenType::IDENTIFIER, "Expected variable name.");
+        ExprPtr init = nullptr;
+        if (match({TokenType::EQUAL}))
+        {
+            init = expression();
+        }
+
+        consume(TokenType::SEMICOLON, "Expected ';' after variable declaration.");
+        return makeShared<Var>(name, init);
+    }
 
     ExprPtr Parser::statement()
     {
@@ -157,6 +177,9 @@ namespace parser {
         if (match({TokenType::NIL})) return makeShared<Literal>(core::Value());
 
         if (match({TokenType::NUMBER, TokenType::STRING})) return makeShared<Literal>(core::Value(previous().lexeme));
+
+        if (match({TokenType::IDENTIFIER}))
+            return makeShared<Variable>(previous());
 
         if (match({TokenType::LEFT_PAREN}))
         {

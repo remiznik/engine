@@ -61,7 +61,7 @@ namespace script_system{
             case TokenType::STAR:
                 return core::Value(left.get<double>() * right.get<double>());
             case TokenType::PLUS:
-				return left + right;
+				return left.get<double>() + right.get<double>();
 			case TokenType::GREATER:
 				return core::Value(left.get<double>() > right.get<double>());
 			case TokenType::GREATER_EQUAL:

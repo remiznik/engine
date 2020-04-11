@@ -164,17 +164,13 @@ namespace script_system
 
 	void Scanner::identifier()
 	{
-		while (isAlphaNumeric(peek())) advance();
-		string text = source_.substr(start_, current_);
+		while (isAlphaNumeric(peek())) advance();		
+		auto text = source_.substr(start_, current_ - start_);
 		
 		if (hasKey(text))
-		{
 			addToken(getTokenType(text));
-		}			
 		else
-		{
 			addToken(TokenType::IDENTIFIER);
-		}
 	}
 
 	bool Scanner::isAlpha(char c) const 
