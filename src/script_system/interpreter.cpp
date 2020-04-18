@@ -136,6 +136,20 @@ namespace script_system{
             return core::Value();
         }
 
+        core::Value Interpreter::visit(IfExpr* expr)
+        {
+            auto con = evaluate(expr->condition.get());
+            if (con.get<bool>())
+            {
+                execute(expr->thenBranch.get());
+            }
+            else if (expr->elseBranch) 
+            {
+                execute(expr->elseBranch.get());
+            }
+            return core::Value();
+        }
+
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
             auto previos = environment_;

@@ -1,7 +1,8 @@
 program     -> declaration* EOF;
 declaration -> varDecl | statement;
 varDecl     -> "var" IDENTIFIER ( "=" expression )? ";";
-statement   -> exprStmt | printStmt | block;
+statement   -> exprStmt | ifStmt | printStmt | block;
+ifStmt      -> "if" "(" expression ")" statement ( "else" statement )?; 
 bloc        -> "{" declaration "}";
 exprStmt    -> expression ";";
 printStmt   -> "print" expression ";";
@@ -15,7 +16,9 @@ operator    -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "=" | "*" | "/";
 binary operator rules
 
 expression      -> assigment;
-assigment       -> IDENTIFIER "=" assigment | equality;
+assigment       -> IDENTIFIER "=" assigment | logic_or;
+logic_or        -> logic_and ( "or"  logic_and)*;
+logic_and       -> equality ( "and"  equality )*;
 equality        -> comprasion ( ("!=" | "==") comprasion )*;
 comprasion      -> addition ( ( ">" | ">=" | "<" | "<=) addition )*;
 addition        -> multiplication ( ("-" | "+" ) multiplication )*;

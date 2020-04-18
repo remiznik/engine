@@ -22,7 +22,7 @@ namespace script_system
 		class Binary : public Expr
 		{
 		public:
-			Binary(const shared_ptr<Expr>& l, Token o, const shared_ptr<Expr>& r)
+			Binary(const ExprPtr& l, Token o, const ExprPtr& r)
 				: left(l), oper(o), right(r)
 			{
 
@@ -33,16 +33,16 @@ namespace script_system
 				return visitor->visit(this);
 			}
 
-			shared_ptr<Expr> left;
+			ExprPtr left {nullptr};
 			Token oper;
-			shared_ptr<Expr> right;
+			ExprPtr right {nullptr};
 
 		};
 
 		class Grouping : public Expr
 		{
 		public:
-			Grouping(const shared_ptr<Expr>& e)
+			Grouping(const ExprPtr& e)
 				: expression(e)
 			{
 
@@ -52,7 +52,7 @@ namespace script_system
 				return visitor->visit(this);
 			}
 
-			shared_ptr<Expr> expression;
+			ExprPtr expression {nullptr};
 		};
 
 		class Literal : public Expr
@@ -75,7 +75,7 @@ namespace script_system
 		class Unary : public Expr
 		{
 		public:
-			Unary(Token o, const shared_ptr<Expr>& r)
+			Unary(Token o, const ExprPtr& r)
 				: right(r), oper(o)
 			{
 
@@ -87,7 +87,7 @@ namespace script_system
 			}
 
 			Token oper;
-			shared_ptr<Expr> right;
+			ExprPtr right {nullptr};
 		};
 
 		class  Stmt : public Expr
@@ -102,7 +102,7 @@ namespace script_system
 				return visitor->visit(this);
 			}
 
-			ExprPtr expr;
+			ExprPtr expr {nullptr};
 		};
 
 		class  StmtPrint : public Expr
@@ -117,7 +117,7 @@ namespace script_system
 				return visitor->visit(this);
 			}
 			
-			ExprPtr print;
+			ExprPtr print {nullptr};
 		};
 
 		class Var : public Expr
@@ -133,7 +133,7 @@ namespace script_system
 			}
 		
 			Token name;
-			ExprPtr initilize;
+			ExprPtr initilize {nullptr};
 		};
 
 		class Variable : public Expr
@@ -164,7 +164,7 @@ namespace script_system
 			}
 			
 			Token name;
-			ExprPtr value;
+			ExprPtr value {nullptr};
 		};
 
 		class Block : public Expr
@@ -181,6 +181,28 @@ namespace script_system
 
 
 			vector<ExprPtr> statements;
+		};
+
+		class IfExpr : public Expr
+		{
+		public:
+			IfExpr(const ExprPtr& c, const ExprPtr& t, const ExprPtr& e)
+				: condition(c), thenBranch(t), elseBranch(e)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			ExprPtr condition {nullptr};
+			ExprPtr thenBranch {nullptr};
+			ExprPtr elseBranch {nullptr};
+		};
+
+		class Logical : public Expr
+		{
+		public:
 		};
 
 	}

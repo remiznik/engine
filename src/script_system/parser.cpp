@@ -67,10 +67,27 @@ namespace parser {
 
     ExprPtr Parser::statement()
     {
+        if (match({TokenType::IF})) return ifStatement();
         if (match({TokenType::PRINT})) return printStatement();
         if (match({TokenType::LEFT_BRACE})) return makeShared<Block>(block());
 
         return expressionStatement();
+    }
+
+    ExprPtr Parser::ifStatement()
+    {
+        consume(TokenType::LEFT_PAREN, "Expected '(' after 'if'.");
+        auto condition = expression();
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after 'if' condition.");
+
+        auto thenBranch = statement();
+        ExprPtr elseBranch = nullptr;
+        if (match({TokenType::ELSE}))
+        {
+            elseBranch = statement();
+        }
+
+        return makeShared<IfExpr>(condition, thenBranch, elseBranch);
     }
 
     vector<ExprPtr> Parser::block()
