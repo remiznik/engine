@@ -166,5 +166,22 @@ namespace script_system
 			Token name;
 			ExprPtr value;
 		};
+
+		class Block : public Expr
+		{
+		public:
+			Block(const vector<ExprPtr> s)
+				: statements(s)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+
+			vector<ExprPtr> statements;
+		};
+
 	}
 }

@@ -1,7 +1,8 @@
 program     -> declaration* EOF;
 declaration -> varDecl | statement;
 varDecl     -> "var" IDENTIFIER ( "=" expression )? ";";
-statement   -> exprStmt | printStmt;
+statement   -> exprStmt | printStmt | block;
+bloc        -> "{" declaration "}";
 exprStmt    -> expression ";";
 printStmt   -> "print" expression ";";
 expression  -> literal | unary | binary | grouping;

@@ -17,6 +17,7 @@ namespace script_system {
 			virtual core::Value visit(class Var* expr) = 0;
 			virtual core::Value visit(class Variable* expr) = 0;
 			virtual core::Value visit(class Assign* expr) = 0;
+			virtual core::Value visit(class Block* expr) = 0;
 
 
 		};

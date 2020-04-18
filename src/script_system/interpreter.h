@@ -14,6 +14,11 @@ namespace script_system
 		class Interpreter : public AstVisitor
 		{		
 			public:
+				Interpreter()
+				{
+					environment_ = makeShared<Environment>();
+				}
+
 				void interpret(const vector<ExprPtr>& expr);
 
 				core::Value visit(Literal* expr) override;
@@ -25,14 +30,17 @@ namespace script_system
 				core::Value visit(Var* expr) override;
 				core::Value visit(Variable* expr) override;
 				core::Value visit(Assign* expr) override;
+				core::Value visit(Block* expr) override;
 
 
 				core::Value evaluate(Expr* expr);
 			private:
 				void execute(Expr* expr);
 
+				void execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env);
+
 			private:
-				Environment environment_;
+				shared_ptr<Environment> environment_;
 		};
 	}
 }

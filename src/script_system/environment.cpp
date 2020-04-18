@@ -6,6 +6,12 @@
 
 namespace script_system {
 
+	Environment::Environment(const shared_ptr<Environment>& enclosing)
+		: enclosing_(enclosing)
+	{
+
+	}
+
 	void Environment::define(const string& name, core::Value value)
 	{
 		auto res = values_.emplace(name, value);
@@ -17,6 +23,8 @@ namespace script_system {
 		auto it = values_.find(token.lexeme);
 		if (it != values_.end())
 			return it->second;
+		
+		if (enclosing_) return enclosing_->get(token);
 
 		std::cout << " get  " << token.toString() << std::endl;
 		ASSERT(false, "Enviroment::get");
@@ -30,7 +38,12 @@ namespace script_system {
 			it->second = value;
 			return;
 		}
-		std::cout << "assign " << name.lexeme << std::endl;
+		if (enclosing_)
+		{
+			enclosing_->assign(name, value);
+			return;
+		}
+		
 		ASSERT(false, "Enviroment::assign");
 	}
 

@@ -7,6 +7,7 @@
 namespace script_system{
     namespace parser {
 
+
 		void Interpreter::interpret(const vector<ExprPtr>& exprs)
 		{
             for (auto expr : exprs)
@@ -100,11 +101,11 @@ namespace script_system{
             if (expr->initilize != nullptr)
             {
                 core::Value value = evaluate(expr->initilize.get());
-                environment_.define(expr->name.lexeme, value);
+                environment_->define(expr->name.lexeme, value);
             }
             else
             {
-                environment_.define(expr->name.lexeme, core::Value());
+                environment_->define(expr->name.lexeme, core::Value());
             }            
             
             return core::Value();
@@ -112,14 +113,14 @@ namespace script_system{
 
         core::Value Interpreter::visit(Variable* expr)
         {
-            return environment_.get(expr->name);
+            return environment_->get(expr->name);
         }
 
         core::Value Interpreter::visit(Assign* expr)
         {
             core::Value val = evaluate(expr->value.get());
 
-            environment_.assign(expr->name, val);
+            environment_->assign(expr->name, val);
 
             return val;
         }
@@ -127,6 +128,24 @@ namespace script_system{
         core::Value Interpreter::evaluate(Expr* expr)
         {
             return expr->accept(this);
+        }
+
+        core::Value Interpreter::visit(Block* expr)
+        {
+            execute(expr->statements, makeShared<Environment>(environment_));
+        }
+
+        void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
+        {
+            auto previos = environment_;
+            environment_ = environment_;
+            
+            for (auto& expr : statements)
+            {
+                execute(expr.get());
+            }
+
+            environment_ = previos;
         }
     }
 }

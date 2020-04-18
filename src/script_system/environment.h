@@ -8,11 +8,16 @@ namespace script_system {
 	class Environment
 	{
 	public:		
+		Environment()
+		{}
+		Environment(const shared_ptr<Environment>& enclosing);
+
 		void define(const string& name, core::Value value);
 		core::Value get(parser::Token token);
 		void assign(parser::Token name, core::Value value);
 
 	private:
+		shared_ptr<Environment> enclosing_{nullptr};
 		map<string, core::Value> values_;
 	};
 }

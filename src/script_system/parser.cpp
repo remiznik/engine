@@ -68,8 +68,22 @@ namespace parser {
     ExprPtr Parser::statement()
     {
         if (match({TokenType::PRINT})) return printStatement();
+        if (match({TokenType::LEFT_BRACE})) return makeShared<Block>(block());
 
         return expressionStatement();
+    }
+
+    vector<ExprPtr> Parser::block()
+    {
+        vector<ExprPtr> result;
+
+        while(!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+        {
+            result.push_back(declaration());
+        }
+
+        consume(TokenType::RIGHT_BRACE, "Expected '}' after block.");
+        return result;
     }
 
     ExprPtr Parser::printStatement()

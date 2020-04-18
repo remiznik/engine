@@ -33,6 +33,7 @@ namespace script_system
 			ExprPtr multiplication();
 			ExprPtr unary();
 			ExprPtr primary();
+			vector<ExprPtr> block();
 
 			bool match(const vector<TokenType>& types);
 			bool check(TokenType type) const;
