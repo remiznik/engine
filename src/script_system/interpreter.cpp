@@ -133,12 +133,13 @@ namespace script_system{
         core::Value Interpreter::visit(Block* expr)
         {
             execute(expr->statements, makeShared<Environment>(environment_));
+            return core::Value();
         }
 
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
             auto previos = environment_;
-            environment_ = environment_;
+            environment_ = env;
             
             for (auto& expr : statements)
             {

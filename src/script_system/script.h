@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/file_reader.h"
 #include "core/logger.h"
 
 #include "scanner.h"
@@ -15,6 +16,7 @@ namespace script_system
 		void run();
 
 	private:
+		core::FileReader reader_;
 		Scanner scanner_;
 		parser::Interpreter interpreter_;
 		core::Logger logger_;
