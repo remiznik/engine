@@ -124,7 +124,7 @@ namespace parser {
 
     ExprPtr Parser::assignment()
     {
-        ExprPtr expr = equality();
+        ExprPtr expr = logicOr();    
 
         if (match({TokenType::EQUAL}))
         {
@@ -142,6 +142,35 @@ namespace parser {
         }
         return expr;
     }
+
+    ExprPtr Parser::logicOr()
+    {
+        ExprPtr expr = logicAnd();
+
+        if (match({TokenType::OR}))
+        {
+            Token opr = previous();
+            ExprPtr right = logicAnd();
+            expr = makeShared<Logical>(expr, opr, right);
+        }
+
+        return expr;
+    }
+
+    ExprPtr Parser::logicAnd()
+    {
+        ExprPtr expr = equality();
+
+        while(match({TokenType::AND}))
+        {
+            Token opr = previous();
+            ExprPtr right = equality();
+            expr = makeShared<Logical>(expr, opr, right);
+        }
+
+        return expr;
+    }
+
 
     ExprPtr Parser::equality()
     {

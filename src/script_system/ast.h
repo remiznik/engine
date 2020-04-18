@@ -203,6 +203,18 @@ namespace script_system
 		class Logical : public Expr
 		{
 		public:
+			Logical(const ExprPtr& l, Token o, const ExprPtr& r)
+				: left(l), opr(o), right(r)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			ExprPtr left;
+			Token opr;
+			ExprPtr right;
 		};
 
 	}

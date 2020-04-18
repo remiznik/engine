@@ -32,6 +32,7 @@ namespace script_system
 				core::Value visit(Assign* expr) override;
 				core::Value visit(Block* expr) override;
 				core::Value visit(IfExpr* expt) override;
+				core::Value visit(Logical* expt) override;
 
 
 				core::Value evaluate(Expr* expr);

@@ -150,6 +150,23 @@ namespace script_system{
             return core::Value();
         }
 
+        core::Value Interpreter::visit(Logical* expr)
+        {
+            auto left = evaluate(expr->left.get());
+
+            if (expr->opr.type == TokenType::OR)
+            {
+                if (left.get<bool>()) return left;                
+            }
+            else 
+            {
+                if (!left.get<bool>()) return left;
+            }
+
+            return evaluate(expr->right.get());
+
+        }
+
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
             auto previos = environment_;

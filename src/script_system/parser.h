@@ -21,6 +21,8 @@ namespace script_system
 
 		private:
 			ExprPtr assignment();
+			ExprPtr logicOr();
+			ExprPtr logicAnd();
 			ExprPtr	varDeclaration();
 			ExprPtr declaration();
 			ExprPtr expressionStatement();
