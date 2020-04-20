@@ -20,8 +20,7 @@ namespace script_system {
 			virtual core::Value visit(class Block* expr) = 0;
 			virtual core::Value visit(class IfExpr* expr) = 0;
 			virtual core::Value visit(class Logical* expr) = 0;
-
-
+			virtual core::Value visit(class WhileExpr* expr) = 0;
 		};
 	}
 }

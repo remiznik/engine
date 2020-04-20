@@ -27,6 +27,7 @@ namespace script_system
 			ExprPtr declaration();
 			ExprPtr expressionStatement();
 			ExprPtr printStatement();
+			ExprPtr whileStatement();
 			ExprPtr statement();
 			ExprPtr expression();
 			ExprPtr equality();

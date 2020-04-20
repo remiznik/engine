@@ -19,8 +19,9 @@ namespace parser {
 			virtual string toString() override
 			{
 				string result;
-				result.append("token ");
-				result.append(" message = [");
+				result.append("token [");
+                result.append(token_.toString());                
+				result.append(" ] message = [");
                 result.append(message_);
                 result.append("]");
 
@@ -69,6 +70,7 @@ namespace parser {
     {
         if (match({TokenType::IF})) return ifStatement();
         if (match({TokenType::PRINT})) return printStatement();
+        if (match({TokenType::WHILE})) return whileStatement();
         if (match({TokenType::LEFT_BRACE})) return makeShared<Block>(block());
 
         return expressionStatement();
@@ -108,6 +110,16 @@ namespace parser {
         auto value  = expression();
         consume(TokenType::SEMICOLON, "Expect ; after value");
         return makeShared<StmtPrint>(value);
+    }
+
+    ExprPtr Parser::whileStatement()
+    {
+        consume(TokenType::LEFT_PAREN, "Expect '(' after value");
+        ExprPtr condition = expression();
+        consume(TokenType::RIGHT_PAREN, "Expect ')' after value");
+        ExprPtr body = statement();
+
+        return makeShared<WhileExpr>(condition, body);
     }
 
     ExprPtr Parser::expressionStatement()

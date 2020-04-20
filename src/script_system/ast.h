@@ -212,9 +212,26 @@ namespace script_system
 				return visitor->visit(this);
 			}
 
-			ExprPtr left;
+
+			ExprPtr left{nullptr};
 			Token opr;
-			ExprPtr right;
+			ExprPtr right{nullptr};
+		};
+
+		class WhileExpr : public Expr
+		{
+		public:
+			WhileExpr(const ExprPtr& c, const ExprPtr& b)
+				: condition(c), body(b)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			ExprPtr condition;
+			ExprPtr body;
 		};
 
 	}

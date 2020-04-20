@@ -98,7 +98,7 @@ namespace script_system {
 
 		std::string Token::toString() const
 		{
-			return std::to_string(int(type)) + std::string(" ") + lexeme;
+			return strigFrmomTokenType(type) + std::string(" ") + lexeme;
 		}
 	}
 }

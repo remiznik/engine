@@ -167,6 +167,16 @@ namespace script_system{
 
         }
 
+        core::Value Interpreter::visit(WhileExpr* expr)
+        {
+            while (evaluate(expr->condition.get()).get<bool>())
+            {
+                execute(expr->body.get()); 
+            }
+            
+            return core::Value();
+        }
+
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
             auto previos = environment_;
