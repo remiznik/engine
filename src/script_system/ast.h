@@ -170,7 +170,7 @@ namespace script_system
 		class Block : public Expr
 		{
 		public:
-			Block(const vector<ExprPtr> s)
+			Block(const vector<ExprPtr>& s)
 				: statements(s)
 			{}
 

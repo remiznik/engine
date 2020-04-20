@@ -37,6 +37,7 @@ namespace script_system
 			ExprPtr unary();
 			ExprPtr primary();
 			ExprPtr ifStatement();
+			ExprPtr forStatement();
 			vector<ExprPtr> block();
 
 			bool match(const vector<TokenType>& types);

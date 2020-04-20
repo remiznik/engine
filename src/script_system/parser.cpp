@@ -68,6 +68,7 @@ namespace parser {
 
     ExprPtr Parser::statement()
     {
+        if (match({TokenType::FOR})) return forStatement();
         if (match({TokenType::IF})) return ifStatement();
         if (match({TokenType::PRINT})) return printStatement();
         if (match({TokenType::WHILE})) return whileStatement();
@@ -90,6 +91,57 @@ namespace parser {
         }
 
         return makeShared<IfExpr>(condition, thenBranch, elseBranch);
+    }
+
+    ExprPtr Parser::forStatement()
+    {
+        consume(TokenType::LEFT_PAREN, "Expected '(' after 'for'.");
+        ExprPtr init = nullptr;
+        if (match({TokenType::SEMICOLON}))
+        {
+            init = nullptr;
+        } else if (match({TokenType::VAR}))
+        {
+            init = varDeclaration();
+        }
+        else
+        {
+            init = expressionStatement();
+        }
+
+        ExprPtr cond = nullptr;
+        if (!check(TokenType::SEMICOLON))
+        {
+            cond = expression();
+        }
+        consume(TokenType::SEMICOLON, "Expected ';' after loop condition.");
+
+        ExprPtr incr = nullptr;
+        if (!check(TokenType::RIGHT_PAREN))
+        {
+            incr = expression();
+        }
+        consume(TokenType::RIGHT_PAREN, "Expected ')' after for clauses.");
+
+        ExprPtr body = statement();
+
+        if (incr != nullptr)
+        {
+            body = makeShared<Block>(vector<ExprPtr>({body, makeShared<Stmt>(incr)}));
+        }
+
+        if (cond == nullptr) 
+        {
+            cond = makeShared<Literal>(true);
+        }
+        body = makeShared<WhileExpr>(cond, body);
+
+        if (init != nullptr)
+        {
+            body = makeShared<Block>(vector<ExprPtr>({init, body}));
+        }
+
+        return body;        
     }
 
     vector<ExprPtr> Parser::block()
