@@ -234,5 +234,21 @@ namespace script_system
 			ExprPtr body;
 		};
 
+		class Call : public Expr
+		{
+		public:
+			Call(const ExprPtr& c, Token p, const vector<ExprPtr>& a)
+				: callee(c), paren(p), arguments(a)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			ExprPtr callee;
+			Token paren;
+			vector<ExprPtr> arguments;
+		}
 	}
 }
