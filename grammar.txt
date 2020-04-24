@@ -11,7 +11,9 @@ printStmt   -> "print" expression ";";
 expression  -> literal | unary | binary | grouping;
 literal     -> NUMBER | STRING | "true" | "false" | "nil";
 grouping    -> "(" expression ")";
-unary       -> ("-" | "!") expression;
+unary       -> ("-" | "!") unary | call;
+call        -> primary ( "(" assigment? ")" )*;
+arguments   -> expression ( "," expression )*;
 binary      -> expression operator expression;
 operator    -> "==" | "!=" | "<" | "<=" | ">" | ">=" | "+" | "=" | "*" | "/";
 

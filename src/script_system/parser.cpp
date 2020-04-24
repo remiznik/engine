@@ -314,7 +314,44 @@ namespace parser {
             return makeShared<Unary>(opr, right);
         }
 
-        return primary();
+        return call();
+    }
+
+    ExprPtr Parser::call()
+    {
+        ExprPtr expr = primary();
+
+        while(true)
+        {
+            if (match({TokenType::LEFT_PAREN}))
+            {
+                expr = finishCall(expr);
+            }
+            else
+            {
+                break;
+            }            
+        }
+        
+        return expr;
+    }
+
+    ExprPtr Parser::finishCall(const ExprPtr& expr)
+    {
+        vector<ExprPtr> arguments;
+        if (!check(TokenType::RIGHT_PAREN))
+        {
+            do
+            {   if (arguments.size() > 24)
+                {
+                    error(peek(), "Cannot have more 24 arguments.");
+                }
+                arguments.push_back(expression());
+            } while (match({TokenType::COMMA}));
+        }
+        Token paren = consume(TokenType::RIGHT_PAREN, "Expext ')' after arguments.");
+
+        return makeShared<Call>(expr, paren, arguments);
     }
 
     ExprPtr Parser::primary()

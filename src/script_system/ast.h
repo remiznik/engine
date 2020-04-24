@@ -249,6 +249,6 @@ namespace script_system
 			ExprPtr callee;
 			Token paren;
 			vector<ExprPtr> arguments;
-		}
+		};
 	}
 }

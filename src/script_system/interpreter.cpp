@@ -177,6 +177,19 @@ namespace script_system{
             return core::Value();
         }
 
+        core::Value Interpreter::visit(Call* expr)
+        {
+            auto callee = evaluate(expr->callee.get());
+
+            vector<core::Value> arguments;
+            for (auto argument : expr->arguments)
+            {
+                arguments.push_back(evaluate(argument.get()));
+            }
+
+            return core::Value();
+        }
+
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
             auto previos = environment_;
