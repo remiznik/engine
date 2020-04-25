@@ -19,8 +19,8 @@ namespace script_system
 	void Script::run()
 	{
 		auto s = reader_.read("../res/scripts/test.scr");
-
-		auto tokens = scanner_.scan(s);
+		
+		auto tokens = scanner_.scan(s);		
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		//shared_ptr<Expr> exp = std::make_shared<Binary>(

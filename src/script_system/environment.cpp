@@ -41,6 +41,7 @@ namespace script_system {
 		if (enclosing_)
 		{
 			enclosing_->assign(name, value);
+			std::cout << " assing " << name.lexeme << std::endl;
 			return;
 		}
 		

@@ -1,12 +1,23 @@
 #include <iostream>
 
 #include "core/object.h"
+#include "core/assert.h"
 
 #include "interpreter.h"
 #include "ast.h"
 
 namespace script_system{
     namespace parser {
+
+        class RetrunException : public std::exception
+        {
+        public:
+            RetrunException(core::Value v)
+                : value(v)
+            {}
+            
+            core::Value value;
+        };
 
         class Callable : public core::Object
         {
@@ -34,11 +45,21 @@ namespace script_system{
             core::Value call(const vector<core::Value>& args) override
             {
                 auto env = makeShared<Environment>(inter_->environment());
+                ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
+                
                 for (size_t i = 0; i < expr_->params.size(); ++i)
                 {
                     env->define(expr_->params[i].lexeme, args[i]);
                 }
-                inter_->execute(expr_->body, env);
+                try
+                {
+                    inter_->execute(expr_->body, env);
+                }
+                catch(const RetrunException& e)
+                {
+                    //std::cout << " catch " << std::endl;
+                    return e.value;
+                }
 
                 return core::Value();
             }
@@ -105,7 +126,7 @@ namespace script_system{
             case TokenType::STAR:
                 return core::Value(left.get<double>() * right.get<double>());
             case TokenType::PLUS:
-				return left.get<double>() + right.get<double>();
+				return core::Value(left.get<double>()+ right.get<double>());
 			case TokenType::GREATER:
 				return core::Value(left.get<double>() > right.get<double>());
 			case TokenType::GREATER_EQUAL:
@@ -240,6 +261,15 @@ namespace script_system{
         {
             auto fnc = makeShared<InFunction>(this, expr);
             environment_->define(expr->name.lexeme, core::Value(fnc));
+            return core::Value();
+        }
+
+        core::Value Interpreter::visit(Return* expr)
+        {
+            core::Value val;            
+            if (expr->value != nullptr) val = evaluate(expr->value.get());
+            
+            throw RetrunException(val);
             return core::Value();
         }
 

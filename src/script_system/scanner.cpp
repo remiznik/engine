@@ -156,7 +156,6 @@ namespace script_system
 		}
 
 		advance();
-		advance();
 
 		auto text = source_.substr(start_ + 1, count);
 		tokens_.push_back(Token(TokenType::STRING, text, core::Value(text), line_));		

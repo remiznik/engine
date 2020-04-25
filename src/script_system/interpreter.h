@@ -33,6 +33,7 @@ namespace script_system
 				core::Value visit(WhileExpr* expt) override;
 				core::Value visit(Call* expr) override;
 				core::Value visit(Function* expr) override;
+				core::Value visit(Return* expr) override;
 
 
 				core::Value evaluate(Expr* expr);

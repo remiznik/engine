@@ -267,5 +267,22 @@ namespace script_system
 			vector<Token> params;
 			vector<ExprPtr> body;
 		};
+
+		class Return : public Expr
+		{
+		public:
+
+			Return(Token k, const ExprPtr& v)
+				: keyword(k), value(v)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token keyword;
+			ExprPtr value{nullptr}; 
+		};
 	}
 }

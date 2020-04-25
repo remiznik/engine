@@ -95,6 +95,7 @@ namespace parser {
         if (match({TokenType::FOR})) return forStatement();
         if (match({TokenType::IF})) return ifStatement();
         if (match({TokenType::PRINT})) return printStatement();
+        if (match({TokenType::RETURN})) return returnStatement();
         if (match({TokenType::WHILE})) return whileStatement();
         if (match({TokenType::LEFT_BRACE})) return makeShared<Block>(block());
 
@@ -184,6 +185,19 @@ namespace parser {
         auto value  = expression();
         consume(TokenType::SEMICOLON, "Expect ; after value");
         return makeShared<StmtPrint>(value);
+    }
+
+    ExprPtr Parser::returnStatement()
+    {
+        Token keyword = previous();
+        ExprPtr value = nullptr;
+        if (!check(TokenType::SEMICOLON))
+        {
+            value = expression();
+        }
+
+        consume(TokenType::SEMICOLON, "Expect ';' after return value.");
+        return makeShared<Return>(keyword, value);
     }
 
     ExprPtr Parser::whileStatement()
@@ -371,6 +385,7 @@ namespace parser {
                 arguments.push_back(expression());
             } while (match({TokenType::COMMA}));
         }
+
         Token paren = consume(TokenType::RIGHT_PAREN, "Expext ')' after arguments.");
         return makeShared<Call>(expr, paren, arguments);
     }

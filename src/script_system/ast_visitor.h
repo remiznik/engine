@@ -23,6 +23,7 @@ namespace script_system {
 			virtual core::Value visit(class WhileExpr* expr) = 0;
 			virtual core::Value visit(class Call* expr) = 0;
 			virtual core::Value visit(class Function* expr) = 0;
+			virtual core::Value visit(class Return* expr) = 0;
 		};
 	}
 }
