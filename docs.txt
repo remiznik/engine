@@ -15,6 +15,12 @@ https://ruslanspivak.com/lsbasi-part1/ simple interpreter
     Physically Based Rendering: From Theory to Implementation
     https://www.3dgep.com/learning-directx-12-1/ directx 12
 
+## math 
+https://qna.habr.com/q/269411
+https://habr.com/en/post/131931/
+https://habr.com/en/post/234203/
+Lamot_A_-_Programmirovanie_Trekhmernykh
+
 ## engine
     https://www.3dgep.com/cpp-fast-track-17-ai/
 

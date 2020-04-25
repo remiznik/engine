@@ -272,18 +272,18 @@ namespace script_system{
             throw RetrunException(val);
             return core::Value();
         }
+		
 
         void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
         {
-            auto previos = environment_;
+			// becaus return realize by exception (
+			ScopeGuard<shared_ptr<Environment>> guard(environment_);
             environment_ = env;
             
             for (auto& expr : statements)
             {
                 execute(expr.get());
-            }
-
-            environment_ = previos;
+            }            
         }
     }
 }

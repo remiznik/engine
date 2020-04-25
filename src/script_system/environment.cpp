@@ -26,7 +26,6 @@ namespace script_system {
 		
 		if (enclosing_) return enclosing_->get(token);
 
-		std::cout << " get  " << token.toString() << std::endl;
 		ASSERT(false, "Enviroment::get");
 	}
 
@@ -40,8 +39,7 @@ namespace script_system {
 		}
 		if (enclosing_)
 		{
-			enclosing_->assign(name, value);
-			std::cout << " assing " << name.lexeme << std::endl;
+			enclosing_->assign(name, value);		
 			return;
 		}
 		

@@ -21,3 +21,24 @@ shared_ptr<T> makeShared(_Types&&... _Args)
     static const _Alloc alloc;
     return std::allocate_shared<T, _Alloc>(alloc, std::forward<_Types>(_Args)...);
 }
+
+
+template<class T>
+class ScopeGuard
+{
+public:
+	ScopeGuard(T& v)
+		: value(v)
+	{
+		oldvalue = v;
+
+	}
+
+	~ScopeGuard()
+	{
+		value = oldvalue;
+	}
+private:
+	T& value;
+	T oldvalue;
+};

@@ -396,7 +396,8 @@ namespace parser {
         if (match({TokenType::TRUE})) return makeShared<Literal>(core::Value(true));
         if (match({TokenType::NIL})) return makeShared<Literal>(core::Value());
 
-        if (match({TokenType::NUMBER, TokenType::STRING})) return makeShared<Literal>(core::Value(previous().lexeme));
+		if (match({ TokenType::NUMBER })) return makeShared<Literal>(core::Value(std::stod(previous().lexeme)));
+		if (match({TokenType::STRING})) return makeShared<Literal>(core::Value(previous().lexeme));
 
         if (match({TokenType::IDENTIFIER}))
             return makeShared<Variable>(previous());
