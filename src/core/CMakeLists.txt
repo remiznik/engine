@@ -11,6 +11,8 @@ set(CORE_SRC
     assert.h
     file_reader.h
     file_reader.cpp
+    object.h
+    object.cpp
 )
 add_library( core ${CORE_SRC} )
 

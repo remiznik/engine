@@ -17,6 +17,7 @@ namespace core
         Value(double value);
 		Value(int value);
 		Value(bool value);
+		Value(const shared_ptr<Object>& obj);
 		
 
 		~Value()
@@ -38,6 +39,7 @@ namespace core
 		double toDouble() const;
 		int toInt() const;
 		bool toBool() const;
+		shared_ptr<Object> toObj() const;
 		void freeData();
 
     private:
@@ -46,11 +48,12 @@ namespace core
     };
 
         
-	template<> inline string		Value::to<string>() const { return toChars(); }
+	template<> inline string				Value::to<string>() const { return toChars(); }
 
-	template<> inline double 		Value::get<double>() const { return toDouble(); }
-	template<> inline bool 			Value::get<bool>() const { return toBool(); }
-	template<> inline int			Value::get<int>() const { return toInt(); }
-	template<> inline string		Value::get<string>() const { return toChars(); }
+	template<> inline double 				Value::get<double>() const { return toDouble(); }
+	template<> inline bool 					Value::get<bool>() const { return toBool(); }
+	template<> inline int					Value::get<int>() const { return toInt(); }
+	template<> inline string				Value::get<string>() const { return toChars(); }
+	template<> inline shared_ptr<Object>	Value::get<shared_ptr<Object>>() const { return toObj(); }
 }
 

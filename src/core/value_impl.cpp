@@ -50,6 +50,11 @@ namespace core
 				return Value();
 			}
 
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				ASSERT(false, "None is not object");
+				return nullptr;
+			}
         };
 
         class ValueImplBool : public ValueImpl
@@ -96,6 +101,12 @@ namespace core
 			{
 				ASSERT(false, "Value bool plus");
 				return Value();
+			}
+
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				ASSERT(false, "Bool is not object");
+				return nullptr;
 			}
         };
 
@@ -146,6 +157,11 @@ namespace core
 				return self.get<int>() + other.get<int>();
 			}
 			
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				ASSERT(false, "Int is not object");
+				return nullptr;
+			}
         };
 
         class ValueImplDouble : public ValueImpl
@@ -193,6 +209,12 @@ namespace core
 			{
 				ASSERT(other.type() == ValueType::Double, "Value double plus");
 				return self.get<double>() + other.get<double>();
+			}
+
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				ASSERT(false, "Double is not object");
+				return nullptr;
 			}
 
         };
@@ -243,15 +265,77 @@ namespace core
 				return self.get<string>() + other.get<string>();
 			}
 
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				ASSERT(false, "String is not object");
+				return nullptr;
+			}
         };
 
-        static std::array<ValueImpl*, 5> g_imps =
+
+		class ValueImplObject : public ValueImpl
+        {
+        public:
+            virtual void freeValue(AnyValue& value) const override
+            {
+                value.obj = nullptr;
+            }
+            virtual void copyValue(const AnyValue& from, AnyValue& value) const override
+            {                
+				value.obj = from.obj;
+            }
+
+			virtual string toChars(const AnyValue& value) const override
+			{
+				return "Obj Type";
+			}
+
+            virtual double toDouble(const AnyValue& value) const override
+			{
+				ASSERT(false, "Can`t cast object to doubel");
+				return 0;
+			}
+
+            virtual bool toBool(const AnyValue& value) const override
+			{
+				ASSERT(false, "Can`t cast object to bool");
+				return false;
+			}
+
+			virtual bool equal(const Value& self, const Value& other) const override
+			{
+				ASSERT(false, "Cant equal objects");
+				return false;
+			}
+
+			virtual int toInt(const AnyValue& value) const override
+			{
+				ASSERT(false, "Can`t cast object to int");
+				return 0;
+			}
+
+			virtual Value plus(const Value& self, const Value& other) const override
+			{
+				ASSERT(false, "Object cant plus");
+				return Value();
+			}
+
+			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
+			{
+				return value.obj;
+			}
+
+        };
+
+
+        static std::array<ValueImpl*, 6> g_imps =
             {
                 new ValueImplNone,
                 new ValueImplBool,
                 new ValueImplInt,
                 new ValueImplDouble,
-                new ValueImplSting
+                new ValueImplSting,
+				new ValueImplObject
             };
     }
 

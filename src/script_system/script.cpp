@@ -29,7 +29,7 @@ namespace script_system
 		//		std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)))
 		//	);
 		//shared_ptr<Expr> exp = std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)));
-			
+		
 		interpreter_.interpret(t);
 		
 		double x = 3;

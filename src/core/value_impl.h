@@ -15,6 +15,7 @@ namespace core
         virtual bool toBool(const AnyValue& value) const = 0;
 		virtual bool equal(const Value& self, const Value& other) const = 0;
 		virtual Value plus(const Value& self, const Value& other) const = 0;
+        virtual shared_ptr<Object> toObj(const AnyValue& value) const = 0;
     };
 
     ValueImpl* getValueImpl(ValueType type);

@@ -48,6 +48,7 @@ namespace parser {
 
     ExprPtr Parser::declaration()
     {
+        if (match({TokenType::FUN})) return function("function");
         if (match({TokenType::VAR})) return varDeclaration();
 
         return statement();
@@ -64,6 +65,29 @@ namespace parser {
 
         consume(TokenType::SEMICOLON, "Expected ';' after variable declaration.");
         return makeShared<Var>(name, init);
+    }
+
+    ExprPtr Parser::function(const string& kind)
+    {
+        Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + "name.");
+        consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name."); 
+        vector<Token> parametrs;
+        if (!check(TokenType::RIGHT_PAREN))
+        {
+            do
+            {
+                if (parametrs.size() > 24)
+                {
+                    error(peek(), "Cannot have more than 24 parametrs.");
+                } 
+                parametrs.push_back(consume(TokenType::IDENTIFIER, "Expect parametr name."));
+
+            } while(match({TokenType::COMMA}));
+        }
+        consume(TokenType::RIGHT_PAREN, "Expect ')' after parametrs.");
+        consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        auto body = block();
+        return makeShared<Function>(name, parametrs, body);
     }
 
     ExprPtr Parser::statement()
@@ -147,12 +171,10 @@ namespace parser {
     vector<ExprPtr> Parser::block()
     {
         vector<ExprPtr> result;
-
         while(!check(TokenType::RIGHT_BRACE) && !isAtEnd())
         {
             result.push_back(declaration());
         }
-
         consume(TokenType::RIGHT_BRACE, "Expected '}' after block.");
         return result;
     }
@@ -350,7 +372,6 @@ namespace parser {
             } while (match({TokenType::COMMA}));
         }
         Token paren = consume(TokenType::RIGHT_PAREN, "Expext ')' after arguments.");
-
         return makeShared<Call>(expr, paren, arguments);
     }
 
@@ -398,7 +419,7 @@ namespace parser {
 
     Token Parser::advance()
     {
-        if (!isAtEnd()) current_++;
+        if (!isAtEnd()) current_++;            
         return previous();
     }
 

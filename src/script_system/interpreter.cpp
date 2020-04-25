@@ -1,13 +1,56 @@
 #include <iostream>
 
-#include "interpreter.h"
+#include "core/object.h"
 
+#include "interpreter.h"
 #include "ast.h"
 
 namespace script_system{
     namespace parser {
 
+        class Callable : public core::Object
+        {
+        public:
+            virtual core::Value call(const vector<core::Value>& args) = 0;
+        };
 
+        class Clock : public Callable
+        {
+        public:
+            core::Value call(const vector<core::Value>& args) override
+            {
+                std::cout << " time " << std::endl;
+                return core::Value();
+            }
+        };
+
+        class InFunction : public Callable
+        {
+        public:
+            InFunction(Interpreter* inter, Function* expr)
+                : inter_(inter), expr_(expr)
+            {}
+
+            core::Value call(const vector<core::Value>& args) override
+            {
+                auto env = makeShared<Environment>(inter_->environment());
+                for (size_t i = 0; i < expr_->params.size(); ++i)
+                {
+                    env->define(expr_->params[i].lexeme, args[i]);
+                }
+                inter_->execute(expr_->body, env);
+
+                return core::Value();
+            }
+        private:
+            Interpreter* inter_;
+            Function* expr_;
+        };
+
+        Interpreter::Interpreter()
+        {
+            environment_ = makeShared<Environment>();
+        }
 		void Interpreter::interpret(const vector<ExprPtr>& exprs)
 		{
             for (auto expr : exprs)
@@ -187,6 +230,16 @@ namespace script_system{
                 arguments.push_back(evaluate(argument.get()));
             }
 
+            shared_ptr<core::Object> obj = callee.get<shared_ptr<core::Object>>();
+            auto clock = static_cast<Callable*>(obj.get());
+
+            return clock->call(arguments);
+        }
+
+        core::Value Interpreter::visit(Function* expr)
+        {
+            auto fnc = makeShared<InFunction>(this, expr);
+            environment_->define(expr->name.lexeme, core::Value(fnc));
             return core::Value();
         }
 

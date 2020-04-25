@@ -1,4 +1,6 @@
-for (var i = 0; i < 10; i = i + 1) 
-{
-    print i;
+fun count(n) {
+  if (n > 1) count(n - 1);
+  print n;
 }
+
+count(3);

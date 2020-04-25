@@ -250,5 +250,22 @@ namespace script_system
 			Token paren;
 			vector<ExprPtr> arguments;
 		};
+
+		class Function : public Expr
+		{
+		public:
+			Function(Token n, const vector<Token>& p, const vector<ExprPtr>& b)
+				: name(n), params(p), body(b)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token name;
+			vector<Token> params;
+			vector<ExprPtr> body;
+		};
 	}
 }

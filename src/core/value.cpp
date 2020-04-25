@@ -31,6 +31,12 @@ namespace core
         value_.b = value;
     }
 
+	Value::Value(const shared_ptr<Object>& obj)
+		: type_(ValueType::Object)
+	{
+		value_.obj = obj;
+	}
+
     Value::Value(const Value& other)
     {
         getValueImpl(type_)->freeValue(value_);
@@ -84,5 +90,10 @@ namespace core
 	int Value::toInt() const
 	{
 		return getValueImpl(type_)->toInt(value_);
+	}
+
+	shared_ptr<Object> Value::toObj() const 
+	{
+		return getValueImpl(type_)->toObj(value_);
 	}
 }

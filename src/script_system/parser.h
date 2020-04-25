@@ -40,6 +40,7 @@ namespace script_system
 			ExprPtr forStatement();
 			ExprPtr call();
 			ExprPtr finishCall(const ExprPtr& expr);
+			ExprPtr function(const string& kind);
 			vector<ExprPtr> block();
 
 			bool match(const vector<TokenType>& types);

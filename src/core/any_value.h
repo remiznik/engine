@@ -1,5 +1,6 @@
 #pragma once
 #include "types.h"
+#include "object.h"
 
 #include <cstring>
 
@@ -28,6 +29,7 @@ namespace core
         int i;
         double d;
         string s;
+        shared_ptr<Object> obj;
     };
 
     enum class ValueType
@@ -36,6 +38,7 @@ namespace core
         Bool,
         Integer,
         Double,
-        String
+        String,
+        Object
     };
 }
