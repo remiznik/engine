@@ -38,13 +38,13 @@ namespace script_system{
         class InFunction : public Callable
         {
         public:
-            InFunction(Interpreter* inter, Function* expr)
-                : inter_(inter), expr_(expr)
+            InFunction(Interpreter* inter, Function* expr, const shared_ptr<Environment>& closure)
+                : inter_(inter), expr_(expr), closure_(closure)
             {}
 
             core::Value call(const vector<core::Value>& args) override
             {
-                auto env = makeShared<Environment>(inter_->environment());
+                auto env = makeShared<Environment>(closure_);
                 ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
                 
                 for (size_t i = 0; i < expr_->params.size(); ++i)
@@ -66,6 +66,7 @@ namespace script_system{
         private:
             Interpreter* inter_;
             Function* expr_;
+            shared_ptr<Environment> closure_;
         };
 
         Interpreter::Interpreter()
@@ -259,7 +260,7 @@ namespace script_system{
 
         core::Value Interpreter::visit(Function* expr)
         {
-            auto fnc = makeShared<InFunction>(this, expr);
+            auto fnc = makeShared<InFunction>(this, expr, environment_);
             environment_->define(expr->name.lexeme, core::Value(fnc));
             return core::Value();
         }
