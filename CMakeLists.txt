@@ -28,7 +28,6 @@ add_subdirectory ("src/core")
 add_subdirectory ("src/graphics")
 add_subdirectory ("src/script_system")
 
-
 # setup project
 set ( MAIN_SRCS
 	src/main.cpp    

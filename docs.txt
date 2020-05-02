@@ -10,9 +10,13 @@ https://ruslanspivak.com/lsbasi-part1/ simple interpreter
 
 # game engine 
 
+## profiler 
+https://github.com/bombomby/optick not have gui for Linux. 
+
+
 ## render
 ### books
-    Physically Based Rendering: From Theory to Implementation
+    Physically Based Rendering: From Theory to Implementation\
     https://www.3dgep.com/learning-directx-12-1/ directx 12
 
 ## math 

@@ -1,3 +1,6 @@
-1. Rework log Error for Scanner
+1. Rework logger. 
 2. accept in AstVisitor is copy - past 
-3. use make_shared 
+3. for AstVisitor use ExprPtr
+4. try to remove return core::Value() where it no need. 
+5. integrate some profiler
+

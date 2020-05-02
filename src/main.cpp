@@ -19,7 +19,6 @@ int  main()
 
 	while (true)
 	{
-
 		if (!scene.draw())
 			break;
 		

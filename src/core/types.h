@@ -3,6 +3,7 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <stack>
 
 using string = std::string;
 
@@ -14,6 +15,10 @@ using map = std::map<Key, T, Comparator>;
 
 template <class T>
 using shared_ptr = std::shared_ptr<T>;
+
+template<class T>
+using stack = std::stack<T>;
+
 
 template<class T, class _Alloc = std::allocator<T>, class... _Types>
 shared_ptr<T> makeShared(_Types&&... _Args)
