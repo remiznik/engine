@@ -70,6 +70,7 @@ namespace parser {
 			resolveExpr(expr->initilize.get());
 		}
 		define(expr->name);
+		return core::Value();
 	}
 
 	core::Value Resolver::visit(Variable* expr)
@@ -105,6 +106,7 @@ namespace parser {
 		}
 		resolve(expr->body);
 		endScope();
+		return core::Value();
 	}
 
 	core::Value Resolver::visit(Stmt* expr) 
@@ -185,7 +187,7 @@ namespace parser {
 
 	void Resolver::resolveLockal(Expr* expr, Token name)
 	{
-		for (int i = m_scopes.size() - 1; i >= 0; --i )
+		for (size_t i = m_scopes.size() - 1; i >= 0; --i )
 		{
 			if (m_scopes[i].find(name.lexeme) != m_scopes[i].end())
 			{
