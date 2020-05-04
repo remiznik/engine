@@ -1,8 +1,6 @@
 #pragma once
 
-#include "script_system/script.h"
 #include "render/render.h"
-#include "render/scene.h"
 
 namespace app {
 
@@ -22,29 +20,20 @@ namespace app {
 
 		void update();
 		void draw();
-
-		void OnMouseMove(WPARAM btnState, int x, int y);
 			
 	private:
 		// for window 
-		static Application* app_;
+		static Application* mApp;
 		HWND      mhMainWnd = nullptr; // main window handle
 		std::string mMainWndCaption = "d3d App";
-		int clientWidth_ = 800;
-		int clientHeight_ = 600;
-		POINT lastMousePos_;		
-		int btnState_ = 0;
-
+		int mClientWidth = 800;
+		int mClientHeight = 600;
 		bool      mAppPaused = false;  // is the application paused?
 
 		HINSTANCE mhAppInst = nullptr; // application instance handle
 
-		render::RenderD12 render_;
-		render::Scene scene_;
-
-		core::FileSystem fileSystem_;
-		script_system::Script script_;
-
+		render::RenderD12 m_render;
+		
 
 	};
 

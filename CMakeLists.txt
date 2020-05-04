@@ -28,7 +28,6 @@ add_subdirectory ("tests")
 set ( MAIN_SRCS
 	src/main.cpp    
 	src/fps_lock.cpp    
-	src/fps_lock.h
 	src/application.h
 	src/application.cpp
 )

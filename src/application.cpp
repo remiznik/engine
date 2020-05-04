@@ -1,9 +1,5 @@
 #include "application.h"
 #include <WindowsX.h>
-#include <DirectXMath.h>
-
-#include "core/callabel.h"
-#include "core/m_assert.h"
 
 #include <thread>
 
@@ -18,39 +14,18 @@ namespace app {
 			return Application::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 		}
 
-		class UpdateCamera : public core::Callable
-		{
-		public:
-			UpdateCamera(render::RenderD12& render)
-				: render_(render)
-			{}
-
-			virtual core::Value call(const vector<core::Value>& args) override
-			{
-				ASSERT(args.size() == 3, "Wrong count of args.");
-
-				render_.updateCamera(args[0].get<double>(), args[1].get<double>(), args[2].get<double>());
-				return core::Value();
-			}
-
-		private:
-			render::RenderD12& render_;
-		};
-
 	}
 
-	Application* Application::app_ = nullptr;
+	Application* Application::mApp = nullptr;
 	Application* Application::GetApp()
 	{
-		return app_;
+		return mApp;
 	}
 
-	Application::Application() 
-		: script_(fileSystem_), scene_(render_)
-
+	Application::Application()
 	{
-		assert(app_ == nullptr);
-		app_ = this;
+		assert(mApp == nullptr);
+		mApp = this;
 	}
 
 	bool Application::initialize()
@@ -59,15 +34,7 @@ namespace app {
 		if (!initWindow())
 			return false;
 
-		if (!render_.initialize(mhMainWnd))
-			return false;
-
-		if (!scene_.initialize())
-			return false;
-
-		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
-
-		if (!script_.initialize())
+		if (!m_render.initialize(mhMainWnd))
 			return false;
 
 		return true;
@@ -94,7 +61,7 @@ namespace app {
 		}
 
 		// Compute window rectangle dimensions based on requested client area dimensions.
-		RECT R = { 0, 0, clientWidth_, clientHeight_ };
+		RECT R = { 0, 0, mClientWidth, mClientHeight };
 		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 		int width = R.right - R.left;
 		int height = R.bottom - R.top;
@@ -136,8 +103,8 @@ namespace app {
 			// WM_SIZE is sent when the user resizes the window.  
 		case WM_SIZE:
 			// Save the new client area dimensions.
-			clientWidth_ = LOWORD(lParam);
-			clientHeight_ = HIWORD(lParam);
+			mClientWidth = LOWORD(lParam);
+			mClientHeight = HIWORD(lParam);
 			/*if (md3dDevice)
 			{
 				if (wParam == SIZE_MINIMIZED)
@@ -235,7 +202,7 @@ namespace app {
 			//OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_MOUSEMOVE:
-			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			//OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_KEYUP:
 			if (wParam == VK_ESCAPE)
@@ -243,9 +210,8 @@ namespace app {
 				PostQuitMessage(0);
 			}
 			else if ((int)wParam == VK_F2)
-			{
 				//Set4xMsaaState(!m4xMsaaState);
-			}
+
 
 			return 0;
 		}
@@ -253,52 +219,31 @@ namespace app {
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 
-	void Application::OnMouseMove(WPARAM btnState, int x, int y)
-	{
-		if ((btnState & MK_LBUTTON) != 0)
-		{		
-			btnState_ = 1;
-		}
-		else if ((btnState & MK_RBUTTON) != 0)
-		{			
-			btnState_ = 2;
-		}
-		
-		lastMousePos_.x = x;
-		lastMousePos_.y = y;
-	}
-
-
 	void Application::update()
 	{
-		script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
-		btnState_ = 0;		
+
 	}
 
 	void Application::draw()
 	{
-		render_.startDraw();
-		scene_.draw();
-		render_.draw();
+		m_render.draw();
 	}
+
 
 	void Application::run()	
 	{
-		MSG msg = { 0 };
 		while (true)
 		{	
-			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-
 			if (!mAppPaused)
 			{
 				update();
 				draw();
-			}			
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));			
+			}
+			else
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+
 			
 		}
 	}

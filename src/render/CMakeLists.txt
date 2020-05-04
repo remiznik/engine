@@ -1,4 +1,6 @@
-set(RENDER_SRC     
+set(RENDER_SRC 
+    render.h
+	render.cpp
 	d3d12Utils/d3dUtil.h
 	d3d12Utils/d3dUtil.cpp	
 	d3d12Utils/d3dx12.h
@@ -6,17 +8,6 @@ set(RENDER_SRC
 	d3d12Utils/MathHelper.cpp
 	d3d12Utils/DDSTextureLoader.h
 	d3d12Utils/DDSTextureLoader.cpp
-	d3d12Utils/UploadBuffer.h
-	d3d12Utils/FrameResource.h
-	d3d12Utils/FrameResource.cpp
-	d3d12Utils/GeometryGenerator.h
-	d3d12Utils/GeometryGenerator.cpp
-	render.h
-	render.cpp
-	scene.h
-	scene.cpp
-	model.h
-	model.cpp
 )
 add_library( render ${RENDER_SRC} )
 
