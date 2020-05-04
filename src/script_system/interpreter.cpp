@@ -179,15 +179,22 @@ core::Value Interpreter::visit(Var* expr)
 
 core::Value Interpreter::visit(Variable* expr)
 {
-    return environment_->get(expr->name);
+    return lookUpVariable(expr->name, expr);
 }
 
 core::Value Interpreter::visit(Assign* expr)
 {
     core::Value val = evaluate(expr->value.get());
 
-    environment_->assign(expr->name, val);
-
+    auto it = locals_.find(expr);
+    if (it != locals_.end())
+    {
+        environment_->assignAt(it->second, expr->name, val);
+    }
+    else
+    {
+        globals_->assign(expr->name, val);
+    }
     return val;
 }
 
@@ -290,13 +297,13 @@ void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<En
 
 void Interpreter::resolve(Expr* expr, int depth)
 {
-    loals_.emplace(expr, depth);
+    locals_.emplace(expr, depth);
 }
 
 core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
 {
-    auto it = loals_.find(expr);
-    if (it != loals_.end())
+    auto it = locals_.find(expr);
+    if (it != locals_.end())
     {
         return environment_->getAt(it->second, name.lexeme);
     }

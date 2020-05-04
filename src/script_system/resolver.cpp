@@ -49,11 +49,6 @@ namespace parser {
 		statement->accept(this);
 	}
 
-	void Resolver::resolveExpr(Expr* expr)
-	{
-		expr->accept(this);
-	}
-
 	void Resolver::beginScope()
 	{
 		scopes_.push_back(map<string, bool>());
@@ -69,7 +64,7 @@ namespace parser {
 		declare(expr->name);
 		if (expr->initilize)
 		{
-			resolveExpr(expr->initilize.get());
+			resolveStmt(expr->initilize.get());
 		}
 		define(expr->name);
 		return core::Value();
@@ -79,11 +74,15 @@ namespace parser {
 	{
 		if (!scopes_.empty())
 		{
-			if (scopes_.back()[expr->name.lexeme] == false)
+			auto it = scopes_.back().find(expr->name.lexeme);
+			if ( it != scopes_.back().end())
 			{				
-				auto msg = ResolverMessage(
-					"Cannot read local variable  in its own initialize.");
-				logger_.write(msg);
+				if (it->second == false)
+				{
+					auto msg = ResolverMessage(
+						"Cannot read local variable  in its own initialize.");
+					logger_.write(msg);
+				}
 			}
 		}
 
@@ -100,6 +99,8 @@ namespace parser {
 
 	core::Value Resolver::visit(Function* expr)
 	{
+		declare(expr->name);                              
+    	define(expr->name);
 		beginScope();
 		for (auto param: expr->params)
 		{
@@ -200,8 +201,9 @@ namespace parser {
 	}
 	void Resolver::declare(Token name)
 	{
+		
 		if (scopes_.empty()) return;
-
+		
 		scopes_.back()[name.lexeme] = false;
 	}
 

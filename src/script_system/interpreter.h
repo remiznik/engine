@@ -50,7 +50,7 @@ class Interpreter : public AstVisitor
 		
 
 	private:
-		map<Expr*, int> loals_;
+		map<Expr*, int> locals_;
 		shared_ptr<Environment> environment_;
 		shared_ptr<Environment> globals_;
 };

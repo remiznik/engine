@@ -32,10 +32,10 @@ public:
 	core::Value visit(Function* expr) override;
 	core::Value visit(Return* expr) override;
 
-private:
 	void resolve(const vector<ExprPtr>& statements);
+
+private:	
 	void resolveStmt(Expr* statement);
-	void resolveExpr(Expr* statement);
 	void resolveLockal(Expr* expr, Token name);
 	void declare(Token name);
 	void define(Token name);

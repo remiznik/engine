@@ -4,6 +4,7 @@
 #include "ast.h"
 #include "ast_printer.h"
 #include "parser.h"
+#include "resolver.h"
 
 #include <iostream>
 
@@ -30,6 +31,8 @@ namespace script_system
 		//	);
 		//shared_ptr<Expr> exp = std::make_shared<Grouping>(std::make_shared<Literal>(core::Value(23)));
 		
+		Resolver res(&interpreter_, logger_);
+		res.resolve(t);
 		interpreter_.interpret(t);
 		
 		double x = 3;

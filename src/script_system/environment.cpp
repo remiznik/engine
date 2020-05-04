@@ -43,7 +43,12 @@ namespace script_system {
 			return;
 		}
 		
-		ASSERT(false, "Enviroment::assign");
+		ASSERT(false, "Enviroment::assign");		
+	}
+
+	void Environment::assignAt(int distance, parser::Token name, core::Value value)
+	{
+		ancestor(distance)->values_[name.lexeme] = value;
 	}
 
 	core::Value Environment::getAt(int distance, const string& name)
