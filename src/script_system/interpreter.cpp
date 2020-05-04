@@ -71,7 +71,8 @@ private:
 
 Interpreter::Interpreter()
 {
-    environment_ = makeShared<Environment>();
+    globals_ = makeShared<Environment>();
+    environment_ = globals_;
 }
 void Interpreter::interpret(const vector<ExprPtr>& exprs)
 {
@@ -291,6 +292,19 @@ void Interpreter::resolve(Expr* expr, int depth)
 {
     loals_.emplace(expr, depth);
 }
+
+core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
+{
+    auto it = loals_.find(expr);
+    if (it != loals_.end())
+    {
+        return environment_->getAt(it->second, name.lexeme);
+    }
+    
+    return globals_->get(name);    
+}
+
+
 }
 }
  

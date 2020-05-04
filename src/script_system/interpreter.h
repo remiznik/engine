@@ -46,11 +46,13 @@ class Interpreter : public AstVisitor
 		void resolve(Expr* expr, int depth);
 	private:
 		void execute(Expr* expr);
+		core::Value lookUpVariable(Token name, Expr* expr);
 		
 
 	private:
 		map<Expr*, int> loals_;
 		shared_ptr<Environment> environment_;
+		shared_ptr<Environment> globals_;
 };
 }
 }

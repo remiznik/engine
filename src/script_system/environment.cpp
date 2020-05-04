@@ -46,4 +46,20 @@ namespace script_system {
 		ASSERT(false, "Enviroment::assign");
 	}
 
+	core::Value Environment::getAt(int distance, const string& name)
+	{
+		return ancestor(distance)->values_[name];
+	}
+
+	Environment* Environment::ancestor(int distance)
+	{
+		auto env = this;
+		for (int i = 0; i < distance; ++i)
+		{
+			env = env->enclosing_.get();
+		}
+
+		return this;
+	}
+
 }

@@ -15,6 +15,10 @@ namespace script_system {
 		void define(const string& name, core::Value value);
 		core::Value get(parser::Token token);
 		void assign(parser::Token name, core::Value value);
+		core::Value getAt(int distance, const string& name);
+
+	private:
+		Environment* ancestor(int distance);
 
 	private:
 		shared_ptr<Environment> enclosing_{nullptr};
