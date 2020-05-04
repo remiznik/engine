@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "core/object.h"
-#include "core/assert.h"
+#include "core/m_assert.h"
 
 #include "interpreter.h"
 #include "class_def.h"

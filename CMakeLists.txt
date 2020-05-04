@@ -16,6 +16,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 add_subdirectory ("src/core")
 add_subdirectory ("src/graphics")
 add_subdirectory ("src/script_system")
+add_subdirectory ("src/render")
 
 
 #tests 
@@ -25,7 +26,11 @@ add_subdirectory ("tests")
 
 # setup project
 set ( MAIN_SRCS
-	src/main.cpp	
+	src/main.cpp    
+	src/fps_lock.cpp    
+	src/fps_lock.h
+	src/application.h
+	src/application.cpp
 )
 source_group( "main" FILES ${MAIN_SRCS} )
 
@@ -33,8 +38,8 @@ source_group( "main" FILES ${MAIN_SRCS} )
 add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
-target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
 target_link_libraries(${PROJECT_NAME} optimized core script_system graphics )
+target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
 
 
 
