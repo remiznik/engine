@@ -150,8 +150,7 @@ namespace script_system
 
 		if (isEnd())
 		{
-			auto msg = ScannerErrorMessage(string("Untermnated string"), line_);
-			loggre_.write(msg);	
+			loggre_.write(ScannerErrorMessage(string("Untermnated string"), line_));	
 			return;
 		}
 
@@ -236,8 +235,7 @@ namespace script_system
 				}
 				else
 				{
-					auto msg = ScannerErrorMessage(string("Unexpecte characte"), line_);
-					loggre_.write(msg);
+					loggre_.write(ScannerErrorMessage(string("Unexpecte characte"), line_));
 				}
 				break;
 			}
