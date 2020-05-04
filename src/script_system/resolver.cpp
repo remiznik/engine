@@ -138,6 +138,7 @@ namespace parser {
 		}
 		resolve(expr->body);
 		endScope();
+		return core::Value();
 	}
 
 	core::Value Resolver::visit(Stmt* expr) 
