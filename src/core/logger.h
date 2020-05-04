@@ -16,6 +16,7 @@ namespace core
     public:
         Logger();
         
+        void write(const string& message);
         void write(LogMessage& messgae);
     };
 }

@@ -9,17 +9,39 @@ namespace parser {
 		class ResolverMessage : public core::LogMessage
 		{
 		public:
-			ResolverMessage(const string& message)
-				: m_message(message)
+			ResolverMessage(const string& name)
+				: name_(name)
 			{}
 
 			string toString() override
 			{
-				return m_message;
+				string message("Cannot read local variable ");
+				message.append(name_);
+				message.append(" in its own initialize.");
+				return message;
 			}
 
 		private:
-			string m_message;
+			string name_;
+		};
+
+		class VariableAllradyMessage : public core::LogMessage
+		{
+		public:
+			VariableAllradyMessage(const string& name)
+				: name_(name)
+			{}
+
+			string toString() override
+			{
+				string message("Variable with this ");
+				message.append(name_);
+				message.append(" already declared in this scope.");
+				return message;
+			}
+
+		private:
+			string name_;
 		};
 	}
 
@@ -79,8 +101,7 @@ namespace parser {
 			{				
 				if (it->second == false)
 				{
-					auto msg = ResolverMessage(
-						"Cannot read local variable  in its own initialize.");
+					auto msg = ResolverMessage(expr->name.lexeme);
 					logger_.write(msg);
 				}
 			}
@@ -101,6 +122,8 @@ namespace parser {
 	{
 		declare(expr->name);                              
     	define(expr->name);
+
+		ScopeGuard<FunctionType> guard(currentFunction);
 		beginScope();
 		for (auto param: expr->params)
 		{
@@ -134,6 +157,11 @@ namespace parser {
 
 	core::Value Resolver::visit(Return* expr) 
 	{
+		if (currentFunction == FunctionType::NONE)
+		{
+			logger_.write("Cannot return from top-level code.");
+		}
+
 		if (expr->value != nullptr)
 		{
 			resolveStmt(expr->value.get());
@@ -204,7 +232,17 @@ namespace parser {
 		
 		if (scopes_.empty()) return;
 		
-		scopes_.back()[name.lexeme] = false;
+		auto it = scopes_.back().find(name.lexeme);
+		if (it == scopes_.back().end())
+		{
+			scopes_.back().emplace(name.lexeme,false);
+		}
+		else
+		{
+			auto msg = VariableAllradyMessage(name.lexeme);
+			logger_.write(msg);
+		}
+		
 	}
 
 	void Resolver::define(Token name)

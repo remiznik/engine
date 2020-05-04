@@ -13,4 +13,9 @@ namespace core
     {
         std::cout << messgae.toString() << std::endl;
     }
+
+    void Logger::write(const string& message)
+    {
+        std::cout << message << std::endl;
+    }
 }

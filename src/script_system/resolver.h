@@ -42,11 +42,18 @@ private:
 
 	void beginScope();
 	void endScope();
+private:
+	enum class FunctionType
+	{
+		NONE,
+		FUNCTION
+	};
 
 private:
 	Interpreter* interpreter_;
 	vector<map<string, bool>> scopes_;		
 	core::Logger& logger_;
+	FunctionType currentFunction {FunctionType::NONE};
 };
 }
 }

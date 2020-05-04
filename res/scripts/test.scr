@@ -1,13 +1,1 @@
-var a = "global";
-{
-  a = "block";
-  fun showA() 
-  {
-    print a;
-  }
-
-
-  showA();
-  
-  showA();
-}
+return "at top level";
