@@ -1,5 +1,7 @@
 #include "resolver.h"
 
+#include "interpreter.h"
+
 namespace script_system {
 namespace parser {
 	namespace 
@@ -22,7 +24,7 @@ namespace parser {
 	}
 
 	Resolver::Resolver(Interpreter* interpreter, core::Logger& logger)
-		: m_interpreter(interpreter), logger_(logger)
+		: interpreter_(interpreter), logger_(logger)
 	{	
 	}
 
@@ -54,12 +56,12 @@ namespace parser {
 
 	void Resolver::beginScope()
 	{
-		m_scopes.push_back(map<string, bool>());
+		scopes_.push_back(map<string, bool>());
 	}
 
 	void Resolver::endScope()
 	{
-		m_scopes.pop_back();
+		scopes_.pop_back();
 	}
 
 	core::Value Resolver::visit(Var* expr)
@@ -70,13 +72,14 @@ namespace parser {
 			resolveExpr(expr->initilize.get());
 		}
 		define(expr->name);
+		return core::Value();
 	}
 
 	core::Value Resolver::visit(Variable* expr)
 	{
-		if (!m_scopes.empty())
+		if (!scopes_.empty())
 		{
-			if (m_scopes.back()[expr->name.lexeme] == false)
+			if (scopes_.back()[expr->name.lexeme] == false)
 			{				
 				auto msg = ResolverMessage(
 					"Cannot read local variable  in its own initialize.");
@@ -105,6 +108,7 @@ namespace parser {
 		}
 		resolve(expr->body);
 		endScope();
+		return core::Value();
 	}
 
 	core::Value Resolver::visit(Stmt* expr) 
@@ -185,27 +189,27 @@ namespace parser {
 
 	void Resolver::resolveLockal(Expr* expr, Token name)
 	{
-		for (int i = m_scopes.size() - 1; i >= 0; --i )
+		for (int i = scopes_.size() - 1; i >= 0; --i )
 		{
-			if (m_scopes[i].find(name.lexeme) != m_scopes[i].end())
+			if (scopes_[i].find(name.lexeme) != scopes_[i].end())
 			{
-				//m_interpreter->resolve(expr, m_scopes.size() - 1 + i);
+				interpreter_->resolve(expr, scopes_.size() - 1 + i);
 				return;
 			}
 		}
 	}
 	void Resolver::declare(Token name)
 	{
-		if (m_scopes.empty()) return;
+		if (scopes_.empty()) return;
 
-		m_scopes.back()[name.lexeme] = false;
+		scopes_.back()[name.lexeme] = false;
 	}
 
 	void Resolver::define(Token name)
 	{
-		if (m_scopes.empty()) return;
+		if (scopes_.empty()) return;
 
-		m_scopes.back()[name.lexeme] = true;
+		scopes_.back()[name.lexeme] = true;
 	}
 
 }
