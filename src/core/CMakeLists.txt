@@ -8,7 +8,7 @@ set(CORE_SRC
     any_value.h
     value_impl.h
     value_impl.cpp
-    assert.h
+    m_assert.h
     file_reader.h
     file_reader.cpp
     object.h

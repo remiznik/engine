@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "core/object.h"
-#include "core/assert.h"
+#include "core/m_assert.h"
 
 #include "interpreter.h"
 #include "ast.h"

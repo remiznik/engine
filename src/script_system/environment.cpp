@@ -1,6 +1,6 @@
 #include "environment.h"
 
-#include "core/assert.h"
+#include "core/m_assert.h"
 
 #include <iostream>
 

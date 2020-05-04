@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "core/logger.h"
-#include "core/assert.h"
+#include "core/m_assert.h"
 
 
 namespace script_system {
