@@ -447,8 +447,7 @@ namespace parser {
 
     void Parser::error(Token token, const string& message)
     {
-        auto msg = ParserErrorMessage(token, message);
-		logger_.write(msg);	        
+		logger_.write(ParserErrorMessage(token, message));	        
     }
 
 }

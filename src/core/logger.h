@@ -8,15 +8,24 @@ namespace core
     class LogMessage
     {
     public:
-        virtual string toString() = 0;
+        LogMessage()
+            : text_(" text not set ")
+        {}
+
+        LogMessage(const string& text)
+            : text_(text)
+        {}
+        
+        virtual string toString() { return text_; }
+    private:
+        string text_;
     };
 
     class Logger
     {
     public:
-        Logger();
+        Logger();       
         
-        void write(const string& message);
-        void write(LogMessage& messgae);
+        void write(LogMessage&& messgae);
     };
 }

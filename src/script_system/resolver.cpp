@@ -101,8 +101,7 @@ namespace parser {
 			{				
 				if (it->second == false)
 				{
-					auto msg = ResolverMessage(expr->name.lexeme);
-					logger_.write(msg);
+					logger_.write(ResolverMessage(expr->name.lexeme));
 				}
 			}
 		}
@@ -159,7 +158,7 @@ namespace parser {
 	{
 		if (currentFunction == FunctionType::NONE)
 		{
-			logger_.write("Cannot return from top-level code.");
+			logger_.write(core::LogMessage("Cannot return from top-level code."));
 		}
 
 		if (expr->value != nullptr)
@@ -239,8 +238,7 @@ namespace parser {
 		}
 		else
 		{
-			auto msg = VariableAllradyMessage(name.lexeme);
-			logger_.write(msg);
+			logger_.write(VariableAllradyMessage(name.lexeme));
 		}
 		
 	}
