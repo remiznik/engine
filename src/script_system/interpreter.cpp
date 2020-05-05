@@ -4,70 +4,77 @@
 #include "core/assert.h"
 
 #include "interpreter.h"
+#include "class_def.h"
 #include "ast.h"
 
 namespace script_system{
 namespace parser {
-
-class RetrunException : public std::exception
-{
-public:
-    RetrunException(core::Value v)
-        : value(v)
-    {}
     
-    core::Value value;
-};
 
-class Callable : public core::Object
-{
-public:
-    virtual core::Value call(const vector<core::Value>& args) = 0;
-};
-
-class Clock : public Callable
-{
-public:
-    core::Value call(const vector<core::Value>& args) override
+    class RetrunException : public std::exception
     {
-        std::cout << " time " << std::endl;
-        return core::Value();
-    }
-};
-
-class InFunction : public Callable
-{
-public:
-    InFunction(Interpreter* inter, Function* expr, const shared_ptr<Environment>& closure)
-        : inter_(inter), expr_(expr), closure_(closure)
-    {}
-
-    core::Value call(const vector<core::Value>& args) override
-    {
-        auto env = makeShared<Environment>(closure_);
-        ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
+    public:
+        RetrunException(core::Value v)
+            : value(v)
+        {}
         
-        for (size_t i = 0; i < expr_->params.size(); ++i)
+        core::Value value;
+    };
+
+    class Clock : public Callable
+    {
+    public:
+        core::Value call(const vector<core::Value>& args) override
         {
-            env->define(expr_->params[i].lexeme, args[i]);
+            std::cout << " time " << std::endl;
+            return core::Value();
         }
-        try
+    };
+
+    class InFunction : public Callable
+    {
+    public:
+        InFunction(Interpreter* inter, Function* expr, const shared_ptr<Environment>& closure)
+            : inter_(inter), expr_(expr), closure_(closure)
+        {}
+
+        core::Value call(const vector<core::Value>& args) override
         {
-            inter_->execute(expr_->body, env);
-        }
-        catch(const RetrunException& e)
-        {
-            //std::cout << " catch " << std::endl;
-            return e.value;
+            auto env = makeShared<Environment>(closure_);
+            ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
+            
+            for (size_t i = 0; i < expr_->params.size(); ++i)
+            {
+                env->define(expr_->params[i].lexeme, args[i]);
+            }
+            try
+            {
+                inter_->execute(expr_->body, env);
+            }
+            catch(const RetrunException& e)
+            {
+                //std::cout << " catch " << std::endl;
+                return e.value;
+            }
+
+            return core::Value();
         }
 
-        return core::Value();
-    }
-private:
-    Interpreter* inter_;
-    Function* expr_;
-    shared_ptr<Environment> closure_;
-};
+        virtual string toString() const override
+        {
+            string result;
+            result.append(" Function ");
+            result.append(expr_->name.lexeme);
+            result.append("\n");
+            return result;
+        }
+
+    private:
+        Interpreter* inter_;
+        Function* expr_;
+        shared_ptr<Environment> closure_;
+    };
+
 
 Interpreter::Interpreter()
 {
@@ -282,6 +289,14 @@ core::Value Interpreter::visit(Return* expr)
     return core::Value();
 }
 
+core::Value Interpreter::visit(ClassExpr* expr)
+{
+    environment_->define(expr->name.lexeme, core::Value());
+    auto inClass = makeShared<InClass>(expr->name.lexeme);
+    environment_->assign(expr->name, core::Value(inClass));
+
+    return core::Value();
+}
 
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {

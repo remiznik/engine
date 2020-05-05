@@ -287,7 +287,7 @@ namespace core
 
 			virtual string toChars(const AnyValue& value) const override
 			{
-				return "Obj Type";
+				return value.obj->toString();
 			}
 
             virtual double toDouble(const AnyValue& value) const override

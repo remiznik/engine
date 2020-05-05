@@ -215,6 +215,13 @@ namespace parser {
 		return core::Value();
 	}
 
+	core::Value Resolver::visit(ClassExpr* expr)
+	{
+		define(expr->name);
+		declare(expr->name);
+		return core::Value();
+	}
+
 	void Resolver::resolveLockal(Expr* expr, Token name)
 	{
 		for (int i = scopes_.size() - 1; i >= 0; --i )

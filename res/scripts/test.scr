@@ -1,1 +1,3 @@
-return "at top level";
+class Bagel {}
+var bagel = Bagel();
+print bagel; // Prints "Bagel instance".

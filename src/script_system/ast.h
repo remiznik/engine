@@ -284,5 +284,24 @@ namespace script_system
 			Token keyword;
 			ExprPtr value{nullptr}; 
 		};
+
+		class ClassExpr : public Expr
+		{
+		public:
+
+			ClassExpr(Token n, const vector<shared_ptr<Function>>& m)
+				: name(n), methods(m)
+			{
+
+			}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token name;
+			vector<shared_ptr<Function>> methods;
+		};
 	}
 }

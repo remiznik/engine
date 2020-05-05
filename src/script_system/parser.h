@@ -41,7 +41,8 @@ namespace script_system
 			ExprPtr forStatement();
 			ExprPtr call();
 			ExprPtr finishCall(const ExprPtr& expr);
-			ExprPtr function(const string& kind);
+			shared_ptr<Function> function(const string& kind);
+			ExprPtr classDeclaration();
 			vector<ExprPtr> block();
 
 			bool match(const vector<TokenType>& types);
