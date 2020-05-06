@@ -86,6 +86,7 @@ namespace render
 		BuildConstantBuffers();
 		BuildRootSignature();
 		BuildShadersAndInputLayout();
+		BuildBoxGeometry();
 		BuildPSO();
 
 		ThrowIfFailed(CommandList_->Close());
@@ -265,7 +266,10 @@ namespace render
 		ScreenViewport_.MinDepth = 0.0f;
 		ScreenViewport_.MaxDepth = 1.0f;
 
-		//mScissorRect = { 0, 0, mClientWidth, mClientHeight };
+		ScissorRect_ = { 0, 0, ClientWidth_, ClientHeight_ };
+
+		XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, (static_cast<float>(ClientWidth_) / ClientHeight_) , 1.0f, 1000.0f);
+		XMStoreFloat4x4(&mProj, P);
 	}
 
 	void RenderD12::FlushCommandQueue()
@@ -299,6 +303,28 @@ namespace render
 
 	void RenderD12::draw()
 	{
+		// Convert Spherical to Cartesian coordinates.
+		float x = mRadius * sinf(mPhi) * cosf(mTheta);
+		float z = mRadius * sinf(mPhi) * sinf(mTheta);
+		float y = mRadius * cosf(mPhi);
+
+		// Build the view matrix.
+		XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+		XMVECTOR target = XMVectorZero();
+		XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+		XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+		XMStoreFloat4x4(&mView, view);
+
+		XMMATRIX world = XMLoadFloat4x4(&mWorld);
+		XMMATRIX proj = XMLoadFloat4x4(&mProj);
+		XMMATRIX worldViewProj = world * view * proj;
+
+		// Update the constant buffer with the latest worldViewProj matrix.
+		ObjectConstants objConstants;
+		XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
+		ObjectCB_->CopyData(0, objConstants);
+
 		ThrowIfFailed(DirectCmdListAlloc_->Reset());
 
 		ThrowIfFailed(CommandList_->Reset(DirectCmdListAlloc_.Get(), PSO_.Get()));
@@ -317,14 +343,18 @@ namespace render
 
 		CommandList_->SetGraphicsRootSignature(RootSignature_.Get());
 
-		//CommandList_->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
-		//CommandList_->IASetVertexBuffers(1, 1, &mBoxGeo->ColorBufferView());
-		//CommandList_->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
-		//CommandList_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		CommandList_->IASetVertexBuffers(0, 1, &BoxGeo_->VertexBufferView());		
+		CommandList_->IASetIndexBuffer(&BoxGeo_->IndexBufferView());
+		CommandList_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		CommandList_->SetGraphicsRootDescriptorTable(0, CbvHeap_->GetGPUDescriptorHandleForHeapStart());
 
-//		mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
+		CommandList_->DrawIndexedInstanced(
+			BoxGeo_->DrawArgs["box"].IndexCount,
+			1, 0, 0, 0);
+
+
+		//CommandList_->DrawIndexedInstanced(BoxGeo_->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
 		//mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 1, 0);
 
 		CommandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -450,12 +480,80 @@ namespace render
 		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psoDesc.NumRenderTargets = 1;
 		psoDesc.RTVFormats[0] = BackBufferFormat_;
-		psoDesc.SampleDesc.Count = _4xMsaaQuality ? 4 : 1;
+		psoDesc.SampleDesc.Count = _4xMsaaState ? 4 : 1;
 		psoDesc.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
 		psoDesc.DSVFormat = DepthStencilFormat_;
 
 		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&PSO_)));
 	};
+
+	void RenderD12::BuildBoxGeometry()
+	{
+		std::array<Vertex, 8> vertices =
+		{
+			Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
+			Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
+			Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
+			Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
+			Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
+			Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
+			Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
+			Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
+		};
+
+		std::array<std::uint16_t, 12 * 3> indices =
+		{
+			// front face 
+			0, 1, 2,
+			0, 2, 3,
+			// back face
+			4, 6, 5,
+			4, 7, 6,
+			// left face 
+			4, 5, 1,
+			4, 1, 0,
+			// right face 
+			3, 2, 6,
+			3, 6, 7,
+			// top face 
+			1, 5, 6,
+			1, 6, 2,
+			// bottom face 
+			4, 0, 3,
+			4, 3, 7
+		};
+
+		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+
+		BoxGeo_ = std::make_unique<MeshGeometry>();
+		BoxGeo_->Name = "boxGeo";
+
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &BoxGeo_->VertexBufferCPU));
+		CopyMemory(BoxGeo_->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &BoxGeo_->IndexBufferCPU));
+		CopyMemory(BoxGeo_->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+
+		BoxGeo_->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
+			CommandList_.Get(), vertices.data(), vbByteSize, BoxGeo_->VertexBufferUploader);
+
+		BoxGeo_->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
+			CommandList_.Get(), indices.data(), ibByteSize, BoxGeo_->IndexBufferUploader);
+
+		BoxGeo_->VertexByteStride = sizeof(Vertex);
+		BoxGeo_->VertexBufferByteSize = vbByteSize;
+		BoxGeo_->IndexFormat = DXGI_FORMAT_R16_UINT;
+		BoxGeo_->IndexBufferByteSize = ibByteSize;
+
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indices.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		BoxGeo_->DrawArgs["box"] = submesh;
+	}
+
 
 
 

@@ -22,6 +22,13 @@ namespace render
 		DirectX::XMFLOAT4X4	WorldViewProj = MathHelper::Identity4x4();		
 	};
 
+	struct Vertex
+	{
+		DirectX::XMFLOAT3 Pos;
+		DirectX::XMFLOAT4 Color;
+	};
+
+
 	class RenderD12
 	{
 	public:		
@@ -44,6 +51,7 @@ namespace render
 		void BuildConstantBuffers();
 		void BuildRootSignature();
 		void BuildShadersAndInputLayout();
+		void BuildBoxGeometry();
 		void BuildPSO();
 
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
@@ -90,14 +98,25 @@ namespace render
 
 		std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB_{ nullptr };
 
+		std::unique_ptr<MeshGeometry> BoxGeo_ = nullptr;
 		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout_;
 		Microsoft::WRL::ComPtr<ID3DBlob> vsByteCode_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> psByteCode_ = nullptr;
+
 
 		// from window 
 		HWND      hMainWnd_ = nullptr; // main window handle
 		int ClientWidth_ = 800;
 		int ClientHeight_ = 600;
+
+		// camera
+		DirectX::XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
+		DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
+		DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+
+		float mTheta = 1.5f * DirectX::XM_PI;
+		float mPhi = DirectX::XM_PIDIV4;
+		float mRadius = 5.0f;
 	};
 
 }
