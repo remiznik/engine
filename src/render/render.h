@@ -5,9 +5,9 @@
 #include <crtdbg.h>
 #endif
 
-//#include <WindowsX.h>
-
 #include "d3d12Utils/d3dUtil.h"
+#include "d3d12Utils/UploadBuffer.h"
+#include "d3d12Utils/MathHelper.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib,"d3dcompiler.lib")
@@ -16,6 +16,12 @@
 
 namespace render
 {
+	
+	struct ObjectConstants
+	{
+		DirectX::XMFLOAT4X4	WorldViewProj = MathHelper::Identity4x4();		
+	};
+
 	class RenderD12
 	{
 	public:		
@@ -34,6 +40,11 @@ namespace render
 		void CreateSwapChain();
 		void CreateRtvAndDsvDescriptorHeaps();
 
+		void BuildDescriptorHeaps();
+		void BuildConstantBuffers();
+		void BuildRootSignature();
+		void BuildShadersAndInputLayout();
+		void BuildPSO();
 
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 		ID3D12Resource* CurrentBackBuffer() const;
@@ -77,6 +88,11 @@ namespace render
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CbvHeap_{ nullptr };
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignature_{ nullptr };
 
+		std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB_{ nullptr };
+
+		std::vector<D3D12_INPUT_ELEMENT_DESC> InputLayout_;
+		Microsoft::WRL::ComPtr<ID3DBlob> vsByteCode_ = nullptr;
+		Microsoft::WRL::ComPtr<ID3DBlob> psByteCode_ = nullptr;
 
 		// from window 
 		HWND      hMainWnd_ = nullptr; // main window handle
