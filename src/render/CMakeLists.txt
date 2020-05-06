@@ -8,6 +8,7 @@ set(RENDER_SRC
 	d3d12Utils/MathHelper.cpp
 	d3d12Utils/DDSTextureLoader.h
 	d3d12Utils/DDSTextureLoader.cpp
+	d3d12Utils/UploadBuffer.h
 )
 add_library( render ${RENDER_SRC} )
 

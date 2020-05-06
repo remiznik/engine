@@ -78,8 +78,24 @@ namespace render
 		CreateSwapChain();
 		CreateRtvAndDsvDescriptorHeaps();
 
-		return true;
+		resize();
 
+		ThrowIfFailed(CommandList_->Reset(DirectCmdListAlloc_.Get(), nullptr));
+
+		BuildDescriptorHeaps();
+		BuildConstantBuffers();
+		BuildRootSignature();
+		BuildShadersAndInputLayout();
+		BuildPSO();
+
+		ThrowIfFailed(CommandList_->Close());
+		ID3D12CommandList* cmdsLists[] = { CommandList_.Get() };
+		CommandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+		// Wait until initialization is complete.
+		FlushCommandQueue();
+
+		return true;
 	}
 
 	void RenderD12::CreateCommandObjects()
@@ -339,4 +355,108 @@ namespace render
 			CurrBackBuffer_,
 			RtvDescriptorSize_);
 	}
+
+
+	void RenderD12::BuildDescriptorHeaps()
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+		cbvHeapDesc.NumDescriptors = 1;
+		cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		cbvHeapDesc.NodeMask = 0;
+		ThrowIfFailed(d3dDevice_->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&CbvHeap_)));
+	}
+
+	void RenderD12::BuildConstantBuffers()
+	{
+		ObjectCB_ = std::make_unique<UploadBuffer<ObjectConstants>>(d3dDevice_.Get(), 1, true);
+
+		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = ObjectCB_->Resource()->GetGPUVirtualAddress();
+		// Offset to the ith object constant buffer in the buffer.
+		int boxCBufIndex = 0;
+		cbAddress += boxCBufIndex * objCBByteSize;
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+		cbvDesc.BufferLocation = cbAddress;
+		cbvDesc.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+		d3dDevice_->CreateConstantBufferView(
+			&cbvDesc,
+			CbvHeap_->GetCPUDescriptorHandleForHeapStart());
+	}
+
+	void RenderD12::BuildRootSignature()
+	{
+		CD3DX12_ROOT_PARAMETER slotRootParameter[1];
+		CD3DX12_DESCRIPTOR_RANGE cbvTable;
+		cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+		slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		ComPtr<ID3DBlob> serializedRootSig = nullptr;
+		ComPtr<ID3DBlob> errorBlob = nullptr;
+		HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+
+		if (errorBlob != nullptr)
+		{
+			::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		}
+		ThrowIfFailed(hr);
+
+		ThrowIfFailed(d3dDevice_->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&RootSignature_)));
+	}
+
+	void RenderD12::BuildShadersAndInputLayout()
+	{
+		HRESULT hr = S_OK;
+
+		vsByteCode_ = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+		psByteCode_ = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+
+		InputLayout_ =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
+	}
+
+
+	void RenderD12::BuildPSO()
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+		ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+		psoDesc.InputLayout = { InputLayout_.data(), (UINT)InputLayout_.size() };
+		psoDesc.pRootSignature = RootSignature_.Get();
+		psoDesc.VS =
+		{
+			reinterpret_cast<BYTE*>(vsByteCode_->GetBufferPointer()), vsByteCode_->GetBufferSize()
+		};
+		psoDesc.PS =
+		{
+			reinterpret_cast<BYTE*>(psByteCode_->GetBufferPointer()), psByteCode_->GetBufferSize()
+		};
+		CD3DX12_RASTERIZER_DESC rsDec(D3D12_DEFAULT);
+		//rsDec.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		//rsDec.CullMode = D3D12_CULL_MODE_FRONT;
+
+		psoDesc.RasterizerState = rsDec;
+		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		psoDesc.SampleMask = UINT_MAX;
+		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoDesc.NumRenderTargets = 1;
+		psoDesc.RTVFormats[0] = BackBufferFormat_;
+		psoDesc.SampleDesc.Count = _4xMsaaQuality ? 4 : 1;
+		psoDesc.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+		psoDesc.DSVFormat = DepthStencilFormat_;
+
+		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&PSO_)));
+	};
+
+
+
 }
