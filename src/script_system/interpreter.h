@@ -36,6 +36,7 @@ class Interpreter : public AstVisitor
 		core::Value visit(ClassExpr* expr) override;
 		core::Value visit(GetExpr* expr) override;
 		core::Value visit(SetExpr* expr) override;
+		core::Value visit(This* expr) override;
 
 
 		core::Value evaluate(Expr* expr);

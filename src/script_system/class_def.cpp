@@ -27,12 +27,20 @@ core::Value InFunction::call(const vector<core::Value>& args)
 	}
 	catch(const RetrunException& e)
 	{
-		//std::cout << " catch " << std::endl;
 		return e.value;
 	}
 
 	return core::Value();
 }
+
+shared_ptr<InFunction> InFunction::bind(const shared_ptr<InClassInstance>& instance)
+{	
+	auto enviroment = makeShared<Environment>(closure_);
+	// dengorus 
+	enviroment->define("this", core::Value(instance));
+	return makeShared<InFunction>(inter_, expr_, enviroment);
+}
+
 
 string InFunction::toString() const 
 {
@@ -83,7 +91,7 @@ string InClassInstance::toString() const
 	return result;
 }
 
-core::Value InClassInstance::get(const string& name) const
+core::Value InClassInstance::get(const string& name)
 {
 	auto it = fields_.find(name);
 	if (it != fields_.end())
@@ -93,7 +101,8 @@ core::Value InClassInstance::get(const string& name) const
 	auto method = class_->method(name);
 	if (method != nullptr)
 	{
-		return core::Value(method);
+		auto n = method->bind(shared_from_this());
+		return core::Value(n);
 	}
 
 	ASSERT(false, "Undefined property .");
@@ -103,5 +112,6 @@ void InClassInstance::set(const string& name, core::Value value)
 {
 	fields_.emplace(name, value);
 }
+
 	
 }

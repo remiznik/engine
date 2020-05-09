@@ -336,5 +336,20 @@ namespace script_system
 			Token name;
 			ExprPtr value;
 		};
+
+		class This : public Expr
+		{
+		public:
+			This(Token k)
+				: keyword(k)
+			{}
+			
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token keyword;
+		};
 	}
 }

@@ -224,12 +224,15 @@ namespace parser {
 	core::Value Resolver::visit(ClassExpr* expr)
 	{
 		define(expr->name);
+		beginScope();
+		scopes_.back().emplace("this", true);
 		//declare(expr->name);
 		for (auto method : expr->methods)
 		{
 			FunctionType decl = FunctionType::METHOD;
 			resolveFunction(method.get(), decl);
 		}
+		endScope();
 		return core::Value();
 	}
 
@@ -245,6 +248,12 @@ namespace parser {
 		resolveStmt(expr->object.get());
 		return core::Value();
 
+	}
+
+	core::Value Resolver::visit(This* expr)
+	{
+		resolveLockal(expr, expr->keyword);
+		return core::Value();
 	}
 
 	void Resolver::resolveLockal(Expr* expr, Token name)

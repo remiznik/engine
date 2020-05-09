@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "core/object.h"
 #include "core/value.h"
 
@@ -10,6 +12,8 @@ namespace parser {
 	class Interpreter;
 	class Function;
 }
+
+class InClassInstance;
 
 class RetrunException : public std::exception
 {
@@ -31,9 +35,13 @@ class InFunction : public Callable
 {
 public:
 	InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure);
+	
+	virtual string toString() const override;
 
 	core::Value call(const vector<core::Value>& args) override;
-	virtual string toString() const override;
+
+	// very cerful maby cicle pointer. method depent from instance
+	shared_ptr<InFunction> bind(const shared_ptr<InClassInstance>& instance);
 
 private:
 	parser::Interpreter* inter_;
@@ -59,17 +67,22 @@ private:
 	map<string, shared_ptr<InFunction>> methods_;
 };
 
-class InClassInstance : public core::Object
+class InClassInstance : public core::Object, public std::enable_shared_from_this<InClassInstance>
 {
 public:
 	InClassInstance(InClass* c)
 		: class_(c)
 	{}
+
+	InClassInstance(InClass* c, const map<string, core::Value>& f)
+		: class_(c), fields_(f)
+	{}
+
 	virtual string toString() const override;
 
-	core::Value get(const string& name) const;
+	core::Value get(const string& name);
 	void set(const string& name, core::Value val);
-
+	
 private:
 	InClass* class_;
 	map<string, core::Value> fields_;

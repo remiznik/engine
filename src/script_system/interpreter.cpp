@@ -278,6 +278,11 @@ core::Value Interpreter::visit(SetExpr* expr)
     return val;
 }
 
+core::Value Interpreter::visit(This* expr)
+{
+    return lookUpVariable(expr->keyword, expr);
+}
+
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {
     // becaus return realize by exception (
@@ -299,7 +304,7 @@ core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
 {
     auto it = locals_.find(expr);
     if (it != locals_.end())
-    {
+    {        
         return environment_->getAt(it->second, name.lexeme);
     }
     

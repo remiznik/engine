@@ -27,6 +27,7 @@ namespace script_system {
 			virtual core::Value visit(class ClassExpr* expr) = 0;
 			virtual core::Value visit(class GetExpr* expr) = 0;
 			virtual core::Value visit(class SetExpr* expr) = 0;
+			virtual core::Value visit(class This* expr) = 0;
 		};
 	}
 }
