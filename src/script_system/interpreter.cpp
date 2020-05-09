@@ -9,18 +9,6 @@
 
 namespace script_system{
 namespace parser {
-    
-
-    class RetrunException : public std::exception
-    {
-    public:
-        RetrunException(core::Value v)
-            : value(v)
-        {}
-        
-        core::Value value;
-    };
-
     class Clock : public Callable
     {
     public:
@@ -31,50 +19,7 @@ namespace parser {
         }
     };
 
-    class InFunction : public Callable
-    {
-    public:
-        InFunction(Interpreter* inter, Function* expr, const shared_ptr<Environment>& closure)
-            : inter_(inter), expr_(expr), closure_(closure)
-        {}
-
-        core::Value call(const vector<core::Value>& args) override
-        {
-            auto env = makeShared<Environment>(closure_);
-            ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
-            
-            for (size_t i = 0; i < expr_->params.size(); ++i)
-            {
-                env->define(expr_->params[i].lexeme, args[i]);
-            }
-            try
-            {
-                inter_->execute(expr_->body, env);
-            }
-            catch(const RetrunException& e)
-            {
-                //std::cout << " catch " << std::endl;
-                return e.value;
-            }
-
-            return core::Value();
-        }
-
-        virtual string toString() const override
-        {
-            string result;
-            result.append(" Function ");
-            result.append(expr_->name.lexeme);
-            result.append("\n");
-            return result;
-        }
-
-    private:
-        Interpreter* inter_;
-        Function* expr_;
-        shared_ptr<Environment> closure_;
-    };
-
+    
 
 Interpreter::Interpreter()
 {
@@ -292,9 +237,15 @@ core::Value Interpreter::visit(Return* expr)
 core::Value Interpreter::visit(ClassExpr* expr)
 {
     environment_->define(expr->name.lexeme, core::Value());
-    auto inClass = makeShared<InClass>(expr->name.lexeme);
-    environment_->assign(expr->name, core::Value(inClass));
 
+    map<string, shared_ptr<InFunction>> methods;
+    for (auto method : expr->methods)
+    {
+        methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_));
+    }
+
+    auto inClass = makeShared<InClass>(expr->name.lexeme, methods);
+    environment_->assign(expr->name, core::Value(inClass));
     return core::Value();
 }
 

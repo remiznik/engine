@@ -37,20 +37,24 @@ public:
 
 	void resolve(const vector<ExprPtr>& statements);
 
+private:
+	enum class FunctionType
+	{
+		NONE,
+		FUNCTION,
+		METHOD
+	};
+
+
 private:	
 	void resolveStmt(Expr* statement);
 	void resolveLockal(Expr* expr, Token name);
+	void resolveFunction(Function* expr, FunctionType type);
 	void declare(Token name);
 	void define(Token name);
 
 	void beginScope();
 	void endScope();
-private:
-	enum class FunctionType
-	{
-		NONE,
-		FUNCTION
-	};
 
 private:
 	Interpreter* interpreter_;

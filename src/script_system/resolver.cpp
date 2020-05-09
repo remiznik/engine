@@ -121,8 +121,15 @@ namespace parser {
 	{
 		declare(expr->name);                              
     	define(expr->name);
+		resolveFunction(expr, FunctionType::FUNCTION);
+		
+		return core::Value();
+	}
 
+	void Resolver::resolveFunction(Function* expr, FunctionType type)
+	{
 		ScopeGuard<FunctionType> guard(currentFunction);
+		currentFunction = type;
 		beginScope();
 		for (auto param: expr->params)
 		{
@@ -131,7 +138,6 @@ namespace parser {
 		}
 		resolve(expr->body);
 		endScope();
-		return core::Value();
 	}
 
 	core::Value Resolver::visit(Stmt* expr) 
@@ -218,7 +224,12 @@ namespace parser {
 	core::Value Resolver::visit(ClassExpr* expr)
 	{
 		define(expr->name);
-		declare(expr->name);
+		//declare(expr->name);
+		for (auto method : expr->methods)
+		{
+			FunctionType decl = FunctionType::METHOD;
+			resolveFunction(method.get(), decl);
+		}
 		return core::Value();
 	}
 

@@ -1,8 +1,47 @@
 #include "class_def.h"
 
 #include "core/assert.h"
+#include "interpreter.h"
+#include "ast.h"
 
 namespace script_system {
+
+
+
+InFunction::InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure)
+	: inter_(inter), expr_(expr), closure_(closure)
+{}
+
+core::Value InFunction::call(const vector<core::Value>& args)
+{
+	auto env = makeShared<Environment>(closure_);
+	ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
+	
+	for (size_t i = 0; i < expr_->params.size(); ++i)
+	{
+		env->define(expr_->params[i].lexeme, args[i]);
+	}
+	try
+	{
+		inter_->execute(expr_->body, env);
+	}
+	catch(const RetrunException& e)
+	{
+		//std::cout << " catch " << std::endl;
+		return e.value;
+	}
+
+	return core::Value();
+}
+
+string InFunction::toString() const 
+{
+	string result;
+	result.append(" Function ");
+	result.append(expr_->name.lexeme);
+	result.append("\n");
+	return result;
+}
 
 core::Value InClass::call(const vector<core::Value>& args)
 {
@@ -10,7 +49,17 @@ core::Value InClass::call(const vector<core::Value>& args)
 	return core::Value(instance);
 }
 
- string InClass::toString() const
+shared_ptr<InFunction> InClass::method(const string& name)
+{
+	auto it = methods_.find(name);
+	if (it != methods_.end())
+	{
+		return it->second;
+	}
+	return nullptr;
+}
+
+string InClass::toString() const
 {
 	string result;
 	result.append(" Class ");
@@ -40,6 +89,11 @@ core::Value InClassInstance::get(const string& name) const
 	if (it != fields_.end())
 	{
 		return it->second;
+	}
+	auto method = class_->method(name);
+	if (method != nullptr)
+	{
+		return core::Value(method);
 	}
 
 	ASSERT(false, "Undefined property .");
