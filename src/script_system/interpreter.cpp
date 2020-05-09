@@ -298,6 +298,35 @@ core::Value Interpreter::visit(ClassExpr* expr)
     return core::Value();
 }
 
+core::Value Interpreter::visit(GetExpr* expr)
+{
+    auto objValue = evaluate(expr->object.get());
+    auto obj = objValue.get<shared_ptr<core::Object>>();
+    auto inst = static_cast<InClassInstance*>(obj.get());
+    if (inst)
+    {
+        return inst->get(expr->name.lexeme);
+    }
+
+    ASSERT(false, "Only instance have property ");
+    return core::Value();
+}
+
+core::Value Interpreter::visit(SetExpr* expr)
+{
+    auto objValue = evaluate(expr->object.get());
+    auto obj = objValue.get<shared_ptr<core::Object>>();
+    auto inst = static_cast<InClassInstance*>(obj.get());
+    if (inst == nullptr)
+    {
+        ASSERT(false, "Only instance have field. ");
+        return core::Value();
+    }
+    auto val = evaluate(expr->value.get());
+    inst->set(expr->name.lexeme, val);
+    return val;
+}
+
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {
     // becaus return realize by exception (

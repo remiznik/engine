@@ -251,7 +251,15 @@ namespace parser {
                 Token name = variable->name;
                 return makeShared<Assign>(name, value);
             }
-            std::cout << equals.toString() << std::endl;
+            else 
+            {
+                GetExpr* getExpr = dynamic_cast<GetExpr*>(expr.get());
+                if (getExpr)
+                {
+                    return makeShared<SetExpr>(getExpr->object, getExpr->name, value);
+                }
+            }
+
             ASSERT(false, "Parser::assignmet");
         }
         return expr;
@@ -376,6 +384,11 @@ namespace parser {
             if (match({TokenType::LEFT_PAREN}))
             {
                 expr = finishCall(expr);
+            }
+            else if (match({TokenType::DOT}))
+            {
+                auto name = consume(TokenType::IDENTIFIER, "Expect property name afte '.'.");
+                expr = makeShared<GetExpr>(expr, name);
             }
             else
             {

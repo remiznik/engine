@@ -32,6 +32,8 @@ public:
 	core::Value visit(Function* expr) override;
 	core::Value visit(Return* expr) override;
 	core::Value visit(ClassExpr* expr) override;
+	core::Value visit(GetExpr* expr) override;
+	core::Value visit(SetExpr* expr) override;
 
 	void resolve(const vector<ExprPtr>& statements);
 

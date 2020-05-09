@@ -32,11 +32,12 @@ public:
 	{}
 	virtual string toString() const override;
 
+	core::Value get(const string& name) const;
+	void set(const string& name, core::Value val);
+
 private:
 	InClass* class_;
+	map<string, core::Value> fields_;
 };
-
-
-
 
 }
