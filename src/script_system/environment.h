@@ -20,7 +20,7 @@ namespace script_system {
 		void assign(parser::Token name, core::Value value);
 		void assignAt(int distance, parser::Token name, core::Value value);
 
-		void toString(const string& shift, string& result);
+		string toString(const string& shift);
 
 	private:
 		Environment* ancestor(int distance);

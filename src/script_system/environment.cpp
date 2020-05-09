@@ -66,9 +66,9 @@ namespace script_system {
 		return env;
 	}
 
-	void Environment::toString(const string& shift, string&  result)
+	string Environment::toString(const string& shift)
 	{
-
+		string result;
 		for( auto v : values_)
 		{
 			result.append(shift);
@@ -78,7 +78,9 @@ namespace script_system {
 			result.append("\n");
 		}
 		if (enclosing_)
-			enclosing_->toString(shift + "---", result);
+			result.append(enclosing_->toString(shift + "---"));
+		
+		return result;
 
 	}
 
