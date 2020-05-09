@@ -223,10 +223,12 @@ namespace parser {
 
 	core::Value Resolver::visit(ClassExpr* expr)
 	{
+		declare(expr->name);
 		define(expr->name);
+		
 		beginScope();
 		scopes_.back().emplace("this", true);
-		//declare(expr->name);
+		
 		for (auto method : expr->methods)
 		{
 			FunctionType decl = FunctionType::METHOD;
@@ -289,7 +291,15 @@ namespace parser {
 	{
 		if (scopes_.empty()) return;
 
-		scopes_.back()[name.lexeme] = true;
+		auto it = scopes_.back().find(name.lexeme);
+		if (it != scopes_.back().end())
+		{
+			it->second =  true;
+		}
+		else
+		{
+			logger_.write(VariableAllradyMessage(name.lexeme));
+		}
 	}
 
 }

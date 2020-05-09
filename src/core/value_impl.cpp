@@ -224,11 +224,11 @@ namespace core
         public:
             virtual void freeValue(AnyValue& value) const override
             {
-                value.s.clear();
+				value.s = "";
             }
             virtual void copyValue(const AnyValue& from, AnyValue& value) const override
             {
-                value.s = from.s;
+				value.s = from.s;
             }
 			virtual string toChars(const AnyValue& value) const override
 			{
@@ -242,7 +242,7 @@ namespace core
 
             virtual bool toBool(const AnyValue& value) const override
 			{
-				return !value.s.empty();
+				return value.s && value.s[0];
 			}
 
 			virtual bool equal(const Value& self, const Value& other) const override
@@ -262,7 +262,7 @@ namespace core
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
 				ASSERT(other.type() == ValueType::String, "Value string plus");
-				return self.get<string>() + other.get<string>();
+				return Value((string(self.get<string>()) + string(other.get<string>())).c_str());
 			}
 
 			virtual shared_ptr<Object> toObj(const AnyValue& value) const override
