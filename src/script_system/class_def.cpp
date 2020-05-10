@@ -26,6 +26,7 @@ core::Value InFunction::call(const vector<core::Value>& args)
 	}
 	catch(const RetrunException& e)
 	{
+		if (isInitializer_) return closure_->getAt(0, "this");
 		return e.value;
 	}
 	if (isInitializer_) return closure_->getAt(0, "this");

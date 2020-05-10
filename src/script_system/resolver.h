@@ -43,6 +43,7 @@ private:
 	{
 		NONE,
 		FUNCTION,
+		INITIALIZER,
 		METHOD
 	};
 
@@ -67,7 +68,7 @@ private:
 	Interpreter* interpreter_;
 	vector<map<string, bool>> scopes_;		
 	core::Logger& logger_;
-	FunctionType currentFunction {FunctionType::NONE};
+	FunctionType currentFunction_ {FunctionType::NONE};
 	ClassType currentClass_{ ClassType::NONE };
 };
 }

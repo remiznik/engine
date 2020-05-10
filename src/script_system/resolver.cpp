@@ -128,8 +128,8 @@ namespace parser {
 
 	void Resolver::resolveFunction(Function* expr, FunctionType type)
 	{
-		ScopeGuard<FunctionType> guard(currentFunction);
-		currentFunction = type;
+		ScopeGuard<FunctionType> guard(currentFunction_);
+		currentFunction_ = type;
 		beginScope();
 		for (auto param: expr->params)
 		{
@@ -162,13 +162,17 @@ namespace parser {
 
 	core::Value Resolver::visit(Return* expr) 
 	{
-		if (currentFunction == FunctionType::NONE)
+		if (currentFunction_ == FunctionType::NONE)
 		{
 			logger_.write(core::LogMessage("Cannot return from top-level code."));
 		}
 
 		if (expr->value != nullptr)
 		{
+			if (currentFunction_ == FunctionType::INITIALIZER)
+			{
+				logger_.write(core::LogMessage("Cannot return a value form initializer"));
+			}
 			resolveStmt(expr->value.get());
 		}
 		return core::Value();
@@ -267,7 +271,7 @@ namespace parser {
 
 	void Resolver::resolveLockal(Expr* expr, Token name)
 	{
-		for (int i = scopes_.size() - 1; i >= 0; --i )
+		for (int i = static_cast<int>(scopes_.size() - 1); i >= 0; --i )
 		{
 			if (scopes_[i].find(name.lexeme) != scopes_[i].end())
 			{
