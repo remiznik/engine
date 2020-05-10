@@ -264,7 +264,7 @@ namespace parser {
 		{
 			if (scopes_[i].find(name.lexeme) != scopes_[i].end())
 			{
-				interpreter_->resolve(expr, scopes_.size() - 1 + i);
+				interpreter_->resolve(expr, scopes_.size() - 1 - i);
 				return;
 			}
 		}
