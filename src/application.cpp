@@ -1,5 +1,6 @@
 #include "application.h"
 #include <WindowsX.h>
+#include <DirectXMath.h>
 
 #include <thread>
 
@@ -34,7 +35,7 @@ namespace app {
 		if (!initWindow())
 			return false;
 
-		if (!m_render.initialize(mhMainWnd))
+		if (!render_.initialize(mhMainWnd))
 			return false;
 
 		return true;
@@ -61,7 +62,7 @@ namespace app {
 		}
 
 		// Compute window rectangle dimensions based on requested client area dimensions.
-		RECT R = { 0, 0, mClientWidth, mClientHeight };
+		RECT R = { 0, 0, clientWidth_, clientHeight_ };
 		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 		int width = R.right - R.left;
 		int height = R.bottom - R.top;
@@ -103,8 +104,8 @@ namespace app {
 			// WM_SIZE is sent when the user resizes the window.  
 		case WM_SIZE:
 			// Save the new client area dimensions.
-			mClientWidth = LOWORD(lParam);
-			mClientHeight = HIWORD(lParam);
+			clientWidth_ = LOWORD(lParam);
+			clientHeight_ = HIWORD(lParam);
 			/*if (md3dDevice)
 			{
 				if (wParam == SIZE_MINIMIZED)
@@ -202,7 +203,7 @@ namespace app {
 			//OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_MOUSEMOVE:
-			//OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 			return 0;
 		case WM_KEYUP:
 			if (wParam == VK_ESCAPE)
@@ -210,8 +211,9 @@ namespace app {
 				PostQuitMessage(0);
 			}
 			else if ((int)wParam == VK_F2)
+			{
 				//Set4xMsaaState(!m4xMsaaState);
-
+			}
 
 			return 0;
 		}
@@ -219,29 +221,67 @@ namespace app {
 		return DefWindowProc(hwnd, msg, wParam, lParam);
 	}
 
+	void Application::OnMouseMove(WPARAM btnState, int x, int y)
+	{
+		if ((btnState & MK_LBUTTON) != 0)
+		{
+			// Make each pixel correspond to a quarter of a degree.
+			float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - lastMousePos_.x));
+			float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - lastMousePos_.y));
+
+			// Update angles based on input to orbit camera around box.
+			theta_ += dx;
+			phi_ += dy;
+
+			// Restrict the angle mPhi.
+			phi_ = MathHelper::Clamp(phi_, 0.1f, MathHelper::Pi - 0.1f);
+		}
+		else if ((btnState & MK_RBUTTON) != 0)
+		{
+			// Make each pixel correspond to 0.2 unit in the scene.
+			float dx = 0.05f * static_cast<float>(x - lastMousePos_.x);
+			float dy = 0.05f * static_cast<float>(y - lastMousePos_.y);
+
+			// Update the camera radius based on input.
+			radius_ += dx - dy;
+
+			// Restrict the radius.
+			radius_ = MathHelper::Clamp(radius_, 5.0f, 150.0f);
+		}
+
+		lastMousePos_.x = x;
+		lastMousePos_.y = y;
+	}
+
+
 	void Application::update()
 	{
-
+		render_.updateCamera(radius_, phi_, theta_);
+		render_.update();
 	}
 
 	void Application::draw()
 	{
-		m_render.draw();
+		render_.draw();
 	}
-
 
 	void Application::run()	
 	{
+		MSG msg = { 0 };
 		while (true)
 		{	
+			if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+
 			if (!mAppPaused)
 			{
 				update();
 				draw();
-			}
-			
+			}			
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));			
-
 			
 		}
 	}
