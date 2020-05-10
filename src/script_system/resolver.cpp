@@ -223,6 +223,9 @@ namespace parser {
 
 	core::Value Resolver::visit(ClassExpr* expr)
 	{
+		ScopeGuard<ClassType> guard(currentClass_);
+		currentClass_ = ClassType::CLASS;
+
 		declare(expr->name);
 		define(expr->name);
 		
@@ -254,6 +257,10 @@ namespace parser {
 
 	core::Value Resolver::visit(This* expr)
 	{
+		if (currentClass_ == ClassType::NONE)
+		{
+			logger_.write(core::LogMessage("Cannot use 'this' outside a class"));
+		}
 		resolveLockal(expr, expr->keyword);
 		return core::Value();
 	}

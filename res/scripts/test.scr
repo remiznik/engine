@@ -1,12 +1,3 @@
-class Cake {
-  taste() {
-    var adjective;
-    adjective = "delicious";
-    
-    
-    print adjective;
-  }
+fun notAMethod() {
+  print this;
 }
-
-var cake = Cake();
-cake.taste(); // Prints "The German chocolate cake is delicious!".

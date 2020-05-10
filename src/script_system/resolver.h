@@ -46,6 +46,12 @@ private:
 		METHOD
 	};
 
+	enum class ClassType
+	{
+		NONE,
+		CLASS
+	};
+
 
 private:	
 	void resolveStmt(Expr* statement);
@@ -62,6 +68,7 @@ private:
 	vector<map<string, bool>> scopes_;		
 	core::Logger& logger_;
 	FunctionType currentFunction {FunctionType::NONE};
+	ClassType currentClass_{ ClassType::NONE };
 };
 }
 }
