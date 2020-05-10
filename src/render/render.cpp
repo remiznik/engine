@@ -1,10 +1,12 @@
 #include "render.h"
 
+#include "d3d12Utils\GeometryGenerator.h"
 
 using Microsoft::WRL::ComPtr;
 using namespace std;
 using namespace DirectX;
 
+const int gNumFrameResources = 3;
 
 namespace render
 {	
@@ -51,14 +53,14 @@ namespace render
 
 		RtvDescriptorSize_ = d3dDevice_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		DsvDescriptorSize_ = d3dDevice_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-		CbvSrvUavDescriptorSize_ = d3dDevice_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		cbvSrvUavDescriptorSize_ = d3dDevice_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		// Check 4X MSAA quality support for our back buffer format.
 		// All Direct3D 11 capable devices support 4X MSAA for all render 
 		// target formats, so we only need to check quality support.
 
 		D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msQualityLevels;
-		msQualityLevels.Format = BackBufferFormat_;
+		msQualityLevels.Format = backBufferFormat_;
 		msQualityLevels.SampleCount = 4;
 		msQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
 		msQualityLevels.NumQualityLevels = 0;
@@ -80,18 +82,23 @@ namespace render
 
 		resize();
 
-		ThrowIfFailed(CommandList_->Reset(DirectCmdListAlloc_.Get(), nullptr));
+		// --------------------------------------------------------------------------
 
-		BuildDescriptorHeaps();
-		BuildConstantBuffers();
+		ThrowIfFailed(commandList_->Reset(DirectCmdListAlloc_.Get(), nullptr));
+
 		BuildRootSignature();
 		BuildShadersAndInputLayout();
-		BuildBoxGeometry();
-		BuildPSO();
+		BuildShapeGeometry();
+		BuildRenderItems();
+		BuildFrameResources();
+		BuildDescriptorHeaps();
+		BuildConstantBufferViews();
+		BuildPSOs();
 
-		ThrowIfFailed(CommandList_->Close());
-		ID3D12CommandList* cmdsLists[] = { CommandList_.Get() };
-		CommandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+		
+		ThrowIfFailed(commandList_->Close());
+		ID3D12CommandList* cmdsLists[] = { commandList_.Get() };
+		commandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 		// Wait until initialization is complete.
 		FlushCommandQueue();
@@ -104,7 +111,7 @@ namespace render
 		D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-		ThrowIfFailed(d3dDevice_->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&CommandQueue_)));
+		ThrowIfFailed(d3dDevice_->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue_)));
 
 		ThrowIfFailed(d3dDevice_->CreateCommandAllocator(
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -115,25 +122,25 @@ namespace render
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
 			DirectCmdListAlloc_.Get(), // Associated command allocator
 			nullptr,                   // Initial PipelineStateObject
-			IID_PPV_ARGS(CommandList_.GetAddressOf())));
+			IID_PPV_ARGS(commandList_.GetAddressOf())));
 		  
 		// Start off in a closed state.  This is because the first time we refer 
 		// to the command list we will Reset it, and it needs to be closed before
 		// calling Reset.
-		CommandList_->Close();
+		commandList_->Close();
 	}
 
 	void RenderD12::CreateSwapChain()
 	{
 		// Release the previous swapchain we will be recreating.
-		SwapChain_.Reset();
+		swapChain_.Reset();
 
 		DXGI_SWAP_CHAIN_DESC sd;
-		sd.BufferDesc.Width = ClientWidth_;
-		sd.BufferDesc.Height = ClientHeight_;
+		sd.BufferDesc.Width = clientWidth_;
+		sd.BufferDesc.Height = clientHeight_;
 		sd.BufferDesc.RefreshRate.Numerator = 60;
 		sd.BufferDesc.RefreshRate.Denominator = 1;
-		sd.BufferDesc.Format = BackBufferFormat_;
+		sd.BufferDesc.Format = backBufferFormat_;
 		sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 		sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 		sd.SampleDesc.Count = _4xMsaaState ? 4 : 1;
@@ -147,9 +154,9 @@ namespace render
 
 		// Note: Swap chain uses queue to perform flush.
 		ThrowIfFailed(dxgiFactory_->CreateSwapChain(
-			CommandQueue_.Get(),
+			commandQueue_.Get(),
 			&sd,
-			SwapChain_.GetAddressOf()));
+			swapChain_.GetAddressOf()));
 	}
 
 	void RenderD12::CreateRtvAndDsvDescriptorHeaps()
@@ -175,13 +182,13 @@ namespace render
 	void RenderD12::resize()
 	{
 		assert(d3dDevice_);
-		assert(SwapChain_);
+		assert(swapChain_);
 		assert(DirectCmdListAlloc_);
 
 		// Flush before changing any resources.
 		FlushCommandQueue();
 
-		ThrowIfFailed(CommandList_->Reset(DirectCmdListAlloc_.Get(), nullptr));
+		ThrowIfFailed(commandList_->Reset(DirectCmdListAlloc_.Get(), nullptr));
 
 		// Release the previous resources we will be recreating.
 		for (int i = 0; i < SwapChainBufferCount; ++i)
@@ -189,18 +196,18 @@ namespace render
 		DepthStencilBuffer_.Reset();
 
 		// Resize the swap chain.
-		ThrowIfFailed(SwapChain_->ResizeBuffers(
+		ThrowIfFailed(swapChain_->ResizeBuffers(
 			SwapChainBufferCount,
-			ClientWidth_, ClientHeight_,
-			BackBufferFormat_,
+			clientWidth_, clientHeight_,
+			backBufferFormat_,
 			DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
-		CurrBackBuffer_ = 0;
+		currBackBuffer_ = 0;
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(RtvHeap_->GetCPUDescriptorHandleForHeapStart());
 		for (UINT i = 0; i < SwapChainBufferCount; i++)
 		{
-			ThrowIfFailed(SwapChain_->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer_[i])));
+			ThrowIfFailed(swapChain_->GetBuffer(i, IID_PPV_ARGS(&SwapChainBuffer_[i])));
 			d3dDevice_->CreateRenderTargetView(SwapChainBuffer_[i].Get(), nullptr, rtvHeapHandle);
 			rtvHeapHandle.Offset(1, RtvDescriptorSize_);
 		}
@@ -209,8 +216,8 @@ namespace render
 		D3D12_RESOURCE_DESC depthStencilDesc;
 		depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		depthStencilDesc.Alignment = 0;
-		depthStencilDesc.Width = ClientWidth_;
-		depthStencilDesc.Height = ClientHeight_;
+		depthStencilDesc.Width = clientWidth_;
+		depthStencilDesc.Height = clientHeight_;
 		depthStencilDesc.DepthOrArraySize = 1;
 		depthStencilDesc.MipLevels = 1;
 
@@ -227,7 +234,7 @@ namespace render
 		depthStencilDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		D3D12_CLEAR_VALUE optClear;
-		optClear.Format = DepthStencilFormat_;
+		optClear.Format = depthStencilFormat_;
 		optClear.DepthStencil.Depth = 1.0f;
 		optClear.DepthStencil.Stencil = 0;
 		ThrowIfFailed(d3dDevice_->CreateCommittedResource(
@@ -242,53 +249,53 @@ namespace render
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsvDesc.Format = DepthStencilFormat_;
+		dsvDesc.Format = depthStencilFormat_;
 		dsvDesc.Texture2D.MipSlice = 0;
 		d3dDevice_->CreateDepthStencilView(DepthStencilBuffer_.Get(), &dsvDesc, DepthStencilView());
 
 		// Transition the resource from its initial state to be used as a depth buffer.
-		CommandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer_.Get(),
+		commandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(DepthStencilBuffer_.Get(),
 			D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 		// Execute the resize commands.
-		ThrowIfFailed(CommandList_->Close());
-		ID3D12CommandList* cmdsLists[] = { CommandList_.Get() };
-		CommandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+		ThrowIfFailed(commandList_->Close());
+		ID3D12CommandList* cmdsLists[] = { commandList_.Get() };
+		commandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 		// Wait until resize is complete.
 		FlushCommandQueue();
 
 		// Update the viewport transform to cover the client area.
-		ScreenViewport_.TopLeftX = 0;
-		ScreenViewport_.TopLeftY = 0;
-		ScreenViewport_.Width = static_cast<float>(ClientWidth_);
-		ScreenViewport_.Height = static_cast<float>(ClientHeight_);
-		ScreenViewport_.MinDepth = 0.0f;
-		ScreenViewport_.MaxDepth = 1.0f;
+		screenViewport_.TopLeftX = 0;
+		screenViewport_.TopLeftY = 0;
+		screenViewport_.Width = static_cast<float>(clientWidth_);
+		screenViewport_.Height = static_cast<float>(clientHeight_);
+		screenViewport_.MinDepth = 0.0f;
+		screenViewport_.MaxDepth = 1.0f;
 
-		ScissorRect_ = { 0, 0, ClientWidth_, ClientHeight_ };
+		scissorRect_ = { 0, 0, clientWidth_, clientHeight_ };
 
-		XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, (static_cast<float>(ClientWidth_) / ClientHeight_) , 1.0f, 1000.0f);
+		XMMATRIX P = XMMatrixPerspectiveFovLH(0.25f * MathHelper::Pi, (static_cast<float>(clientWidth_) / clientHeight_) , 1.0f, 1000.0f);
 		XMStoreFloat4x4(&mProj, P);
 	}
 
 	void RenderD12::FlushCommandQueue()
 	{
 		// Advance the fence value to mark commands up to this fence point.
-		CurrentFence_++;
+		currentFence_++;
 
 		// Add an instruction to the command queue to set a new fence point.  Because we 
 		// are on the GPU timeline, the new fence point won't be set until the GPU finishes
 		// processing all the commands prior to this Signal().
-		ThrowIfFailed(CommandQueue_->Signal(fence_.Get(), CurrentFence_));
+		ThrowIfFailed(commandQueue_->Signal(fence_.Get(), currentFence_));
 
 		// Wait until the GPU has completed commands up to this fence point.
-		if (fence_->GetCompletedValue() < CurrentFence_)
+		if (fence_->GetCompletedValue() < currentFence_)
 		{
 			HANDLE eventHandle = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 			// Fire event when GPU hits current fence.  
-			ThrowIfFailed(fence_->SetEventOnCompletion(CurrentFence_, eventHandle));
+			ThrowIfFailed(fence_->SetEventOnCompletion(currentFence_, eventHandle));
 
 			// Wait until the GPU hits current fence event is fired.
 			WaitForSingleObject(eventHandle, INFINITE);
@@ -303,132 +310,118 @@ namespace render
 
 	void RenderD12::draw()
 	{
-		// Convert Spherical to Cartesian coordinates.
-		float x = mRadius * sinf(mPhi) * cosf(mTheta);
-		float z = mRadius * sinf(mPhi) * sinf(mTheta);
-		float y = mRadius * cosf(mPhi);
+		auto cmdListAlloc = currFrameResource_->CmdListAlloc;
 
-		// Build the view matrix.
-		XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-		XMVECTOR target = XMVectorZero();
-		XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+		// Reuse the memory associated with command recording.
+		// We can only reset when the associated command lists have finished execution on the GPU.
+		ThrowIfFailed(cmdListAlloc->Reset());
 
-		XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-		XMStoreFloat4x4(&mView, view);
+		// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+		// Reusing the command list reuses memory.
+		
+		
+		ThrowIfFailed(commandList_->Reset(cmdListAlloc.Get(), PSOs_["opaque"].Get()));
+		
 
-		XMMATRIX world = XMLoadFloat4x4(&mWorld);
-		XMMATRIX proj = XMLoadFloat4x4(&mProj);
-		XMMATRIX worldViewProj = world * view * proj;
+		commandList_->RSSetViewports(1, &screenViewport_);
+		commandList_->RSSetScissorRects(1, &scissorRect_);
 
-		// Update the constant buffer with the latest worldViewProj matrix.
-		ObjectConstants objConstants;
-		XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));
-		ObjectCB_->CopyData(0, objConstants);
+		// Indicate a state transition on the resource usage.
+		commandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-		ThrowIfFailed(DirectCmdListAlloc_->Reset());
+		// Clear the back buffer and depth buffer.
+		commandList_->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+		commandList_->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
-		ThrowIfFailed(CommandList_->Reset(DirectCmdListAlloc_.Get(), PSO_.Get()));
+		// Specify the buffers we are going to render to.
+		commandList_->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-		CommandList_->RSSetViewports(1, &ScreenViewport_);
-		CommandList_->RSSetScissorRects(1, &ScissorRect_);
+		ID3D12DescriptorHeap* descriptorHeaps[] = { cbvHeap_.Get() };
+		commandList_->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
 
-		CommandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-		CommandList_->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
-		CommandList_->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+		commandList_->SetGraphicsRootSignature(rootSignature_.Get());
 
-		CommandList_->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
+		int passCbvIndex = passCbvOffset_ + currFrameResourceIndex_;
+		auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+		passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
+		commandList_->SetGraphicsRootDescriptorTable(1, passCbvHandle);
 
-		ID3D12DescriptorHeap* descriptorHeaps[] = { CbvHeap_.Get() };
-		CommandList_->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+		DrawRenderItems(commandList_.Get(), opaqueRitems_);
 
-		CommandList_->SetGraphicsRootSignature(RootSignature_.Get());
-
-		CommandList_->IASetVertexBuffers(0, 1, &BoxGeo_->VertexBufferView());		
-		CommandList_->IASetIndexBuffer(&BoxGeo_->IndexBufferView());
-		CommandList_->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		CommandList_->SetGraphicsRootDescriptorTable(0, CbvHeap_->GetGPUDescriptorHandleForHeapStart());
-
-		CommandList_->DrawIndexedInstanced(
-			BoxGeo_->DrawArgs["box"].IndexCount,
-			1, 0, 0, 0);
-
-
-		//CommandList_->DrawIndexedInstanced(BoxGeo_->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
-		//mCommandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 1, 0);
-
-		CommandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
-
+		// Indicate a state transition on the resource usage.
+		commandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 		// Done recording commands.
-		ThrowIfFailed(CommandList_->Close());
+		ThrowIfFailed(commandList_->Close());
 
 		// Add the command list to the queue for execution.
-		ID3D12CommandList* cmdsLists[] = { CommandList_.Get() };
-		CommandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+		ID3D12CommandList* cmdsLists[] = { commandList_.Get() };
+		commandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
-		ThrowIfFailed(SwapChain_->Present(0, 0));
-		CurrBackBuffer_ = (CurrBackBuffer_ + 1) % SwapChainBufferCount;
+		// Swap the back and front buffers
+		ThrowIfFailed(swapChain_->Present(0, 0));
+		currBackBuffer_ = (currBackBuffer_ + 1) % SwapChainBufferCount;
 
-		FlushCommandQueue();
+		// Advance the fence value to mark commands up to this fence point.
+		currFrameResource_->Fence = ++currentFence_;
+
+		// Add an instruction to the command queue to set a new fence point. 
+		// Because we are on the GPU timeline, the new fence point won't be 
+		// set until the GPU finishes processing all the commands prior to this Signal().
+		commandQueue_->Signal(fence_.Get(), currentFence_);
 	}
 
 	ID3D12Resource* RenderD12::CurrentBackBuffer() const
 	{
-		return SwapChainBuffer_[CurrBackBuffer_].Get();
+		return SwapChainBuffer_[currBackBuffer_].Get();
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE RenderD12::CurrentBackBufferView() const
 	{
 		return CD3DX12_CPU_DESCRIPTOR_HANDLE(
 			RtvHeap_->GetCPUDescriptorHandleForHeapStart(),
-			CurrBackBuffer_,
+			currBackBuffer_,
 			RtvDescriptorSize_);
 	}
-
-
-	void RenderD12::BuildDescriptorHeaps()
+	
+	void RenderD12::BuildShadersAndInputLayout()
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-		cbvHeapDesc.NumDescriptors = 1;
-		cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-		cbvHeapDesc.NodeMask = 0;
-		ThrowIfFailed(d3dDevice_->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&CbvHeap_)));
-	}
+		shaders_["standardVS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+		shaders_["opaquePS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
-	void RenderD12::BuildConstantBuffers()
-	{
-		ObjectCB_ = std::make_unique<UploadBuffer<ObjectConstants>>(d3dDevice_.Get(), 1, true);
-
-		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
-		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = ObjectCB_->Resource()->GetGPUVirtualAddress();
-		// Offset to the ith object constant buffer in the buffer.
-		int boxCBufIndex = 0;
-		cbAddress += boxCBufIndex * objCBByteSize;
-
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-		cbvDesc.BufferLocation = cbAddress;
-		cbvDesc.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-
-		d3dDevice_->CreateConstantBufferView(
-			&cbvDesc,
-			CbvHeap_->GetCPUDescriptorHandleForHeapStart());
+		inputLayout_ =
+		{
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		};
 	}
 
 	void RenderD12::BuildRootSignature()
 	{
-		CD3DX12_ROOT_PARAMETER slotRootParameter[1];
-		CD3DX12_DESCRIPTOR_RANGE cbvTable;
-		cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-		slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+		CD3DX12_DESCRIPTOR_RANGE cbvTable0;
+		cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
 
-		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+		CD3DX12_DESCRIPTOR_RANGE cbvTable1;
+		cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
+		// Root parameter can be a table, root descriptor or root constants.
+		CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+
+		// Create root CBVs.
+		slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
+		slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+
+		// A root signature is an array of root parameters.
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
 		ComPtr<ID3DBlob> serializedRootSig = nullptr;
 		ComPtr<ID3DBlob> errorBlob = nullptr;
-		HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+		HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+			serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
 
 		if (errorBlob != nullptr)
 		{
@@ -436,125 +429,448 @@ namespace render
 		}
 		ThrowIfFailed(hr);
 
-		ThrowIfFailed(d3dDevice_->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(&RootSignature_)));
+		ThrowIfFailed(d3dDevice_->CreateRootSignature(
+			0,
+			serializedRootSig->GetBufferPointer(),
+			serializedRootSig->GetBufferSize(),
+			IID_PPV_ARGS(rootSignature_.GetAddressOf())));
 	}
 
-	void RenderD12::BuildShadersAndInputLayout()
+	void RenderD12::BuildShapeGeometry()
 	{
-		HRESULT hr = S_OK;
+		GeometryGenerator geoGen;
+		GeometryGenerator::MeshData box = geoGen.CreateBox(1.5f, 0.5f, 1.5f, 3);
+		GeometryGenerator::MeshData grid = geoGen.CreateGrid(20.0f, 30.0f, 60, 40);
+		GeometryGenerator::MeshData sphere = geoGen.CreateSphere(0.5f, 20, 20);
+		GeometryGenerator::MeshData cylinder = geoGen.CreateCylinder(0.5f, 0.3f, 3.0f, 20, 20);
 
-		vsByteCode_ = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-		psByteCode_ = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+		//
+		// We are concatenating all the geometry into one big vertex/index buffer.  So
+		// define the regions in the buffer each submesh covers.
+		//
 
-		InputLayout_ =
+		// Cache the vertex offsets to each object in the concatenated vertex buffer.
+		UINT boxVertexOffset = 0;
+		UINT gridVertexOffset = (UINT)box.Vertices.size();
+		UINT sphereVertexOffset = gridVertexOffset + (UINT)grid.Vertices.size();
+		UINT cylinderVertexOffset = sphereVertexOffset + (UINT)sphere.Vertices.size();
+
+		// Cache the starting index for each object in the concatenated index buffer.
+		UINT boxIndexOffset = 0;
+		UINT gridIndexOffset = (UINT)box.Indices32.size();
+		UINT sphereIndexOffset = gridIndexOffset + (UINT)grid.Indices32.size();
+		UINT cylinderIndexOffset = sphereIndexOffset + (UINT)sphere.Indices32.size();
+
+		// Define the SubmeshGeometry that cover different 
+		// regions of the vertex/index buffers.
+
+		SubmeshGeometry boxSubmesh;
+		boxSubmesh.IndexCount = (UINT)box.Indices32.size();
+		boxSubmesh.StartIndexLocation = boxIndexOffset;
+		boxSubmesh.BaseVertexLocation = boxVertexOffset;
+
+		SubmeshGeometry gridSubmesh;
+		gridSubmesh.IndexCount = (UINT)grid.Indices32.size();
+		gridSubmesh.StartIndexLocation = gridIndexOffset;
+		gridSubmesh.BaseVertexLocation = gridVertexOffset;
+
+		SubmeshGeometry sphereSubmesh;
+		sphereSubmesh.IndexCount = (UINT)sphere.Indices32.size();
+		sphereSubmesh.StartIndexLocation = sphereIndexOffset;
+		sphereSubmesh.BaseVertexLocation = sphereVertexOffset;
+
+		SubmeshGeometry cylinderSubmesh;
+		cylinderSubmesh.IndexCount = (UINT)cylinder.Indices32.size();
+		cylinderSubmesh.StartIndexLocation = cylinderIndexOffset;
+		cylinderSubmesh.BaseVertexLocation = cylinderVertexOffset;
+
+		//
+		// Extract the vertex elements we are interested in and pack the
+		// vertices of all the meshes into one vertex buffer.
+		//
+
+		auto totalVertexCount =
+			box.Vertices.size() +
+			grid.Vertices.size() +
+			sphere.Vertices.size() +
+			cylinder.Vertices.size();
+
+		std::vector<Vertex> vertices(totalVertexCount);
+
+		UINT k = 0;
+		for (size_t i = 0; i < box.Vertices.size(); ++i, ++k)
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-		};
-	}
+			vertices[k].Pos = box.Vertices[i].Position;
+			vertices[k].Color = XMFLOAT4(DirectX::Colors::DarkGreen);
+		}
 
-
-	void RenderD12::BuildPSO()
-	{
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-		ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-
-		psoDesc.InputLayout = { InputLayout_.data(), (UINT)InputLayout_.size() };
-		psoDesc.pRootSignature = RootSignature_.Get();
-		psoDesc.VS =
+		for (size_t i = 0; i < grid.Vertices.size(); ++i, ++k)
 		{
-			reinterpret_cast<BYTE*>(vsByteCode_->GetBufferPointer()), vsByteCode_->GetBufferSize()
-		};
-		psoDesc.PS =
+			vertices[k].Pos = grid.Vertices[i].Position;
+			vertices[k].Color = XMFLOAT4(DirectX::Colors::ForestGreen);
+		}
+
+		for (size_t i = 0; i < sphere.Vertices.size(); ++i, ++k)
 		{
-			reinterpret_cast<BYTE*>(psByteCode_->GetBufferPointer()), psByteCode_->GetBufferSize()
-		};
-		CD3DX12_RASTERIZER_DESC rsDec(D3D12_DEFAULT);
-		//rsDec.FillMode = D3D12_FILL_MODE_WIREFRAME;
-		//rsDec.CullMode = D3D12_CULL_MODE_FRONT;
+			vertices[k].Pos = sphere.Vertices[i].Position;
+			vertices[k].Color = XMFLOAT4(DirectX::Colors::Crimson);
+		}
 
-		psoDesc.RasterizerState = rsDec;
-		psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = BackBufferFormat_;
-		psoDesc.SampleDesc.Count = _4xMsaaState ? 4 : 1;
-		psoDesc.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
-		psoDesc.DSVFormat = DepthStencilFormat_;
-
-		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&PSO_)));
-	};
-
-	void RenderD12::BuildBoxGeometry()
-	{
-		std::array<Vertex, 8> vertices =
+		for (size_t i = 0; i < cylinder.Vertices.size(); ++i, ++k)
 		{
-			Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
-			Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
-			Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
-			Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
-			Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
-			Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
-			Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
-			Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
-		};
+			vertices[k].Pos = cylinder.Vertices[i].Position;
+			vertices[k].Color = XMFLOAT4(DirectX::Colors::SteelBlue);
+		}
 
-		std::array<std::uint16_t, 12 * 3> indices =
-		{
-			// front face 
-			0, 1, 2,
-			0, 2, 3,
-			// back face
-			4, 6, 5,
-			4, 7, 6,
-			// left face 
-			4, 5, 1,
-			4, 1, 0,
-			// right face 
-			3, 2, 6,
-			3, 6, 7,
-			// top face 
-			1, 5, 6,
-			1, 6, 2,
-			// bottom face 
-			4, 0, 3,
-			4, 3, 7
-		};
+		std::vector<std::uint16_t> indices;
+		indices.insert(indices.end(), std::begin(box.GetIndices16()), std::end(box.GetIndices16()));
+		indices.insert(indices.end(), std::begin(grid.GetIndices16()), std::end(grid.GetIndices16()));
+		indices.insert(indices.end(), std::begin(sphere.GetIndices16()), std::end(sphere.GetIndices16()));
+		indices.insert(indices.end(), std::begin(cylinder.GetIndices16()), std::end(cylinder.GetIndices16()));
 
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
-		BoxGeo_ = std::make_unique<MeshGeometry>();
-		BoxGeo_->Name = "boxGeo";
+		auto geo = std::make_unique<MeshGeometry>();
+		geo->Name = "shapeGeo";
 
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &BoxGeo_->VertexBufferCPU));
-		CopyMemory(BoxGeo_->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
+		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &BoxGeo_->IndexBufferCPU));
-		CopyMemory(BoxGeo_->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
+		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-		BoxGeo_->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
-			CommandList_.Get(), vertices.data(), vbByteSize, BoxGeo_->VertexBufferUploader);
+		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
+			commandList_.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
 
-		BoxGeo_->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
-			CommandList_.Get(), indices.data(), ibByteSize, BoxGeo_->IndexBufferUploader);
+		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
+			commandList_.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
 
-		BoxGeo_->VertexByteStride = sizeof(Vertex);
-		BoxGeo_->VertexBufferByteSize = vbByteSize;
-		BoxGeo_->IndexFormat = DXGI_FORMAT_R16_UINT;
-		BoxGeo_->IndexBufferByteSize = ibByteSize;
+		geo->VertexByteStride = sizeof(Vertex);
+		geo->VertexBufferByteSize = vbByteSize;
+		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		geo->IndexBufferByteSize = ibByteSize;
 
-		SubmeshGeometry submesh;
-		submesh.IndexCount = (UINT)indices.size();
-		submesh.StartIndexLocation = 0;
-		submesh.BaseVertexLocation = 0;
+		geo->DrawArgs["box"] = boxSubmesh;
+		geo->DrawArgs["grid"] = gridSubmesh;
+		geo->DrawArgs["sphere"] = sphereSubmesh;
+		geo->DrawArgs["cylinder"] = cylinderSubmesh;
 
-		BoxGeo_->DrawArgs["box"] = submesh;
+		geometries_[geo->Name] = std::move(geo);
 	}
 
+	void RenderD12::BuildRenderItems()
+	{
+		auto boxRitem = std::make_unique<RenderItem>();
+		XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f) * XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+		boxRitem->ObjCBIndex = 0;
+		boxRitem->Geo = geometries_["shapeGeo"].get();
+		boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
+		boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
+		boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
+		allRitems_.push_back(std::move(boxRitem));
+
+		auto gridRitem = std::make_unique<RenderItem>();
+		gridRitem->World = MathHelper::Identity4x4();
+		gridRitem->ObjCBIndex = 1;
+		gridRitem->Geo = geometries_["shapeGeo"].get();
+		gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
+		gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
+		gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
+		allRitems_.push_back(std::move(gridRitem));
+
+		UINT objCBIndex = 2;
+		for (int i = 0; i < 5; ++i)
+		{
+			auto leftCylRitem = std::make_unique<RenderItem>();
+			auto rightCylRitem = std::make_unique<RenderItem>();
+			auto leftSphereRitem = std::make_unique<RenderItem>();
+			auto rightSphereRitem = std::make_unique<RenderItem>();
+
+			XMMATRIX leftCylWorld = XMMatrixTranslation(-5.0f, 1.5f, -10.0f + i * 5.0f);
+			XMMATRIX rightCylWorld = XMMatrixTranslation(+5.0f, 1.5f, -10.0f + i * 5.0f);
+
+			XMMATRIX leftSphereWorld = XMMatrixTranslation(-5.0f, 3.5f, -10.0f + i * 5.0f);
+			XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i * 5.0f);
+
+			XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
+			leftCylRitem->ObjCBIndex = objCBIndex++;
+			leftCylRitem->Geo = geometries_["shapeGeo"].get();
+			leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftCylRitem->IndexCount = leftCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
+			leftCylRitem->StartIndexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
+			leftCylRitem->BaseVertexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
+			rightCylRitem->ObjCBIndex = objCBIndex++;
+			rightCylRitem->Geo = geometries_["shapeGeo"].get();
+			rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightCylRitem->IndexCount = rightCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
+			rightCylRitem->StartIndexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
+			rightCylRitem->BaseVertexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
+			leftSphereRitem->ObjCBIndex = objCBIndex++;
+			leftSphereRitem->Geo = geometries_["shapeGeo"].get();
+			leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
+			leftSphereRitem->StartIndexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
+			leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+
+			XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
+			rightSphereRitem->ObjCBIndex = objCBIndex++;
+			rightSphereRitem->Geo = geometries_["shapeGeo"].get();
+			rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+			rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
+			rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
+			rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
+
+			allRitems_.push_back(std::move(leftCylRitem));
+			allRitems_.push_back(std::move(rightCylRitem));
+			allRitems_.push_back(std::move(leftSphereRitem));
+			allRitems_.push_back(std::move(rightSphereRitem));
+		}
+
+		// All the render items are opaque.
+		for (auto& e : allRitems_)
+			opaqueRitems_.push_back(e.get());
+	}
+
+	void RenderD12::BuildFrameResources()
+	{
+		for (int i = 0; i < gNumFrameResources; ++i)
+		{
+			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),
+				1, (UINT)allRitems_.size()));
+		}
+	}
+
+	void RenderD12::BuildDescriptorHeaps()
+	{
+		UINT objCount = (UINT)opaqueRitems_.size();
+
+		// Need a CBV descriptor for each object for each frame resource,
+		// +1 for the perPass CBV for each frame resource.
+		UINT numDescriptors = (objCount + 1) * gNumFrameResources;
+
+		// Save an offset to the start of the pass CBVs.  These are the last 3 descriptors.
+		passCbvOffset_ = objCount * gNumFrameResources;
+
+		D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+		cbvHeapDesc.NumDescriptors = numDescriptors;
+		cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		cbvHeapDesc.NodeMask = 0;
+		ThrowIfFailed(d3dDevice_->CreateDescriptorHeap(&cbvHeapDesc,
+			IID_PPV_ARGS(&cbvHeap_)));
+	}
+
+	void RenderD12::BuildConstantBufferViews()
+	{
+		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+		UINT objCount = (UINT)opaqueRitems_.size();
+
+		// Need a CBV descriptor for each object for each frame resource.
+		for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+		{
+			auto objectCB = frameResources_[frameIndex]->ObjectCB->Resource();
+			for (UINT i = 0; i < objCount; ++i)
+			{
+				D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+
+				// Offset to the ith object constant buffer in the buffer.
+				cbAddress += i * objCBByteSize;
+
+				// Offset to the object cbv in the descriptor heap.
+				int heapIndex = frameIndex * objCount + i;
+				auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+				handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
+
+				D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+				cbvDesc.BufferLocation = cbAddress;
+				cbvDesc.SizeInBytes = objCBByteSize;
+
+				d3dDevice_->CreateConstantBufferView(&cbvDesc, handle);
+			}
+		}
+
+		UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+
+		// Last three descriptors are the pass CBVs for each frame resource.
+		for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+		{
+			auto passCB = frameResources_[frameIndex]->PassCB->Resource();
+			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = passCB->GetGPUVirtualAddress();
+
+			// Offset to the pass cbv in the descriptor heap.
+			int heapIndex = passCbvOffset_ + frameIndex;
+			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+			handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
+
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+			cbvDesc.BufferLocation = cbAddress;
+			cbvDesc.SizeInBytes = passCBByteSize;
+
+			d3dDevice_->CreateConstantBufferView(&cbvDesc, handle);
+		}
+	}
+
+	void RenderD12::BuildPSOs()
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
+
+		//
+		// PSO for opaque objects.
+		//
+		ZeroMemory(&opaquePsoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+		opaquePsoDesc.InputLayout = { inputLayout_.data(), (UINT)inputLayout_.size() };
+		opaquePsoDesc.pRootSignature = rootSignature_.Get();
+		opaquePsoDesc.VS =
+		{
+			reinterpret_cast<BYTE*>(shaders_["standardVS"]->GetBufferPointer()),
+			shaders_["standardVS"]->GetBufferSize()
+		};
+		opaquePsoDesc.PS =
+		{
+			reinterpret_cast<BYTE*>(shaders_["opaquePS"]->GetBufferPointer()),
+			shaders_["opaquePS"]->GetBufferSize()
+		};
+		opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+		opaquePsoDesc.SampleMask = UINT_MAX;
+		opaquePsoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		opaquePsoDesc.NumRenderTargets = 1;
+		opaquePsoDesc.RTVFormats[0] = backBufferFormat_;
+		opaquePsoDesc.SampleDesc.Count = _4xMsaaState ? 4 : 1;
+		opaquePsoDesc.SampleDesc.Quality = _4xMsaaState ? (_4xMsaaQuality - 1) : 0;
+		opaquePsoDesc.DSVFormat = depthStencilFormat_;
+		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&PSOs_["opaque"])));
 
 
+		//
+		// PSO for opaque wireframe objects.
+		//
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueWireframePsoDesc = opaquePsoDesc;
+		opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&PSOs_["opaque_wireframe"])));
+	}
+
+	void RenderD12::updateCamera(float radius, float phi, float theta)
+	{
+		eyePos_.x = radius * sinf(phi) * cosf(theta);
+		eyePos_.z = radius * sinf(phi) * sinf(theta);
+		eyePos_.y = radius * cosf(phi);
+
+		// Build the view matrix.
+		XMVECTOR pos = XMVectorSet(eyePos_.x, eyePos_.y, eyePos_.z, 1.0f);
+		XMVECTOR target = XMVectorZero();
+		XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+		XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+		XMStoreFloat4x4(&mView, view);
+	}
+
+	void RenderD12::update()
+	{
+		// Cycle through the circular frame resource array.
+		currFrameResourceIndex_ = (currFrameResourceIndex_ + 1) % gNumFrameResources;
+		currFrameResource_ = frameResources_[currFrameResourceIndex_].get();
+
+		// Has the GPU finished processing the commands of the current frame resource?
+		// If not, wait until the GPU has completed commands up to this fence point.
+		if (currFrameResource_->Fence != 0 && fence_->GetCompletedValue() < currFrameResource_->Fence)
+		{
+			HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+			ThrowIfFailed(fence_->SetEventOnCompletion(currFrameResource_->Fence, eventHandle));
+			WaitForSingleObject(eventHandle, INFINITE);
+			CloseHandle(eventHandle);
+		}
+
+		UpdateObjectCBs();
+		UpdateMainPassCB();
+	}
+
+	void RenderD12::UpdateObjectCBs()
+	{
+		auto currObjectCB = currFrameResource_->ObjectCB.get();
+		for (auto& e : allRitems_)
+		{
+			// Only update the cbuffer data if the constants have changed.  
+			// This needs to be tracked per frame resource.
+			if (e->NumFramesDirty > 0)
+			{
+				XMMATRIX world = XMLoadFloat4x4(&e->World);
+
+				ObjectConstants objConstants;
+				XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
+
+				currObjectCB->CopyData(e->ObjCBIndex, objConstants);
+
+				// Next FrameResource need to be updated too.
+				e->NumFramesDirty--;
+			}
+		}
+	}
+
+	void RenderD12::UpdateMainPassCB()
+	{
+		XMMATRIX view = XMLoadFloat4x4(&mView);
+		XMMATRIX proj = XMLoadFloat4x4(&mProj);
+
+		XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+		XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+		XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+		XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+		XMStoreFloat4x4(&mainPassCB_.View, XMMatrixTranspose(view));
+		XMStoreFloat4x4(&mainPassCB_.InvView, XMMatrixTranspose(invView));
+		XMStoreFloat4x4(&mainPassCB_.Proj, XMMatrixTranspose(proj));
+		XMStoreFloat4x4(&mainPassCB_.InvProj, XMMatrixTranspose(invProj));
+		XMStoreFloat4x4(&mainPassCB_.ViewProj, XMMatrixTranspose(viewProj));
+		XMStoreFloat4x4(&mainPassCB_.InvViewProj, XMMatrixTranspose(invViewProj));
+		mainPassCB_.EyePosW = eyePos_;
+		mainPassCB_.RenderTargetSize = XMFLOAT2((float)clientWidth_, (float)clientHeight_);
+		mainPassCB_.InvRenderTargetSize = XMFLOAT2(1.0f / clientWidth_, 1.0f / clientHeight_);
+		mainPassCB_.NearZ = 1.0f;
+		mainPassCB_.FarZ = 1000.0f;
+		//mainPassCB_.TotalTime = gt.TotalTime();
+		//mainPassCB_.DeltaTime = gt.DeltaTime();
+
+		auto currPassCB = currFrameResource_->PassCB.get();
+		currPassCB->CopyData(0, mainPassCB_);
+	}
+
+	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+	{
+		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+		auto objectCB = currFrameResource_->ObjectCB->Resource();
+
+		// For each render item...
+		for (size_t i = 0; i < ritems.size(); ++i)
+		{
+			auto ri = ritems[i];
+
+			cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+			cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+			cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+
+			// Offset to the CBV in the descriptor heap for this object and for this frame resource.
+			UINT cbvIndex = currFrameResourceIndex_ * (UINT)opaqueRitems_.size() + ri->ObjCBIndex;
+			auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+			cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
+
+			cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+
+			cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+		}
+	}
 
 }
+
