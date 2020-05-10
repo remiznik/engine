@@ -278,8 +278,7 @@ namespace parser {
 	}
 
 	void Resolver::declare(Token name)
-	{
-		
+	{		
 		if (scopes_.empty()) return;
 		
 		auto it = scopes_.back().find(name.lexeme);
@@ -290,8 +289,7 @@ namespace parser {
 		else
 		{
 			logger_.write(VariableAllradyMessage(name.lexeme));
-		}
-		
+		}		
 	}
 
 	void Resolver::define(Token name)

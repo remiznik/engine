@@ -7,9 +7,8 @@
 namespace script_system {
 
 
-
-InFunction::InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure)
-	: inter_(inter), expr_(expr), closure_(closure)
+InFunction::InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure, bool initializer)
+	: inter_(inter), expr_(expr), closure_(closure), isInitializer_(initializer)
 {}
 
 core::Value InFunction::call(const vector<core::Value>& args)
@@ -29,7 +28,7 @@ core::Value InFunction::call(const vector<core::Value>& args)
 	{
 		return e.value;
 	}
-
+	if (isInitializer_) return closure_->getAt(0, "this");
 	return core::Value();
 }
 
@@ -38,7 +37,7 @@ shared_ptr<InFunction> InFunction::bind(const shared_ptr<InClassInstance>& insta
 	auto enviroment = makeShared<Environment>(closure_);
 	// dengorus 
 	enviroment->define("this", core::Value(instance));
-	return makeShared<InFunction>(inter_, expr_, enviroment);
+	return makeShared<InFunction>(inter_, expr_, enviroment, isInitializer_);
 }
 
 
@@ -54,6 +53,12 @@ string InFunction::toString() const
 core::Value InClass::call(const vector<core::Value>& args)
 {
 	auto instance = makeShared<InClassInstance>(this);
+	auto it = methods_.find("init");
+	if (it != methods_.end())
+	{
+		it->second->bind(instance)->call(args);
+	}
+
 	return core::Value(instance);
 }
 

@@ -220,7 +220,7 @@ core::Value Interpreter::visit(Call* expr)
 
 core::Value Interpreter::visit(Function* expr)
 {
-    auto fnc = makeShared<InFunction>(this, expr, environment_);
+    auto fnc = makeShared<InFunction>(this, expr, environment_, false);
     environment_->define(expr->name.lexeme, core::Value(fnc));
     return core::Value();
 }
@@ -241,7 +241,7 @@ core::Value Interpreter::visit(ClassExpr* expr)
     map<string, shared_ptr<InFunction>> methods;
     for (auto method : expr->methods)
     {
-        methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_));
+        methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_, string(method->name.lexeme) == "init"));
     }
 
     auto inClass = makeShared<InClass>(expr->name.lexeme, methods);

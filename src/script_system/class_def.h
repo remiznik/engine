@@ -34,8 +34,8 @@ public:
 class InFunction : public Callable
 {
 public:
-	InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure);
-	
+	InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure, bool initialize );
+
 	virtual string toString() const override;
 
 	core::Value call(const vector<core::Value>& args) override;
@@ -44,6 +44,7 @@ public:
 	shared_ptr<InFunction> bind(const shared_ptr<InClassInstance>& instance);
 
 private:
+	bool isInitializer_{ false };
 	parser::Interpreter* inter_;
 	parser::Function* expr_;
 	shared_ptr<Environment> closure_;
