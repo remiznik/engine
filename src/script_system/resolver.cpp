@@ -293,7 +293,7 @@ namespace parser {
 		else
 		{
 			logger_.write(VariableAllradyMessage(name.lexeme));
-		}		
+		}
 	}
 
 	void Resolver::define(Token name)
