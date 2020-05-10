@@ -9,6 +9,10 @@ set(RENDER_SRC
 	d3d12Utils/DDSTextureLoader.h
 	d3d12Utils/DDSTextureLoader.cpp
 	d3d12Utils/UploadBuffer.h
+	d3d12Utils/FrameResource.h
+	d3d12Utils/FrameResource.cpp
+	d3d12Utils/GeometryGenerator.h
+	d3d12Utils/GeometryGenerator.cpp
 )
 add_library( render ${RENDER_SRC} )
 
