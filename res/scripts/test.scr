@@ -36,6 +36,8 @@ var theta = 1.5 * PI;
 var phi = 0.2 * PI;
 var radius = 15;
 
+updateCamera(radius, phi, theta);
+
 // call from engine 
 fun update(s, x, y)
 {
