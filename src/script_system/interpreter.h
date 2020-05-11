@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/value.h"
+#include "core/callabel.h"
 
 #include "ast_visitor.h"
 #include "ast.h"
@@ -44,11 +45,18 @@ namespace script_system
 				}
 
 				void execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env);
+
+				void update(int st, int x, int y);
+
+				void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);
+
+
 			private:
 				void execute(Expr* expr);
 				
 
 			private:
+				vector<ExprPtr> expresions_;
 				shared_ptr<Environment> environment_;
 		};
 	}

@@ -18,13 +18,13 @@ namespace script_system {
 		ASSERT(res.second, "Enviroment::define");
 	}
 
-	core::Value Environment::get(parser::Token token)
+	core::Value Environment::get(const string& name)
 	{
-		auto it = values_.find(token.lexeme);
+		auto it = values_.find(name);
 		if (it != values_.end())
 			return it->second;
 		
-		if (enclosing_) return enclosing_->get(token);
+		if (enclosing_) return enclosing_->get(name);
 
 		ASSERT(false, "Enviroment::get");
 	}

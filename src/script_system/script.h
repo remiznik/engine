@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/file_reader.h"
+#include "core/file_system.h"
 #include "core/logger.h"
 
 #include "scanner.h"
@@ -11,12 +11,14 @@ namespace script_system
 	class Script
 	{
 	public:
-		Script();
+		Script(const core::FileSystem& fileSystem);
 
-		void run();
+		bool initialize();
+		void update(int st, int x, int y);
+		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);
 
 	private:
-		core::FileReader reader_;
+		const core::FileSystem& fileSystem_;
 		Scanner scanner_;
 		parser::Interpreter interpreter_;
 		core::Logger logger_;

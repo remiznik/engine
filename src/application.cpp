@@ -2,6 +2,9 @@
 #include <WindowsX.h>
 #include <DirectXMath.h>
 
+#include "core/callabel.h"
+#include "core/m_assert.h"
+
 #include <thread>
 
 namespace app {
@@ -15,18 +18,39 @@ namespace app {
 			return Application::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 		}
 
+		class UpdateCamera : public core::Callable
+		{
+		public:
+			UpdateCamera(render::RenderD12& render)
+				: render_(render)
+			{}
+
+			virtual core::Value call(const vector<core::Value>& args) override
+			{
+				ASSERT(args.size() == 3, "Wrong count of args.");
+
+				render_.updateCamera(args[0].get<double>(), args[1].get<double>(), args[2].get<double>());
+				return core::Value();
+			}
+
+		private:
+			render::RenderD12& render_;
+		};
+
 	}
 
-	Application* Application::mApp = nullptr;
+	Application* Application::app_ = nullptr;
 	Application* Application::GetApp()
 	{
-		return mApp;
+		return app_;
 	}
 
-	Application::Application()
+	Application::Application() 
+		: script_(fileSystem_)
+
 	{
-		assert(mApp == nullptr);
-		mApp = this;
+		assert(app_ == nullptr);
+		app_ = this;
 	}
 
 	bool Application::initialize()
@@ -37,6 +61,11 @@ namespace app {
 
 		if (!render_.initialize(mhMainWnd))
 			return false;
+
+		if (!script_.initialize())
+			return false;
+
+		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
 
 		return true;
 	}
@@ -224,31 +253,14 @@ namespace app {
 	void Application::OnMouseMove(WPARAM btnState, int x, int y)
 	{
 		if ((btnState & MK_LBUTTON) != 0)
-		{
-			// Make each pixel correspond to a quarter of a degree.
-			float dx = DirectX::XMConvertToRadians(0.25f * static_cast<float>(x - lastMousePos_.x));
-			float dy = DirectX::XMConvertToRadians(0.25f * static_cast<float>(y - lastMousePos_.y));
-
-			// Update angles based on input to orbit camera around box.
-			theta_ += dx;
-			phi_ += dy;
-
-			// Restrict the angle mPhi.
-			phi_ = MathHelper::Clamp(phi_, 0.1f, MathHelper::Pi - 0.1f);
+		{		
+			btnState_ = 1;
 		}
 		else if ((btnState & MK_RBUTTON) != 0)
-		{
-			// Make each pixel correspond to 0.2 unit in the scene.
-			float dx = 0.05f * static_cast<float>(x - lastMousePos_.x);
-			float dy = 0.05f * static_cast<float>(y - lastMousePos_.y);
-
-			// Update the camera radius based on input.
-			radius_ += dx - dy;
-
-			// Restrict the radius.
-			radius_ = MathHelper::Clamp(radius_, 5.0f, 150.0f);
+		{			
+			btnState_ = 2;
 		}
-
+		
 		lastMousePos_.x = x;
 		lastMousePos_.y = y;
 	}
@@ -256,7 +268,8 @@ namespace app {
 
 	void Application::update()
 	{
-		render_.updateCamera(radius_, phi_, theta_);
+		script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
+		btnState_ = 0;		
 		render_.update();
 	}
 

@@ -1,11 +1,11 @@
 #include <fstream>
 #include <streambuf>
 
-#include "file_reader.h"
+#include "file_system.h"
 
 namespace core {
 
-    string FileReader::read(const string& path)
+    string FileSystem::readFile(const string& path) const 
     {
         std::ifstream t(path);
         std::string str((std::istreambuf_iterator<char>(t)),
