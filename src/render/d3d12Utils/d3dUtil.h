@@ -157,6 +157,13 @@ struct SubmeshGeometry
 	DirectX::BoundingBox Bounds;
 };
 
+struct Vertex
+{
+    DirectX::XMFLOAT3 Pos;
+    DirectX::XMFLOAT4 Color;
+};
+
+
 struct MeshGeometry
 {
 	// Give it a name so we can look it up by name.

@@ -15,6 +15,8 @@ set(RENDER_SRC
 	render.cpp
 	scene.h
 	scene.cpp
+	model.h
+	model.cpp
 )
 add_library( render ${RENDER_SRC} )
 

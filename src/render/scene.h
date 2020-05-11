@@ -8,6 +8,8 @@
 
 #include "render.h"
 
+#include "model.h"
+
 
 namespace render {
 
@@ -16,7 +18,6 @@ namespace render {
 	public:
 		Shape(RenderD12& render);
 
-
 		RenderItem* createRenderItem(const char* name, float x, float y, float z);
 	private:
 		void createGeom();
@@ -24,8 +25,9 @@ namespace render {
 	private:
 		RenderD12& render_;
 		std::vector<std::unique_ptr<RenderItem>> allRitems_;
-		std::unordered_map<string, std::unique_ptr<MeshGeometry>> geometries_;
+		std::unique_ptr<MeshGeometry> geo_{ nullptr };
 		UINT objCBIndex_{ 0 };
+		Model model_;
 	};
 	class Scene
 	{
