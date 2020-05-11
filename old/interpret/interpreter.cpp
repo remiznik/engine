@@ -1,8 +1,10 @@
 #include <iostream>
 #include <memory>
 
-#include "core/object.h"
 #include "core/m_assert.h"
+#include "core/callabel.h"
+
+
 
 #include "interpreter.h"
 #include "class_def.h"
@@ -376,6 +378,22 @@ void Interpreter::registreFunction(const string& name, const shared_ptr<class co
 {
     globals_->define(name, core::Value(fnc));
 }
+
+void Interpreter::update(int s, int x, int y)
+{
+     auto fnc = environment_->get("update");
+      
+     shared_ptr<core::Object> obj = fnc.get<shared_ptr<core::Object>>();
+     auto clock = static_cast<core::Callable*>(obj.get());
+     if (clock)
+     {
+         clock->call({core::Value(double(s)), core::Value(double(x)), core::Value(double(y))});
+     }       
+ }
+ void Interpreter::registreFunction(const string& name, const shared_ptr<core::Callable>& fnc)
+ {
+     environment_->define(name, core::Value(fnc));
+ }
 
 }
 }
