@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/value.h"
+#include "core/callabel.h"
 
 #include "ast_visitor.h"
 #include "ast.h"
@@ -47,16 +48,19 @@ class Interpreter : public AstVisitor
 		}
 
 		void execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env);
-		void resolve(Expr* expr, int depth);
-	private:
-		void execute(Expr* expr);
-		core::Value lookUpVariable(Token name, Expr* expr);
-		
 
-	private:
+		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);		
+		void update(int st, int x, int y);
+
+private:
+		void resolve(Expr* expr, int depth);
+		core::Value lookUpVariable(Token name, Expr* expr);
+		void execute(Expr* expr);
+	
+		
+private:
 		map<Expr*, int> locals_;
 		shared_ptr<Environment> environment_;
-		shared_ptr<Environment> globals_;
-};
+		vector<ExprPtr> expresions_;	
 }
 }

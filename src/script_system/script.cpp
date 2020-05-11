@@ -12,16 +12,16 @@ namespace script_system
 {
 	using namespace parser;
 
-	Script::Script()
-		: scanner_(logger_)
+	Script::Script(const core::FileSystem& fileSystem)
+		: fileSystem_(fileSystem), scanner_(logger_)
 	{	
 	}
 
-	void Script::run()
+	bool Script::initialize()
 	{
-		auto s = reader_.read("../res/scripts/test.scr");
-		
-		auto tokens = scanner_.scan(s);		
+		auto s = fileSystem_.readFile("../res/scripts/test.scr");
+
+		auto tokens = scanner_.scan(s);
 		Parser parser(logger_, tokens);
 		auto t = parser.parse();
 		//shared_ptr<Expr> exp = std::make_shared<Binary>(
@@ -34,7 +34,21 @@ namespace script_system
 		Resolver res(&interpreter_, logger_);
 		res.resolve(t);
 		interpreter_.interpret(t);
-		
+
 		double x = 3;
+		return true;
 	}
+
+	void Script::update(int st, int x, int y)
+	{
+		interpreter_.update(st, x, y);
+	}
+
+	void Script::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
+	{
+		interpreter_.registreFunction(name, fnc);
+	}
+
+
+
 }

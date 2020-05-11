@@ -13,10 +13,8 @@ namespace script_system {
 		Environment(const shared_ptr<Environment>& enclosing);
 
 		void define(const string& name, core::Value value);
-
-		core::Value get(parser::Token token);
+		core::Value get(const string& name);
 		core::Value getAt(int distance, const string& name);
-
 		void assign(parser::Token name, core::Value value);
 		void assignAt(int distance, parser::Token name, core::Value value);
 

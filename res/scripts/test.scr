@@ -1,6 +1,53 @@
-class Foo {
-  init() {
-    return;
-  }
+fun converToRadius(degrees)
+{
+  return degrees * (PI / 180);
 }
-var foo = Foo();
+
+fun leftButton(x, y)
+{
+  var dx = converToRadius(0.25 * (x - lastX));
+  var dy = converToRadius(0.25 * (x - lastX));
+
+  theta = theta + dx;
+	phi = phi + dy;
+	
+  phi = clamp(phi, 0.1, PI - 0.1);
+
+  updateCamera(radius, phi, theta);
+}
+
+fun rightButton(x, y)
+{
+  var dx = 0.05 * (x - lastX);
+  var dy = 0.05 * (y - lastY);
+
+  radius = radius + dx - dy;
+
+  radius = clamp(radius, 5.0, 150);
+  
+  updateCamera(radius, phi, theta);
+}
+
+var PI = 3.14;
+var lastX = 0;
+var lastY = 0;
+var theta = 1.5 * PI;
+var phi = 0.2 * PI;
+var radius = 15;
+
+// call from engine 
+fun update(s, x, y)
+{
+  if (s == 1.0)
+  {
+    leftButton(x, y); 
+  } 
+  if (s == 2.0)
+  {
+    rightButton(x, y);
+  }
+  
+  lastX = x;
+  lastY = y;
+}
+

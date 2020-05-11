@@ -9,10 +9,11 @@ set(CORE_SRC
     value_impl.h
     value_impl.cpp
     m_assert.h
-    file_reader.h
-    file_reader.cpp
+    file_system.h
+    file_system.cpp
     object.h
     object.cpp
+    callabel.h
 )
 add_library( core ${CORE_SRC} )
 

@@ -10,9 +10,6 @@
 
 int  main()
 {
-	script_system::Script script;
-	script.run();
-	
 	auto app = makeShared<app::Application>();
 	if (!app->initialize())
 		return -1;

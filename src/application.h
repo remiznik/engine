@@ -1,5 +1,6 @@
 #pragma once
 
+#include "script_system/script.h"
 #include "render/render.h"
 
 namespace app {
@@ -25,22 +26,22 @@ namespace app {
 			
 	private:
 		// for window 
-		static Application* mApp;
+		static Application* app_;
 		HWND      mhMainWnd = nullptr; // main window handle
 		std::string mMainWndCaption = "d3d App";
 		int clientWidth_ = 800;
 		int clientHeight_ = 600;
-		POINT lastMousePos_;
-		float theta_ = 1.5f * 3.14;
-		float phi_ = 0.2f * 3.14;
-		float radius_ = 15.0f;
+		POINT lastMousePos_;		
+		int btnState_ = 0;
 
 		bool      mAppPaused = false;  // is the application paused?
 
 		HINSTANCE mhAppInst = nullptr; // application instance handle
 
 		render::RenderD12 render_;
-		
+
+		core::FileSystem fileSystem_;
+		script_system::Script script_;		
 
 	};
 
