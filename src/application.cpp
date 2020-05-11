@@ -65,10 +65,10 @@ namespace app {
 		if (!scene_.initialize())
 			return false;
 
+		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
+
 		if (!script_.initialize())
 			return false;
-
-		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
 
 		return true;
 	}
