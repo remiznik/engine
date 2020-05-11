@@ -2,6 +2,7 @@
 
 #include "script_system/script.h"
 #include "render/render.h"
+#include "render/scene.h"
 
 namespace app {
 
@@ -39,9 +40,11 @@ namespace app {
 		HINSTANCE mhAppInst = nullptr; // application instance handle
 
 		render::RenderD12 render_;
+		render::Scene scene_;
 
 		core::FileSystem fileSystem_;
-		script_system::Script script_;		
+		script_system::Script script_;
+
 
 	};
 

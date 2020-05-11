@@ -19,13 +19,6 @@
 
 namespace render
 {
-		
-	struct Vertex
-	{
-		DirectX::XMFLOAT3 Pos;
-		DirectX::XMFLOAT4 Color;
-	};
-
 	struct RenderItem
 	{
 		RenderItem() = default;
@@ -63,12 +56,17 @@ namespace render
 		RenderD12();
 
 		bool initialize(HWND hMainWnd);
+
+		
+		void startDraw();
 		void draw();
 
 		void resize();
 		void updateCamera(float radius, float phi, float theta);
-		void update();
+		
 
+		void setOpaque(const std::vector<RenderItem*>& opaqueRitems);
+		std::unique_ptr<MeshGeometry> createGeometry(const char* name, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
 
 	private:
 		void FlushCommandQueue();
@@ -142,8 +140,7 @@ namespace render
 		Microsoft::WRL::ComPtr<ID3DBlob> vsByteCode_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> psByteCode_ = nullptr;
 
-
-		std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> geometries_;
+				
 		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> shaders_;
 		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> PSOs_;
 
@@ -163,9 +160,8 @@ namespace render
 		FrameResource* currFrameResource_ = nullptr;
 		int currFrameResourceIndex_ = 0;
 		
-		// List of all the render items.
-		std::vector<std::unique_ptr<RenderItem>> allRitems_;
 		// Render items divided by PSO.
+		const int maxOpaqueItems_ = 22;
 		std::vector<RenderItem*> opaqueRitems_;
 
 		PassConstants mainPassCB_;
