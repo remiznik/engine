@@ -6,11 +6,6 @@ int  main()
 {
 	script_system::Script script;
 	script.run();
-	engine::Scene scene;
-
-	auto rectangle = std::make_shared<engine::Rectangle>();
-	scene.addShape(rectangle);		
-	
 	auto app = makeShared<app::Application>();
 	if (!app->initialize())
 		return -1;

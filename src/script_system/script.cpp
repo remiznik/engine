@@ -34,4 +34,17 @@ namespace script_system {
 
 		return result.second;
 	}
+
+	void Script::update(int st, int x, int y)
+	{
+		interpreter_.update(st, x, y);
+	}
+
+	void Script::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
+	{
+		interpreter_.registreFunction(name, fnc);
+	}
+
+
+
 }
