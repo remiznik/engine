@@ -46,7 +46,7 @@ namespace app {
 	}
 
 	Application::Application() 
-		: script_(fileSystem_)
+		: script_(fileSystem_), scene_(render_)
 
 	{
 		assert(app_ == nullptr);
@@ -60,6 +60,9 @@ namespace app {
 			return false;
 
 		if (!render_.initialize(mhMainWnd))
+			return false;
+
+		if (!scene_.initialize())
 			return false;
 
 		if (!script_.initialize())
@@ -270,11 +273,12 @@ namespace app {
 	{
 		script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
 		btnState_ = 0;		
-		render_.update();
 	}
 
 	void Application::draw()
 	{
+		render_.startDraw();
+		scene_.draw();
 		render_.draw();
 	}
 
