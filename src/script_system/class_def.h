@@ -55,8 +55,8 @@ private:
 class InClass : public Callable
 {
 public:
-	InClass(const string& n, const map<string, shared_ptr<InFunction>>& m)
-		: name_(n), methods_(m)
+	InClass(const string& n, const shared_ptr<InClass>& s, const map<string, shared_ptr<InFunction>>& m)
+		: name_(n), supperClass_(s), methods_(m)
 	{}
 
 	virtual core::Value call(const vector<core::Value>& args) override;	
@@ -66,6 +66,7 @@ public:
 
 private:
 	string name_;
+	shared_ptr<InClass> supperClass_{nullptr};
 	map<string, shared_ptr<InFunction>> methods_;
 };
 
