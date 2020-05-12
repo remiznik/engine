@@ -16,9 +16,9 @@ namespace script_system
 		void run();
 
 	private:
+		core::Logger logger_;
 		core::FileReader reader_;
 		Scanner scanner_;
-		parser::Interpreter interpreter_;
-		core::Logger logger_;
+		parser::Interpreter interpreter_;		
 	};
 }

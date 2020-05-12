@@ -13,7 +13,7 @@ namespace script_system
 	using namespace parser;
 
 	Script::Script()
-		: scanner_(logger_)
+		: scanner_(logger_), interpreter_(logger_)
 	{	
 	}
 

@@ -232,6 +232,15 @@ namespace parser {
 
 		declare(expr->name);
 		define(expr->name);
+
+		if (expr->supperClass != nullptr)
+		{
+			if (expr->supperClass->name.lexeme == expr->name.lexeme)
+			{
+				logger_.write(core::LogMessage("A class cannot inherit itself"));
+			}
+			resolveStmt(expr->supperClass.get());
+		}
 		
 		beginScope();
 		scopes_.back().emplace("this", true);

@@ -21,7 +21,8 @@ namespace parser {
 
     
 
-Interpreter::Interpreter()
+Interpreter::Interpreter(core::Logger& logger) 
+    : logger_(logger)
 {
     globals_ = makeShared<Environment>();
     environment_ = globals_;
@@ -236,6 +237,19 @@ core::Value Interpreter::visit(Return* expr)
 
 core::Value Interpreter::visit(ClassExpr* expr)
 {
+    shared_ptr<InClass> supperClass = nullptr;
+    if (expr->supperClass != nullptr)
+    {
+        
+        auto objValue = evaluate(expr->supperClass.get());
+        auto obj = objValue.get<shared_ptr<core::Object>>();
+        supperClass.reset(static_cast<InClass*>(obj.get()));
+        if (supperClass == nullptr)
+        {
+            logger_.write(core::LogMessage("Supperclass must be a class"));
+        }
+        
+    }
     environment_->define(expr->name.lexeme, core::Value());
 
     map<string, shared_ptr<InFunction>> methods;
@@ -244,7 +258,7 @@ core::Value Interpreter::visit(ClassExpr* expr)
         methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_, string(method->name.lexeme) == "init"));
     }
 
-    auto inClass = makeShared<InClass>(expr->name.lexeme, methods);
+    auto inClass = makeShared<InClass>(expr->name.lexeme, supperClass, methods);
     environment_->assign(expr->name, core::Value(inClass));
     return core::Value();
 }

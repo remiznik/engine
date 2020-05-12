@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/value.h"
+#include "core/logger.h"
 
 #include "ast_visitor.h"
 #include "ast.h"
@@ -13,7 +14,7 @@ class Expr;
 class Interpreter : public AstVisitor
 {		
 	public:
-		Interpreter();
+		Interpreter(core::Logger& logger);
 		
 		void interpret(const vector<ExprPtr>& expr);
 
@@ -54,6 +55,7 @@ class Interpreter : public AstVisitor
 		
 
 	private:
+		core::Logger& logger_;
 		map<Expr*, int> locals_;
 		shared_ptr<Environment> environment_;
 		shared_ptr<Environment> globals_;
