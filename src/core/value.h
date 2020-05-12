@@ -13,7 +13,7 @@ namespace core
 		Value(const Value& other);
 		Value& operator=(const Value& other);
 
-        Value(const string& value);        
+        Value(const char* value);        
         Value(double value);
 		Value(int value);
 		Value(bool value);
@@ -41,6 +41,7 @@ namespace core
 		bool toBool() const;
 		shared_ptr<Object> toObj() const;
 		void freeData();
+		const char* copy(const char* value);
 
     private:
       ValueType type_ { ValueType::None };

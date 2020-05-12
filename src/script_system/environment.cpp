@@ -63,8 +63,29 @@ namespace script_system {
 		{
 			env = env->enclosing_.get();
 		}
+		return env;
+	}
 
-		return this;
+	string Environment::toString(const string& shift)
+	{
+		string result;
+		if (enclosing_)
+		{
+			result.append(enclosing_->toString(shift + "---"));
+		}
+
+		for( auto v : values_)
+		{
+			result.append(shift);
+			result.append(v.first);
+			result.append("  ");
+			result.append(v.second.to<string>());
+			result.append("\n");
+		}
+		
+		
+		return result;
+
 	}
 
 }

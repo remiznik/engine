@@ -157,7 +157,7 @@ namespace script_system
 		advance();
 
 		auto text = source_.substr(start_ + 1, count);
-		tokens_.push_back(Token(TokenType::STRING, text, core::Value(text), line_));		
+		tokens_.push_back(Token(TokenType::STRING, text, core::Value(text.c_str()), line_));		
 	}
 
 	void Scanner::identifier()

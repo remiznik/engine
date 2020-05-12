@@ -31,29 +31,45 @@ public:
 	core::Value visit(Call* expr) override;
 	core::Value visit(Function* expr) override;
 	core::Value visit(Return* expr) override;
+	core::Value visit(ClassExpr* expr) override;
+	core::Value visit(GetExpr* expr) override;
+	core::Value visit(SetExpr* expr) override;
+	core::Value visit(This* expr) override;
 
 	void resolve(const vector<ExprPtr>& statements);
+
+private:
+	enum class FunctionType
+	{
+		NONE,
+		FUNCTION,
+		INITIALIZER,
+		METHOD
+	};
+
+	enum class ClassType
+	{
+		NONE,
+		CLASS
+	};
+
 
 private:	
 	void resolveStmt(Expr* statement);
 	void resolveLockal(Expr* expr, Token name);
+	void resolveFunction(Function* expr, FunctionType type);
 	void declare(Token name);
 	void define(Token name);
 
 	void beginScope();
 	void endScope();
-private:
-	enum class FunctionType
-	{
-		NONE,
-		FUNCTION
-	};
 
 private:
 	Interpreter* interpreter_;
 	vector<map<string, bool>> scopes_;		
 	core::Logger& logger_;
-	FunctionType currentFunction {FunctionType::NONE};
+	FunctionType currentFunction_ {FunctionType::NONE};
+	ClassType currentClass_{ ClassType::NONE };
 };
 }
 }

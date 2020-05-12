@@ -1,4 +1,4 @@
-# script language
+## script language
 https://craftinginterpreters.com/
 https://gameprogrammingpatterns.com/bytecode.html
 https://solarianprogrammer.com/2018/01/10/writing-minimal-x86-64-jit-compiler-cpp/
@@ -6,7 +6,8 @@ https://github.com/DmitrySoshnikov/asmjit
 https://github.com/jamesdhutton/Interpreter
 https://www.codeproject.com/Articles/10115/Crafting-an-interpreter-Part-1-Parsing-and-Grammar
 https://ruslanspivak.com/lsbasi-part1/ simple interpreter
-
+### optimazi 
+http://richardartoul.github.io/jekyll/update/2015/04/26/hidden-classes.html get property 
 
 # game engine 
 

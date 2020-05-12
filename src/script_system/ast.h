@@ -284,5 +284,72 @@ namespace script_system
 			Token keyword;
 			ExprPtr value{nullptr}; 
 		};
+
+		class ClassExpr : public Expr
+		{
+		public:
+
+			ClassExpr(Token n, const vector<shared_ptr<Function>>& m)
+				: name(n), methods(m)
+			{
+
+			}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token name;
+			vector<shared_ptr<Function>> methods;
+		};
+
+		class GetExpr : public Expr
+		{
+		public:
+			GetExpr(const ExprPtr& o, Token n)
+				: object(o), name(n)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+			
+			ExprPtr object;
+			Token name;
+		};
+
+		class SetExpr : public Expr
+		{
+		public:
+			SetExpr(const ExprPtr& o, Token n, const ExprPtr& v)
+				: object(o), name(n), value(v)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			ExprPtr object;
+			Token name;
+			ExprPtr value;
+		};
+
+		class This : public Expr
+		{
+		public:
+			This(Token k)
+				: keyword(k)
+			{}
+			
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token keyword;
+		};
 	}
 }

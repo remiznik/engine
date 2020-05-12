@@ -15,8 +15,9 @@ namespace core
 
 		explicit AnyValue(int i) : i(i) {};
 		explicit AnyValue(double d) : d(d) {};
-		explicit AnyValue(const string& s) : s(s) {};
+		explicit AnyValue(const char* s) : s(s) {};
         explicit AnyValue(bool b) : b(b) {}
+        explicit AnyValue(const shared_ptr<Object>& o) : obj(o) {}
         ~AnyValue()
         {}
 
@@ -28,7 +29,7 @@ namespace core
         bool b;
         int i;
         double d;
-        string s;
+        const char* s;
         shared_ptr<Object> obj;
     };
 

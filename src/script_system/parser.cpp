@@ -12,9 +12,7 @@ namespace parser {
 		public:
 			ParserErrorMessage(Token token, const string& message) 
 				: token_(token), message_(message)
-            {
-                
-            }
+            {}
 
 			virtual string toString() override
 			{
@@ -48,6 +46,7 @@ namespace parser {
 
     ExprPtr Parser::declaration()
     {
+        if (match({TokenType::CLASS})) return classDeclaration();
         if (match({TokenType::FUN})) return function("function");
         if (match({TokenType::VAR})) return varDeclaration();
 
@@ -67,7 +66,7 @@ namespace parser {
         return makeShared<Var>(name, init);
     }
 
-    ExprPtr Parser::function(const string& kind)
+    shared_ptr<Function> Parser::function(const string& kind)
     {
         Token name = consume(TokenType::IDENTIFIER, "Expect " + kind + "name.");
         consume(TokenType::LEFT_PAREN, "Expect '(' after " + kind + " name."); 
@@ -88,6 +87,21 @@ namespace parser {
         consume(TokenType::LEFT_BRACE, "Expect '{' before " + kind + " body.");
         auto body = block();
         return makeShared<Function>(name, parametrs, body);
+    }
+
+    ExprPtr Parser::classDeclaration()
+    {
+        Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+        consume(TokenType::LEFT_BRACE, "Expected '{' before class body.");
+
+        vector<shared_ptr<Function>> methods;
+        while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())        
+        {
+            methods.push_back(function("method"));
+        }
+        consume(TokenType::RIGHT_BRACE, "Expected '}' after class body.");
+
+        return makeShared<ClassExpr>(name, methods);
     }
 
     ExprPtr Parser::statement()
@@ -237,7 +251,15 @@ namespace parser {
                 Token name = variable->name;
                 return makeShared<Assign>(name, value);
             }
-            std::cout << equals.toString() << std::endl;
+            else 
+            {
+                GetExpr* getExpr = dynamic_cast<GetExpr*>(expr.get());
+                if (getExpr)
+                {
+                    return makeShared<SetExpr>(getExpr->object, getExpr->name, value);
+                }
+            }
+
             ASSERT(false, "Parser::assignmet");
         }
         return expr;
@@ -363,6 +385,11 @@ namespace parser {
             {
                 expr = finishCall(expr);
             }
+            else if (match({TokenType::DOT}))
+            {
+                auto name = consume(TokenType::IDENTIFIER, "Expect property name afte '.'.");
+                expr = makeShared<GetExpr>(expr, name);
+            }
             else
             {
                 break;
@@ -396,9 +423,13 @@ namespace parser {
         if (match({TokenType::TRUE})) return makeShared<Literal>(core::Value(true));
         if (match({TokenType::NIL})) return makeShared<Literal>(core::Value());
 
-		if (match({ TokenType::NUMBER })) return makeShared<Literal>(core::Value(std::stod(previous().lexeme)));
-		if (match({TokenType::STRING})) return makeShared<Literal>(core::Value(previous().lexeme));
+		if (match({TokenType::NUMBER})) return makeShared<Literal>(core::Value(std::stod(previous().lexeme)));
+        if (match({ TokenType::STRING }))
+        {
+            return makeShared<Literal>(core::Value(previous().lexeme.c_str()));
+        }
 
+        if (match({TokenType::THIS})) return makeShared<This>(previous());
         if (match({TokenType::IDENTIFIER}))
             return makeShared<Variable>(previous());
 
@@ -442,6 +473,7 @@ namespace parser {
     Token Parser::consume(TokenType type, const string& message)
     {
         if (check(type)) return advance();
+        error(Token(type, "", core::Value(), -1), message);
         return Token(TokenType::EndOF, "", core::Value(), -1);
     }
 

@@ -8,33 +8,28 @@ namespace core
     {}
 		
     Value::Value(double value)
-        : type_(ValueType::Double)
-    {
-		value_.d = value;
+        : type_(ValueType::Double), value_(value)
+    {		
 	}
 
 	Value::Value(int value)
-		: type_(ValueType::Integer)
-	{
-		value_.i = value;
+		: type_(ValueType::Integer), value_(value)
+	{		
 	}
 
-    Value::Value(const string& value)
-        : type_(ValueType::String)
+	Value::Value(const char* value)
+		: type_(ValueType::String), value_(copy(value))
     {
-        value_.s = value;
     }
 
     Value::Value(bool value)
-        : type_(ValueType::Bool)
+        : type_(ValueType::Bool), value_(value)
     {
-        value_.b = value;
     }
 
 	Value::Value(const shared_ptr<Object>& obj)
-		: type_(ValueType::Object)
-	{
-		value_.obj = obj;
+		: type_(ValueType::Object), value_(obj)
+	{		
 	}
 
     Value::Value(const Value& other)
@@ -95,5 +90,21 @@ namespace core
 	shared_ptr<Object> Value::toObj() const 
 	{
 		return getValueImpl(type_)->toObj(value_);
+	}
+
+	const char* Value::copy(const char* value)
+	{
+		static set<string> strings;
+		auto it = strings.find(value);
+		if (it != strings.end())
+		{
+			return it->c_str();
+		}
+		else
+		{
+			auto res = strings.emplace(value);
+			return res.first->c_str();
+		}
+
 	}
 }

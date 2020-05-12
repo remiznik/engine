@@ -121,8 +121,15 @@ namespace parser {
 	{
 		declare(expr->name);                              
     	define(expr->name);
+		resolveFunction(expr, FunctionType::FUNCTION);
+		
+		return core::Value();
+	}
 
-		ScopeGuard<FunctionType> guard(currentFunction);
+	void Resolver::resolveFunction(Function* expr, FunctionType type)
+	{
+		ScopeGuard<FunctionType> guard(currentFunction_);
+		currentFunction_ = type;
 		beginScope();
 		for (auto param: expr->params)
 		{
@@ -131,7 +138,6 @@ namespace parser {
 		}
 		resolve(expr->body);
 		endScope();
-		return core::Value();
 	}
 
 	core::Value Resolver::visit(Stmt* expr) 
@@ -156,13 +162,17 @@ namespace parser {
 
 	core::Value Resolver::visit(Return* expr) 
 	{
-		if (currentFunction == FunctionType::NONE)
+		if (currentFunction_ == FunctionType::NONE)
 		{
 			logger_.write(core::LogMessage("Cannot return from top-level code."));
 		}
 
 		if (expr->value != nullptr)
 		{
+			if (currentFunction_ == FunctionType::INITIALIZER)
+			{
+				logger_.write(core::LogMessage("Cannot return a value form initializer"));
+			}
 			resolveStmt(expr->value.get());
 		}
 		return core::Value();
@@ -215,20 +225,64 @@ namespace parser {
 		return core::Value();
 	}
 
+	core::Value Resolver::visit(ClassExpr* expr)
+	{
+		ScopeGuard<ClassType> guard(currentClass_);
+		currentClass_ = ClassType::CLASS;
+
+		declare(expr->name);
+		define(expr->name);
+		
+		beginScope();
+		scopes_.back().emplace("this", true);
+		
+		for (auto method : expr->methods)
+		{
+			FunctionType decl = FunctionType::METHOD;
+			resolveFunction(method.get(), decl);
+		}
+		endScope();
+		return core::Value();
+	}
+
+	core::Value Resolver::visit(GetExpr* expr)
+	{
+		resolveStmt(expr->object.get());
+		return core::Value();
+	}
+
+	core::Value Resolver::visit(SetExpr* expr)
+	{
+		resolveStmt(expr->value.get());
+		resolveStmt(expr->object.get());
+		return core::Value();
+
+	}
+
+	core::Value Resolver::visit(This* expr)
+	{
+		if (currentClass_ == ClassType::NONE)
+		{
+			logger_.write(core::LogMessage("Cannot use 'this' outside a class"));
+		}
+		resolveLockal(expr, expr->keyword);
+		return core::Value();
+	}
+
 	void Resolver::resolveLockal(Expr* expr, Token name)
 	{
-		for (int i = scopes_.size() - 1; i >= 0; --i )
+		for (int i = static_cast<int>(scopes_.size() - 1); i >= 0; --i )
 		{
 			if (scopes_[i].find(name.lexeme) != scopes_[i].end())
 			{
-				interpreter_->resolve(expr, scopes_.size() - 1 + i);
+				interpreter_->resolve(expr, scopes_.size() - 1 - i);
 				return;
 			}
 		}
 	}
+
 	void Resolver::declare(Token name)
-	{
-		
+	{		
 		if (scopes_.empty()) return;
 		
 		auto it = scopes_.back().find(name.lexeme);
@@ -240,14 +294,21 @@ namespace parser {
 		{
 			logger_.write(VariableAllradyMessage(name.lexeme));
 		}
-		
 	}
 
 	void Resolver::define(Token name)
 	{
 		if (scopes_.empty()) return;
 
-		scopes_.back()[name.lexeme] = true;
+		auto it = scopes_.back().find(name.lexeme);
+		if (it != scopes_.back().end())
+		{
+			it->second =  true;
+		}
+		else
+		{
+			logger_.write(VariableAllradyMessage(name.lexeme));
+		}
 	}
 
 }

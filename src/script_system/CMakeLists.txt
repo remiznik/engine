@@ -18,6 +18,8 @@ set(SCRIPT_SYSTEM_SRC
     environment.cpp
     resolver.h
     resolver.cpp
+    class_def.h
+    class_def.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

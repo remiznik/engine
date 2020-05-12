@@ -1,1 +1,6 @@
-return "at top level";
+class Foo {
+  init() {
+    return;
+  }
+}
+var foo = Foo();

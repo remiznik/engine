@@ -4,70 +4,22 @@
 #include "core/assert.h"
 
 #include "interpreter.h"
+#include "class_def.h"
 #include "ast.h"
 
 namespace script_system{
 namespace parser {
+    class Clock : public Callable
+    {
+    public:
+        core::Value call(const vector<core::Value>& args) override
+        {
+            std::cout << " time " << std::endl;
+            return core::Value();
+        }
+    };
 
-class RetrunException : public std::exception
-{
-public:
-    RetrunException(core::Value v)
-        : value(v)
-    {}
     
-    core::Value value;
-};
-
-class Callable : public core::Object
-{
-public:
-    virtual core::Value call(const vector<core::Value>& args) = 0;
-};
-
-class Clock : public Callable
-{
-public:
-    core::Value call(const vector<core::Value>& args) override
-    {
-        std::cout << " time " << std::endl;
-        return core::Value();
-    }
-};
-
-class InFunction : public Callable
-{
-public:
-    InFunction(Interpreter* inter, Function* expr, const shared_ptr<Environment>& closure)
-        : inter_(inter), expr_(expr), closure_(closure)
-    {}
-
-    core::Value call(const vector<core::Value>& args) override
-    {
-        auto env = makeShared<Environment>(closure_);
-        ASSERT(args.size() == expr_->params.size(), "Not equal arguments .")
-        
-        for (size_t i = 0; i < expr_->params.size(); ++i)
-        {
-            env->define(expr_->params[i].lexeme, args[i]);
-        }
-        try
-        {
-            inter_->execute(expr_->body, env);
-        }
-        catch(const RetrunException& e)
-        {
-            //std::cout << " catch " << std::endl;
-            return e.value;
-        }
-
-        return core::Value();
-    }
-private:
-    Interpreter* inter_;
-    Function* expr_;
-    shared_ptr<Environment> closure_;
-};
 
 Interpreter::Interpreter()
 {
@@ -268,7 +220,7 @@ core::Value Interpreter::visit(Call* expr)
 
 core::Value Interpreter::visit(Function* expr)
 {
-    auto fnc = makeShared<InFunction>(this, expr, environment_);
+    auto fnc = makeShared<InFunction>(this, expr, environment_, false);
     environment_->define(expr->name.lexeme, core::Value(fnc));
     return core::Value();
 }
@@ -282,6 +234,54 @@ core::Value Interpreter::visit(Return* expr)
     return core::Value();
 }
 
+core::Value Interpreter::visit(ClassExpr* expr)
+{
+    environment_->define(expr->name.lexeme, core::Value());
+
+    map<string, shared_ptr<InFunction>> methods;
+    for (auto method : expr->methods)
+    {
+        methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_, string(method->name.lexeme) == "init"));
+    }
+
+    auto inClass = makeShared<InClass>(expr->name.lexeme, methods);
+    environment_->assign(expr->name, core::Value(inClass));
+    return core::Value();
+}
+
+core::Value Interpreter::visit(GetExpr* expr)
+{
+    auto objValue = evaluate(expr->object.get());
+    auto obj = objValue.get<shared_ptr<core::Object>>();
+    auto inst = static_cast<InClassInstance*>(obj.get());
+    if (inst)
+    {
+        return inst->get(expr->name.lexeme);
+    }
+
+    ASSERT(false, "Only instance have property ");
+    return core::Value();
+}
+
+core::Value Interpreter::visit(SetExpr* expr)
+{
+    auto objValue = evaluate(expr->object.get());
+    auto obj = objValue.get<shared_ptr<core::Object>>();
+    auto inst = static_cast<InClassInstance*>(obj.get());
+    if (inst == nullptr)
+    {
+        ASSERT(false, "Only instance have field. ");
+        return core::Value();
+    }
+    auto val = evaluate(expr->value.get());
+    inst->set(expr->name.lexeme, val);
+    return val;
+}
+
+core::Value Interpreter::visit(This* expr)
+{
+    return lookUpVariable(expr->keyword, expr);
+}
 
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {
@@ -304,7 +304,7 @@ core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
 {
     auto it = locals_.find(expr);
     if (it != locals_.end())
-    {
+    {        
         return environment_->getAt(it->second, name.lexeme);
     }
     
