@@ -1,5 +1,6 @@
 #pragma once
 
+// using this foc InClassInstance, make shared form this.
 #include <memory>
 
 #include "core/object.h"
@@ -45,9 +46,9 @@ public:
 
 private:
 	bool isInitializer_{ false };
-	parser::Interpreter* inter_;
-	parser::Function* expr_;
-	shared_ptr<Environment> closure_;
+	parser::Interpreter* inter_ {nullptr};
+	parser::Function* expr_{nullptr};
+	shared_ptr<Environment> closure_{nullptr};
 };
 
 

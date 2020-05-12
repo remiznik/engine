@@ -262,7 +262,7 @@ namespace core
 			virtual Value plus(const Value& self, const Value& other) const override
 			{
 				ASSERT(other.type() == ValueType::String, "Value string plus");
-				return Value((string(self.get<string>()) + string(other.get<string>())).c_str());
+				return Value((self.get<string>() + other.get<string>()).c_str());
 			}
 
 			virtual shared_ptr<Object> toObj(const AnyValue& value) const override

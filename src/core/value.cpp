@@ -1,8 +1,6 @@
 #include "value.h"
 #include "value_impl.h"
 
-#include <set>
-
 namespace core
 {
     Value::Value()
@@ -22,7 +20,6 @@ namespace core
 	Value::Value(const char* value)
 		: type_(ValueType::String), value_(copy(value))
     {
-		double x = 44;
     }
 
     Value::Value(bool value)
@@ -97,7 +94,7 @@ namespace core
 
 	const char* Value::copy(const char* value)
 	{
-		static std::set<string> strings;
+		static set<string> strings;
 		auto it = strings.find(value);
 		if (it != strings.end())
 		{
