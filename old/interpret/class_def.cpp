@@ -1,15 +1,15 @@
 #include "class_def.h"
 
-#include "core/assert.h"
+#include "core/m_assert.h"
 #include "interpreter.h"
-#include "ast.h"
 
 namespace script_system {
 
 
 InFunction::InFunction(parser::Interpreter* inter, parser::Function* expr, const shared_ptr<Environment>& closure, bool initializer)
 	: inter_(inter), expr_(expr), closure_(closure), isInitializer_(initializer)
-{}
+{
+}
 
 core::Value InFunction::call(const vector<core::Value>& args)
 {

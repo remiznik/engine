@@ -33,6 +33,11 @@ namespace app {
 				return core::Value();
 			}
 
+			virtual string toString() const
+			{
+				return "UpdateCamera";
+			}
+
 		private:
 			render::RenderD12& render_;
 		};
