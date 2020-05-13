@@ -9,17 +9,18 @@
 
 namespace script_system {
 namespace parser {
-class Expr;
 
-class Interpreter : public AstVisitor
-{		
+	class Expr;
+
+	class Interpreter : public AstVisitor
+	{
 	public:
 		Interpreter();
-		
+
 		void interpret(const vector<ExprPtr>& expr);
 
 		core::Value visit(Literal* expr) override;
-		core::Value visit(Grouping* expr) override; 
+		core::Value visit(Grouping* expr) override;
 		core::Value visit(Unary* expr) override;
 		core::Value visit(Binary* expr) override;
 		core::Value visit(Stmt* expr) override;
@@ -42,25 +43,28 @@ class Interpreter : public AstVisitor
 
 		core::Value evaluate(Expr* expr);
 
-		const shared_ptr<Environment>& environment() const 
+		const shared_ptr<Environment>& environment() const
 		{
 			return environment_;
 		}
 
 		void execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env);
 
-		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);		
+		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);
 		void update(int st, int x, int y);
 
-private:
 		void resolve(Expr* expr, int depth);
+
+	private:		
 		core::Value lookUpVariable(Token name, Expr* expr);
 		void execute(Expr* expr);
-	
-		
-private:
+
+
+	private:
 		map<Expr*, int> locals_;
 		shared_ptr<Environment> environment_;
-		vector<ExprPtr> expresions_;	
+		shared_ptr<Environment> globals_;
+		vector<ExprPtr> expresions_;
+	};
 }
 }

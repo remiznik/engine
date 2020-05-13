@@ -21,16 +21,36 @@ namespace parser {
         }
     };
 
+    class Clamp : public core::Callable
+    {
+    public:
+        core::Value call(const vector<core::Value>& args) override
+        {
+            auto x = args[0].get<double>();
+            auto low = args[1].get<double>();
+            auto high = args[2].get<double>();
+
+            return core::Value(x < low ? low : (x > high ? high : x));
+        }
+
+        virtual string toString() const override
+        {
+            return "Clamp";
+        }
+    };
     
 
 Interpreter::Interpreter()
 {
-    globals_ = makeShared<Environment>();
+    globals_ = makeShared<Environment>();    
     environment_ = globals_;
+
+    registreFunction("clamp", makeShared<Clamp>());
 }
 void Interpreter::interpret(const vector<ExprPtr>& exprs)
 {
-    for (auto expr : exprs)
+    expresions_ = exprs;
+    for (auto expr : expresions_)
     {
         execute(expr.get());
     }			
@@ -310,7 +330,7 @@ core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
         return environment_->getAt(it->second, name.lexeme);
     }
     
-    return globals_->get(name);    
+    return globals_->get(name.lexeme);    
 }
 
 
