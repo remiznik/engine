@@ -3,6 +3,7 @@
 #include "script_system/script.h"
 #include "render/render.h"
 #include "render/scene.h"
+#include "render/resource_manager.h"
 
 namespace app {
 
@@ -44,7 +45,7 @@ namespace app {
 
 		core::FileSystem fileSystem_;
 		script_system::Script script_;
-
+		render::ResourceManager resourceManager_;
 
 	};
 

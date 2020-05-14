@@ -51,11 +51,13 @@ namespace app {
 	}
 
 	Application::Application() 
-		: script_(fileSystem_), scene_(render_)
+		: script_(fileSystem_), scene_(render_), resourceManager_(fileSystem_)
 
 	{
 		assert(app_ == nullptr);
 		app_ = this;
+
+		resourceManager_.getModel("skull.txt");
 	}
 
 	bool Application::initialize()
