@@ -16,7 +16,8 @@
 
 #include <cstdint>
 #include <DirectXMath.h>
-#include <vector>
+
+#include "core/types.h"
 
 class GeometryGenerator
 {
@@ -55,10 +56,10 @@ public:
 
 	struct MeshData
 	{
-		std::vector<Vertex> Vertices;
+		vector<Vertex> Vertices;
         std::vector<uint32> Indices32;
 
-        std::vector<uint16>& GetIndices16()
+        vector<uint16>& GetIndices16()
         {
 			if(mIndices16.empty())
 			{
@@ -71,7 +72,7 @@ public:
         }
 
 	private:
-		std::vector<uint16> mIndices16;
+		vector<uint16> mIndices16;
 	};
 
 	///<summary>

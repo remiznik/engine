@@ -7,6 +7,8 @@ set(CORE_SRC
     file_reader.h
     file_reader.cpp
     callabel.h
+	m_math.h
+	m_math.cpp
 )
 add_library( core ${CORE_SRC} )
 

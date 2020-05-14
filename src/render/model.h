@@ -1,24 +1,31 @@
 #pragma once
 
-#include <unordered_map>
+#include "core/types.h"
+#include "core/m_math.h"
 
 #include "d3d12Utils/d3dUtil.h"
 
 namespace render {
 
-		class Model
+	
+
+	class Model
 	{
 	public:
-		Model();
+		Model() = default;
+		Model(const vector<core::math::Vertex>& vertices,  	const vector<std::uint16_t>& indices,
+		const unordered_map<std::string, SubmeshGeometry>& subMeshes);
 		
 		SubmeshGeometry submesh(const std::string& name) const;
 
-		const std::vector<Vertex>& vertices() const { return vertices_; }
-		const std::vector<std::uint16_t>& indices() const { return indices_; }
+		const vector<core::math::Vertex>& vertices() const { return vertices_; }
+		const vector<std::uint16_t>& indices() const { return indices_; }
 
 	private:
-		std::vector<Vertex> vertices_;
-		std::vector<std::uint16_t> indices_;
-		std::unordered_map<std::string, SubmeshGeometry> subMeshes_;
+		vector<core::math::Vertex> vertices_;
+		vector<std::uint16_t> indices_;
+		unordered_map<std::string, SubmeshGeometry> subMeshes_;
 	};
+
+	Model createModel();
 }

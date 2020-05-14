@@ -2,7 +2,6 @@
 
 
 using Microsoft::WRL::ComPtr;
-using namespace std;
 using namespace DirectX;
 
 const int gNumFrameResources = 3;
@@ -654,7 +653,7 @@ namespace render
 		currPassCB->CopyData(0, mainPassCB_);
 	}
 
-	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems)
+	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const vector<RenderItem*>& ritems)
 	{
 		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
@@ -680,7 +679,7 @@ namespace render
 		}
 	} 
 
-	std::unique_ptr<MeshGeometry>  RenderD12::createGeometry(const char* name,  const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices)
+	std::unique_ptr<MeshGeometry>  RenderD12::createGeometry(const char* name,  const vector<core::math::Vertex>& vertices, const vector<std::uint16_t>& indices)
 	{
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
@@ -709,7 +708,7 @@ namespace render
 		return geo;
 	}
 
-	void RenderD12::setOpaque(const std::vector<RenderItem*>& opaqueRitems)
+	void RenderD12::setOpaque(const vector<RenderItem*>& opaqueRitems)
 	{
 		opaqueRitems_ = opaqueRitems;
 	}
