@@ -7,7 +7,7 @@ namespace render {
 	Shape::Shape(RenderD12& render)
 		: render_(render)
 	{	
-
+		model_ = createModel();
 	}
 
 	void Shape::createGeom()

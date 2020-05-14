@@ -24,7 +24,7 @@ namespace render {
 
 	private:
 		RenderD12& render_;
-		std::vector<std::unique_ptr<RenderItem>> allRitems_;
+		vector<std::unique_ptr<RenderItem>> allRitems_;
 		std::unique_ptr<MeshGeometry> geo_{ nullptr };
 		UINT objCBIndex_{ 0 };
 		Model model_;
@@ -43,7 +43,7 @@ namespace render {
 
 	private:
 		RenderD12& render_;		
-		std::vector<RenderItem*> opaqueRitems_;
+		vector<RenderItem*> opaqueRitems_;
 		bool isCreated_ = false;
 		Shape shape_;
 	};

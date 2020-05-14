@@ -14,6 +14,8 @@ set(CORE_SRC
     object.h
     object.cpp
     callabel.h
+	m_math.h
+	m_math.cpp
 )
 add_library( core ${CORE_SRC} )
 

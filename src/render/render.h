@@ -10,10 +10,14 @@
 #include "d3d12Utils/MathHelper.h"
 #include "d3d12Utils/FrameResource.h"
 
+#include "core/types.h"
+#include "core/m_math.h"
+
 // Link necessary d3d12 libraries.
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
 #pragma comment(lib, "dxgi.lib")
+
 
 
 
@@ -65,8 +69,8 @@ namespace render
 		void updateCamera(float radius, float phi, float theta);
 		
 
-		void setOpaque(const std::vector<RenderItem*>& opaqueRitems);
-		std::unique_ptr<MeshGeometry> createGeometry(const char* name, const std::vector<Vertex>& vertices, const std::vector<std::uint16_t>& indices);
+		void setOpaque(const vector<RenderItem*>& opaqueRitems);
+		std::unique_ptr<MeshGeometry> createGeometry(const char* name, const vector<core::math::Vertex>& vertices, const vector<std::uint16_t>& indices);
 
 	private:
 		void FlushCommandQueue();
@@ -88,7 +92,7 @@ namespace render
 		void UpdateObjectCBs();
 		void UpdateMainPassCB();
 
-		void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const std::vector<RenderItem*>& ritems);
+		void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const vector<RenderItem*>& ritems);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 		ID3D12Resource* CurrentBackBuffer() const;
@@ -136,13 +140,13 @@ namespace render
 		std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB_{ nullptr };
 
 		std::unique_ptr<MeshGeometry> BoxGeo_ = nullptr;
-		std::vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
+		vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
 		Microsoft::WRL::ComPtr<ID3DBlob> vsByteCode_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> psByteCode_ = nullptr;
 
 				
-		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> shaders_;
-		std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> PSOs_;
+		unordered_map<string, Microsoft::WRL::ComPtr<ID3DBlob>> shaders_;
+		unordered_map<string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> PSOs_;
 
 		// from window 
 		HWND      hMainWnd_ = nullptr; // main window handle
@@ -156,13 +160,13 @@ namespace render
 		
 
 		DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();		
-		std::vector<std::unique_ptr<FrameResource>> frameResources_;
+		vector<std::unique_ptr<FrameResource>> frameResources_;
 		FrameResource* currFrameResource_ = nullptr;
 		int currFrameResourceIndex_ = 0;
 		
 		// Render items divided by PSO.
 		const int maxOpaqueItems_ = 22;
-		std::vector<RenderItem*> opaqueRitems_;
+		vector<RenderItem*> opaqueRitems_;
 
 		PassConstants mainPassCB_;
 	};
