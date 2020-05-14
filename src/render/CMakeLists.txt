@@ -17,6 +17,8 @@ set(RENDER_SRC
 	scene.cpp
 	model.h
 	model.cpp
+	resource_manager.h
+	resource_manager.cpp
 )
 add_library( render ${RENDER_SRC} )
 
