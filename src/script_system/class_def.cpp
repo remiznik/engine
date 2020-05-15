@@ -70,6 +70,11 @@ shared_ptr<InFunction> InClass::method(const string& name)
 	{
 		return it->second;
 	}
+
+	if (supperClass_ != nullptr)
+	{
+		return supperClass_->method(name);
+	}
 	return nullptr;
 }
 
