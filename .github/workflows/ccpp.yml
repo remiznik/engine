@@ -14,9 +14,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: configure
-      run: cmake
+      run: mkdir build
+      run: cd build
+      run: cmake ../
     - name: make
       run: make
     - name: test
-      run: ./build/tests/EngineSFML_tst
+      run: ./tests/EngineSFML_tst
     
