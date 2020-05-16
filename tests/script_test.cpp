@@ -11,7 +11,7 @@ public:
 
 	core::Value call(const vector<core::Value>& args) override
 	{
-		output_ = args[0].to<string>();
+		output_.append(args[0].to<string>());
 		return core::Value();
 	}
 
@@ -34,6 +34,31 @@ protected:
     string result;
 };
 
+
+TEST_F(ScriptTest, calling_superclass_methods) 
+{
+const char* text =
+"class Doughnut {"
+"  cook() {"
+"    print \"Fry until golden brown.\";"
+"  }"
+"}"
+"class BostonCream < Doughnut {"
+"  cook() {"
+"    super.cook();"
+"    print \"Pipe full of custard and coat with chocolate.\";"
+"  }"
+"}"
+"BostonCream().cook();";
+
+    
+const char* expectedResult = 
+"Fry until golden brown."
+"Pipe full of custard and coat with chocolate.";
+
+    script.execute(text);
+    EXPECT_EQ (result, expectedResult);
+}
 
 TEST_F(ScriptTest, inheretence) 
 {
