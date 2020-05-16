@@ -51,7 +51,8 @@ private:
 	enum class ClassType
 	{
 		NONE,
-		CLASS
+		CLASS,
+		SUPERCLASS
 	};
 
 

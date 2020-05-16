@@ -244,6 +244,7 @@ namespace parser {
 
 		if (expr->supperClass != nullptr)
 		{
+			currentClass_ = ClassType::SUPERCLASS;
 			beginScope();
 			scopes_.back().emplace("super", true);
 		}
@@ -292,6 +293,16 @@ namespace parser {
 
 	core::Value Resolver::visit(Super* expr)
 	{
+		if (currentClass_ == ClassType::NONE)
+		{
+			logger_.write(core::LogMessage("Can`t use 'super' outside of class"));
+		}
+		else if (currentClass_ != ClassType::SUPERCLASS)
+		{
+			logger_.write(core::LogMessage("Can`t use supper in class with no suppercalass."));
+		}
+		
+
 		resolveLockal(expr, expr->keyword);
 		return core::Value();
 	}
