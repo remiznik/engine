@@ -22,6 +22,8 @@ namespace script_system {
 
 		string toString(const string& shift);
 
+		shared_ptr<Environment> enclosing() const;
+
 	private:
 		Environment* ancestor(int distance);
 

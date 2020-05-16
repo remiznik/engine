@@ -66,6 +66,11 @@ namespace script_system {
 		return env;
 	}
 
+	shared_ptr<Environment> Environment::enclosing() const 
+	{
+		return enclosing_;
+	}
+
 	string Environment::toString(const string& shift)
 	{
 		string result;
@@ -81,8 +86,7 @@ namespace script_system {
 			result.append("  ");
 			result.append(v.second.to<string>());
 			result.append("\n");
-		}
-		
+		}		
 		
 		return result;
 

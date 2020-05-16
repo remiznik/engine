@@ -436,6 +436,14 @@ namespace parser {
             return makeShared<Literal>(core::Value(previous().lexeme.c_str()));
         }
 
+        if (match({TokenType::SUPER}))
+        {
+            Token keyword = previous();
+            consume(TokenType::DOT, "Expect '.' after 'super'.");
+            Token method = consume(TokenType::IDENTIFIER, "Expect superclass method name.");
+            return makeShared<Super>(keyword, method);
+        }
+
         if (match({TokenType::THIS})) return makeShared<This>(previous());
         if (match({TokenType::IDENTIFIER}))
             return makeShared<Variable>(previous());

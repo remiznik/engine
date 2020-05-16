@@ -252,6 +252,12 @@ core::Value Interpreter::visit(ClassExpr* expr)
     }
     environment_->define(expr->name.lexeme, core::Value());
 
+    if (expr->supperClass)
+    {
+        environment_ = makeShared<Environment>(environment_);
+        environment_->define("super", core::Value(supperClass));
+    }
+
     map<string, shared_ptr<InFunction>> methods;
     for (auto method : expr->methods)
     {
@@ -259,6 +265,12 @@ core::Value Interpreter::visit(ClassExpr* expr)
     }
 
     auto inClass = makeShared<InClass>(expr->name.lexeme, supperClass, methods);
+
+    if (supperClass != nullptr)
+    {
+        environment_ = environment_->enclosing();
+    }
+
     environment_->assign(expr->name, core::Value(inClass));
     return core::Value();
 }
@@ -295,6 +307,32 @@ core::Value Interpreter::visit(SetExpr* expr)
 core::Value Interpreter::visit(This* expr)
 {
     return lookUpVariable(expr->keyword, expr);
+}
+
+core::Value Interpreter::visit(Super* expr)
+{
+    auto it = locals_.find(expr);
+    if (it != locals_.end())
+    {        
+        auto valSuper = environment_->getAt(it->second, "super");
+        auto objSuper = valSuper.get<shared_ptr<core::Object>>();
+        auto super = static_cast<InClass*>(objSuper.get());
+        if (super == nullptr)
+        {
+            ASSERT(false, "Cant find super class. ");
+        }
+
+        // "this" is always one level nearer than "super"'s environment.
+        auto valThis = environment_->getAt(it->second - 1, "this");
+        auto objThis = valThis.get<shared_ptr<core::Object>>();
+        auto _this = static_cast<InClassInstance*>(objThis.get());
+        if (_this == nullptr)
+        {
+            ASSERT(false, "Cant find this. ");
+        }
+
+    }
+    return core::Value();
 }
 
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
