@@ -1,0 +1,22 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ test_action ]
+  pull_request:
+    branches: [ test_action ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: configure
+      run: cmake .
+    - name: make tests
+      run: make EngineSFML_tst
+    - name: test
+      run: ./tests/EngineSFML_tst
+    

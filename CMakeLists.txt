@@ -5,6 +5,7 @@ set(PROJECT_NAME "EngineSFML")
 project(${PROJECT_NAME})
 set_property( DIRECTORY PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME} )
 set(SFML_PACKAGE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../SFML-2.5.1")
+
 message(" SFML = ${SFML_PACKAGE_DIR}")
 if(EXISTS "${SFML_PACKAGE_DIR}")
    message(" exists ")
@@ -27,6 +28,11 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 add_subdirectory ("src/core")
 add_subdirectory ("src/graphics")
 add_subdirectory ("src/script_system")
+
+
+#tests 
+add_subdirectory("third_party/googletest")
+add_subdirectory ("tests")
 
 # setup project
 set ( MAIN_SRCS
