@@ -292,7 +292,7 @@ namespace parser {
 
 	core::Value Resolver::visit(Super* expr)
 	{
-		resolveStmt(expr);
+		resolveLockal(expr, expr->keyword);
 		return core::Value();
 	}
 

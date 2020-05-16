@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "core/object.h"
 #include "core/assert.h"
@@ -325,12 +326,13 @@ core::Value Interpreter::visit(Super* expr)
         // "this" is always one level nearer than "super"'s environment.
         auto valThis = environment_->getAt(it->second - 1, "this");
         auto objThis = valThis.get<shared_ptr<core::Object>>();
-        auto _this = static_cast<InClassInstance*>(objThis.get());
+        auto _this = std::dynamic_pointer_cast<InClassInstance>(objThis);
         if (_this == nullptr)
         {
             ASSERT(false, "Cant find this. ");
         }
-
+        auto method = super->method(expr->method.lexeme);
+        return core::Value(method->bind(_this));
     }
     return core::Value();
 }
