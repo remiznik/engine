@@ -362,7 +362,7 @@ namespace script_system
 
 			core::Value accept(AstVisitor* visitor) override
 			{
-
+				return visitor->visit(this);
 			}
 
 			Token keyword;
