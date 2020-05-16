@@ -241,6 +241,12 @@ namespace parser {
 			}
 			resolveStmt(expr->supperClass.get());
 		}
+
+		if (expr->supperClass != nullptr)
+		{
+			beginScope();
+			scopes_.back().emplace("super", true);
+		}
 		
 		beginScope();
 		scopes_.back().emplace("this", true);
@@ -251,6 +257,12 @@ namespace parser {
 			resolveFunction(method.get(), decl);
 		}
 		endScope();
+
+		if (expr->supperClass != nullptr)
+		{
+			endScope();
+		}
+
 		return core::Value();
 	}
 
@@ -275,6 +287,12 @@ namespace parser {
 			logger_.write(core::LogMessage("Cannot use 'this' outside a class"));
 		}
 		resolveLockal(expr, expr->keyword);
+		return core::Value();
+	}
+
+	core::Value Resolver::visit(Super* expr)
+	{
+		resolveStmt(expr);
 		return core::Value();
 	}
 
@@ -318,7 +336,7 @@ namespace parser {
 		{
 			logger_.write(VariableAllradyMessage(name.lexeme));
 		}
-	}
+	}	
 
 }
 }

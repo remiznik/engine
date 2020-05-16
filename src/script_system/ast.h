@@ -352,5 +352,21 @@ namespace script_system
 
 			Token keyword;
 		};
+
+		class Super : public Expr
+		{
+		public:
+			Super(Token k, Token m) 
+				: keyword(k), method(m)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+
+			}
+
+			Token keyword;
+			Token method;
+		};
 	}
 }
