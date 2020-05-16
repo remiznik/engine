@@ -23,13 +23,21 @@ private:
     string& output_;
 };
 
+class ScriptTest : public ::testing::Test {
+protected:
+    void SetUp() override {  
+        script.registreFunction("output", makeShared<TestOutput>(result));
+    }
+    // void TearDown() override {}
 
-TEST(Script, inheretence) 
-{
-    string result;
     script_system::Script script;
-    script.registreFunction("output", makeShared<TestOutput>(result));
-    
+    string result;
+};
+
+
+TEST_F(ScriptTest, inheretence) 
+{
+   
 const char* text =
 "class A {"
 "    method() {"
