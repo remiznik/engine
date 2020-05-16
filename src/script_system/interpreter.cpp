@@ -111,7 +111,14 @@ core::Value Interpreter::visit(Stmt* expr)
 core::Value Interpreter::visit(StmtPrint* expr)
 {
     auto val = evaluate(expr->print.get());            
-    std::cout << val.to<string>() << std::endl;
+    auto fnc = globals_->get("output");
+    auto obj = fnc.get<shared_ptr<core::Object>>();
+    auto clock = static_cast<Callable*>(obj.get());
+    if (clock)
+    {
+        clock->call({val});
+    }
+        
     return core::Value();
 }
 
@@ -143,11 +150,11 @@ core::Value Interpreter::visit(Assign* expr)
     auto it = locals_.find(expr);
     if (it != locals_.end())
     {
-        environment_->assignAt(it->second, expr->name, val);
+        environment_->assignAt(it->second, expr->name.lexeme, val);
     }
     else
     {
-        globals_->assign(expr->name, val);
+        globals_->assign(expr->name.lexeme, val);
     }
     return val;
 }
@@ -272,7 +279,7 @@ core::Value Interpreter::visit(ClassExpr* expr)
         environment_ = environment_->enclosing();
     }
 
-    environment_->assign(expr->name, core::Value(inClass));
+    environment_->assign(expr->name.lexeme, core::Value(inClass));
     return core::Value();
 }
 
@@ -339,7 +346,7 @@ core::Value Interpreter::visit(Super* expr)
 
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {
-    // becaus return realize by exception (
+    // becaus return realize by exception 
     ScopeGuard<shared_ptr<Environment>> guard(environment_);
     environment_ = env;
     
@@ -362,9 +369,13 @@ core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
         return environment_->getAt(it->second, name.lexeme);
     }
     
-    return globals_->get(name);    
+    return globals_->get(name.lexeme);    
 }
 
+void Interpreter::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
+{
+    globals_->define(name, core::Value(fnc));
+}
 
 }
 }

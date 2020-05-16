@@ -1,6 +1,8 @@
 #include "script.h"
 
 #include "core/value.h"
+#include "core/callabel.h"
+
 #include "ast.h"
 #include "ast_printer.h"
 #include "parser.h"
@@ -12,9 +14,26 @@ namespace script_system
 {
 	using namespace parser;
 
+	class Output : public core::Callable
+	{
+	public:
+
+		core::Value call(const vector<core::Value>& args) override
+		{
+			std::cout << args[0].to<string>() << std::endl;
+			return core::Value();
+		}
+
+		string toString() const  override
+		{
+			return "Output";
+		}
+	};
+
 	Script::Script()
 		: scanner_(logger_), interpreter_(logger_)
 	{	
+		interpreter_.registreFunction("output", makeShared<Output>());
 	}
 
 	void Script::run()

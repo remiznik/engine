@@ -13,6 +13,7 @@ set(CORE_SRC
     file_reader.cpp
     object.h
     object.cpp
+    callabel.h
 )
 add_library( core ${CORE_SRC} )
 
