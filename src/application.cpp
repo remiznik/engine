@@ -57,7 +57,8 @@ namespace app {
 		assert(app_ == nullptr);
 		app_ = this;
 
-		resourceManager_.getModel("skull.txt");
+		auto model = resourceManager_.getModel("skull.txt");
+		scene_.createShape("skull.txt", model);
 	}
 
 	bool Application::initialize()

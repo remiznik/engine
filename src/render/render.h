@@ -165,7 +165,7 @@ namespace render
 		int currFrameResourceIndex_ = 0;
 		
 		// Render items divided by PSO.
-		const int maxOpaqueItems_ = 22;
+		const int maxOpaqueItems_ = 2;
 		vector<RenderItem*> opaqueRitems_;
 
 		PassConstants mainPassCB_;
