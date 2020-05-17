@@ -64,6 +64,11 @@ namespace render {
 			}
 		}
 
-		return Model();
+		SubmeshGeometry submesh;
+		submesh.IndexCount = (UINT)indecses.size();
+		submesh.StartIndexLocation = 0;
+		submesh.BaseVertexLocation = 0;
+
+		return Model(vertices, indecses, { {name, submesh}});
 	}
 }

@@ -16,9 +16,9 @@ namespace render {
 	class Shape
 	{
 	public:
-		Shape(RenderD12& render);
+		Shape(RenderD12& render, const Model& model);
 
-		RenderItem* createRenderItem(const char* name, float x, float y, float z);
+		RenderItem* createRenderItem(const string& name, float x, float y, float z);
 	private:
 		void createGeom();
 
@@ -34,8 +34,11 @@ namespace render {
 	public:
 		Scene(RenderD12& render);
 
+
 		bool initialize();
 		void draw();
+
+		void createShape(const string& name, const Model& model);
 
 	private:
 		void buildGeometry();
@@ -45,6 +48,7 @@ namespace render {
 		RenderD12& render_;		
 		vector<RenderItem*> opaqueRitems_;
 		bool isCreated_ = false;
-		Shape shape_;
+		std::unique_ptr<Shape> shape_{ nullptr };
+		string name_;
 	};
 }

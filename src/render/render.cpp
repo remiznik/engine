@@ -306,11 +306,40 @@ namespace render
 		return DsvHeap_->GetCPUDescriptorHandleForHeapStart();
 	}
 
-	void RenderD12::draw()
+	void RenderD12::startDraw()
 	{
+		// Cycle through the circular frame resource array.
+		currFrameResourceIndex_ = (currFrameResourceIndex_ + 1) % gNumFrameResources;
+		currFrameResource_ = frameResources_[currFrameResourceIndex_].get();
+
+		// Has the GPU finished processing the commands of the current frame resource?
+		// If not, wait until the GPU has completed commands up to this fence point.
+		if (currFrameResource_->Fence != 0 && fence_->GetCompletedValue() < currFrameResource_->Fence)
+		{
+			HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+			ThrowIfFailed(fence_->SetEventOnCompletion(currFrameResource_->Fence, eventHandle));
+			WaitForSingleObject(eventHandle, INFINITE);
+			CloseHandle(eventHandle);
+		}
 
 		UpdateObjectCBs();
 		UpdateMainPassCB();		
+		
+		auto cmdListAlloc = currFrameResource_->CmdListAlloc;
+
+		// Reuse the memory associated with command recording.
+		// We can only reset when the associated command lists have finished execution on the GPU.
+		ThrowIfFailed(cmdListAlloc->Reset());
+
+		// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
+		// Reusing the command list reuses memory.
+
+
+		ThrowIfFailed(commandList_->Reset(cmdListAlloc.Get(), PSOs_["opaque"].Get()));
+	}
+
+	void RenderD12::draw()
+	{
 		
 
 		commandList_->RSSetViewports(1, &screenViewport_);
@@ -573,35 +602,7 @@ namespace render
 		XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
 		XMStoreFloat4x4(&mView, view);
 	}
-
-	void RenderD12::startDraw()
-	{
-		// Cycle through the circular frame resource array.
-		currFrameResourceIndex_ = (currFrameResourceIndex_ + 1) % gNumFrameResources;
-		currFrameResource_ = frameResources_[currFrameResourceIndex_].get();
-
-		// Has the GPU finished processing the commands of the current frame resource?
-		// If not, wait until the GPU has completed commands up to this fence point.
-		if (currFrameResource_->Fence != 0 && fence_->GetCompletedValue() < currFrameResource_->Fence)
-		{
-			HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
-			ThrowIfFailed(fence_->SetEventOnCompletion(currFrameResource_->Fence, eventHandle));
-			WaitForSingleObject(eventHandle, INFINITE);
-			CloseHandle(eventHandle);
-		}
-
-		auto cmdListAlloc = currFrameResource_->CmdListAlloc;
-
-		// Reuse the memory associated with command recording.
-		// We can only reset when the associated command lists have finished execution on the GPU.
-		ThrowIfFailed(cmdListAlloc->Reset());
-
-		// A command list can be reset after it has been added to the command queue via ExecuteCommandList.
-		// Reusing the command list reuses memory.
-
-
-		ThrowIfFailed(commandList_->Reset(cmdListAlloc.Get(), PSOs_["opaque"].Get()));		
-	}
+		
 
 	void RenderD12::UpdateObjectCBs()
 	{
