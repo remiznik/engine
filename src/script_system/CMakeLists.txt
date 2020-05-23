@@ -20,6 +20,15 @@ set(SCRIPT_SYSTEM_SRC
     resolver.cpp
     class_def.h
     class_def.cpp
+    vm/vm.h
+    vm/vm.cpp
+    vm/common.h
+    vm/chunk.h
+    vm/chunk.cpp
+    vm/vm_memory.h
+    vm/vm_memory.cpp
+    vm/vm_debug.h
+    vm/vm_debug.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

@@ -6,6 +6,8 @@
 #include "scanner.h"
 #include "interpreter.h"
 
+#include "vm/vm.h"
+
 namespace script_system
 {
 	class Script
