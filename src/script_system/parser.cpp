@@ -92,6 +92,13 @@ namespace parser {
     ExprPtr Parser::classDeclaration()
     {
         Token name = consume(TokenType::IDENTIFIER, "Expect class name.");
+
+        shared_ptr<Variable> supperCalss = nullptr;
+        if (match({TokenType::LESS}))
+        {
+            consume(TokenType::IDENTIFIER, "Expect super class name.");
+            supperCalss = makeShared<Variable>(previous());
+        }
         consume(TokenType::LEFT_BRACE, "Expected '{' before class body.");
 
         vector<shared_ptr<Function>> methods;
@@ -101,7 +108,7 @@ namespace parser {
         }
         consume(TokenType::RIGHT_BRACE, "Expected '}' after class body.");
 
-        return makeShared<ClassExpr>(name, methods);
+        return makeShared<ClassExpr>(name, supperCalss ,methods);
     }
 
     ExprPtr Parser::statement()
@@ -427,6 +434,14 @@ namespace parser {
         if (match({ TokenType::STRING }))
         {
             return makeShared<Literal>(core::Value(previous().lexeme.c_str()));
+        }
+
+        if (match({TokenType::SUPER}))
+        {
+            Token keyword = previous();
+            consume(TokenType::DOT, "Expect '.' after 'super'.");
+            Token method = consume(TokenType::IDENTIFIER, "Expect superclass method name.");
+            return makeShared<Super>(keyword, method);
         }
 
         if (match({TokenType::THIS})) return makeShared<This>(previous());

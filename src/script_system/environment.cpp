@@ -18,20 +18,20 @@ namespace script_system {
 		ASSERT(res.second, "Enviroment::define");
 	}
 
-	core::Value Environment::get(parser::Token token)
+	core::Value Environment::get(const string& name)
 	{
-		auto it = values_.find(token.lexeme);
+		auto it = values_.find(name);
 		if (it != values_.end())
 			return it->second;
 		
-		if (enclosing_) return enclosing_->get(token);
+		if (enclosing_) return enclosing_->get(name);
 
 		ASSERT(false, "Enviroment::get");
 	}
 
-	void Environment::assign(parser::Token name, core::Value value)
+	void Environment::assign(const string& name, core::Value value)
 	{
-		auto it = values_.find(name.lexeme);
+		auto it = values_.find(name);
 		if (it != values_.end())
 		{
 			it->second = value;
@@ -46,9 +46,9 @@ namespace script_system {
 		ASSERT(false, "Enviroment::assign");		
 	}
 
-	void Environment::assignAt(int distance, parser::Token name, core::Value value)
+	void Environment::assignAt(int distance, const string& name, core::Value value)
 	{
-		ancestor(distance)->values_[name.lexeme] = value;
+		ancestor(distance)->values_[name] = value;
 	}
 
 	core::Value Environment::getAt(int distance, const string& name)
@@ -66,6 +66,11 @@ namespace script_system {
 		return env;
 	}
 
+	shared_ptr<Environment> Environment::enclosing() const 
+	{
+		return enclosing_;
+	}
+
 	string Environment::toString(const string& shift)
 	{
 		string result;
@@ -81,8 +86,7 @@ namespace script_system {
 			result.append("  ");
 			result.append(v.second.to<string>());
 			result.append("\n");
-		}
-		
+		}		
 		
 		return result;
 

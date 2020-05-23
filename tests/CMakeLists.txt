@@ -1,6 +1,7 @@
 set(TESTS_SRC 
     main.cpp
-    value_test.cpp    
+    value_test.cpp
+    script_test.cpp
 )
 
 
@@ -10,4 +11,4 @@ add_executable(${BINARY} ${TESTS_SRC})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC core gtest)
+target_link_libraries(${BINARY} PUBLIC script_system core gtest)

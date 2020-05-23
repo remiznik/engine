@@ -232,6 +232,22 @@ namespace parser {
 
 		declare(expr->name);
 		define(expr->name);
+
+		if (expr->supperClass != nullptr)
+		{
+			if (expr->supperClass->name.lexeme == expr->name.lexeme)
+			{
+				logger_.write(core::LogMessage("A class cannot inherit itself"));
+			}
+			resolveStmt(expr->supperClass.get());
+		}
+
+		if (expr->supperClass != nullptr)
+		{
+			currentClass_ = ClassType::SUPERCLASS;
+			beginScope();
+			scopes_.back().emplace("super", true);
+		}
 		
 		beginScope();
 		scopes_.back().emplace("this", true);
@@ -242,6 +258,12 @@ namespace parser {
 			resolveFunction(method.get(), decl);
 		}
 		endScope();
+
+		if (expr->supperClass != nullptr)
+		{
+			endScope();
+		}
+
 		return core::Value();
 	}
 
@@ -265,6 +287,22 @@ namespace parser {
 		{
 			logger_.write(core::LogMessage("Cannot use 'this' outside a class"));
 		}
+		resolveLockal(expr, expr->keyword);
+		return core::Value();
+	}
+
+	core::Value Resolver::visit(Super* expr)
+	{
+		if (currentClass_ == ClassType::NONE)
+		{
+			logger_.write(core::LogMessage("Can`t use 'super' outside of class"));
+		}
+		else if (currentClass_ != ClassType::SUPERCLASS)
+		{
+			logger_.write(core::LogMessage("Can`t use supper in class with no suppercalass."));
+		}
+		
+
 		resolveLockal(expr, expr->keyword);
 		return core::Value();
 	}
@@ -309,7 +347,7 @@ namespace parser {
 		{
 			logger_.write(VariableAllradyMessage(name.lexeme));
 		}
-	}
+	}	
 
 }
 }

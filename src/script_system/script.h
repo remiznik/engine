@@ -13,12 +13,17 @@ namespace script_system
 	public:
 		Script();
 
-		void run();
+		void run(const string& fileName);		
+		void execute(const string& scrip);
+
+		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);
 
 	private:
+
+	private:
+		core::Logger logger_;
 		core::FileReader reader_;
 		Scanner scanner_;
-		parser::Interpreter interpreter_;
-		core::Logger logger_;
+		parser::Interpreter interpreter_;		
 	};
 }

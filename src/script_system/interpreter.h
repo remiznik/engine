@@ -1,6 +1,8 @@
 #pragma once
 
 #include "core/value.h"
+#include "core/logger.h"
+#include "core/callabel.h"
 
 #include "ast_visitor.h"
 #include "ast.h"
@@ -13,7 +15,7 @@ class Expr;
 class Interpreter : public AstVisitor
 {		
 	public:
-		Interpreter();
+		Interpreter(core::Logger& logger);
 		
 		void interpret(const vector<ExprPtr>& expr);
 
@@ -37,6 +39,7 @@ class Interpreter : public AstVisitor
 		core::Value visit(GetExpr* expr) override;
 		core::Value visit(SetExpr* expr) override;
 		core::Value visit(This* expr) override;
+		core::Value visit(Super* expr) override;
 
 
 		core::Value evaluate(Expr* expr);
@@ -48,12 +51,16 @@ class Interpreter : public AstVisitor
 
 		void execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env);
 		void resolve(Expr* expr, int depth);
+
+		void registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc);
+
 	private:
 		void execute(Expr* expr);
 		core::Value lookUpVariable(Token name, Expr* expr);
 		
 
 	private:
+		core::Logger& logger_;
 		map<Expr*, int> locals_;
 		shared_ptr<Environment> environment_;
 		shared_ptr<Environment> globals_;

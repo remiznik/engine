@@ -2,7 +2,6 @@
 
 #include "core/value.h"
 
-#include "token.h"
 
 namespace script_system {
 	class Environment
@@ -14,13 +13,15 @@ namespace script_system {
 
 		void define(const string& name, core::Value value);
 
-		core::Value get(parser::Token token);
+		core::Value get(const string& name);
 		core::Value getAt(int distance, const string& name);
 
-		void assign(parser::Token name, core::Value value);
-		void assignAt(int distance, parser::Token name, core::Value value);
+		void assign(const string& name, core::Value value);
+		void assignAt(int distance, const string& name, core::Value value);
 
 		string toString(const string& shift);
+
+		shared_ptr<Environment> enclosing() const;
 
 	private:
 		Environment* ancestor(int distance);

@@ -35,6 +35,7 @@ public:
 	core::Value visit(GetExpr* expr) override;
 	core::Value visit(SetExpr* expr) override;
 	core::Value visit(This* expr) override;
+	core::Value visit(Super* expr) override;
 
 	void resolve(const vector<ExprPtr>& statements);
 
@@ -50,7 +51,8 @@ private:
 	enum class ClassType
 	{
 		NONE,
-		CLASS
+		CLASS,
+		SUPERCLASS
 	};
 
 

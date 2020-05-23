@@ -4,11 +4,30 @@
 
 #include "fps_lock.h"
 #include <memory>
+#include <iostream>
+
+class Output : public core::Callable
+{
+public:
+
+	core::Value call(const vector<core::Value>& args) override
+	{
+		std::cout << args[0].to<string>() << std::endl;
+		return core::Value();
+	}
+
+	string toString() const  override
+	{
+		return "Output";
+	}
+};
 
 int  main()
 {
 	script_system::Script script;
-	script.run();
+	script.registreFunction("output", makeShared<Output>());
+
+	script.run("../res/scripts/test.scr");
 	engine::Scene scene;
 
 	auto rectangle = std::make_shared<engine::Rectangle>();

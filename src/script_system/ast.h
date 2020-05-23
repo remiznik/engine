@@ -289,8 +289,8 @@ namespace script_system
 		{
 		public:
 
-			ClassExpr(Token n, const vector<shared_ptr<Function>>& m)
-				: name(n), methods(m)
+			ClassExpr(Token n, const shared_ptr<Variable>& s,const vector<shared_ptr<Function>>& m)
+				: name(n), supperClass(s), methods(m)
 			{
 
 			}
@@ -301,6 +301,7 @@ namespace script_system
 			}
 
 			Token name;
+			shared_ptr<Variable> supperClass;
 			vector<shared_ptr<Function>> methods;
 		};
 
@@ -350,6 +351,22 @@ namespace script_system
 			}
 
 			Token keyword;
+		};
+
+		class Super : public Expr
+		{
+		public:
+			Super(Token k, Token m) 
+				: keyword(k), method(m)
+			{}
+
+			core::Value accept(AstVisitor* visitor) override
+			{
+				return visitor->visit(this);
+			}
+
+			Token keyword;
+			Token method;
 		};
 	}
 }

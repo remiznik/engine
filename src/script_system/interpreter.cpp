@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 #include "core/object.h"
 #include "core/assert.h"
@@ -21,7 +22,8 @@ namespace parser {
 
     
 
-Interpreter::Interpreter()
+Interpreter::Interpreter(core::Logger& logger) 
+    : logger_(logger)
 {
     globals_ = makeShared<Environment>();
     environment_ = globals_;
@@ -109,7 +111,14 @@ core::Value Interpreter::visit(Stmt* expr)
 core::Value Interpreter::visit(StmtPrint* expr)
 {
     auto val = evaluate(expr->print.get());            
-    std::cout << val.to<string>() << std::endl;
+    auto fnc = globals_->get("output");
+    auto obj = fnc.get<shared_ptr<core::Object>>();
+    auto clock = static_cast<Callable*>(obj.get());
+    if (clock)
+    {
+        clock->call({val});
+    }
+        
     return core::Value();
 }
 
@@ -141,11 +150,11 @@ core::Value Interpreter::visit(Assign* expr)
     auto it = locals_.find(expr);
     if (it != locals_.end())
     {
-        environment_->assignAt(it->second, expr->name, val);
+        environment_->assignAt(it->second, expr->name.lexeme, val);
     }
     else
     {
-        globals_->assign(expr->name, val);
+        globals_->assign(expr->name.lexeme, val);
     }
     return val;
 }
@@ -236,7 +245,26 @@ core::Value Interpreter::visit(Return* expr)
 
 core::Value Interpreter::visit(ClassExpr* expr)
 {
+    shared_ptr<InClass> supperClass = nullptr;
+    if (expr->supperClass != nullptr)
+    {
+        
+        auto objValue = evaluate(expr->supperClass.get());
+        auto obj = objValue.get<shared_ptr<core::Object>>();
+        supperClass.reset(static_cast<InClass*>(obj.get()));
+        if (supperClass == nullptr)
+        {
+            logger_.write(core::LogMessage("Supperclass must be a class"));
+        }
+        
+    }
     environment_->define(expr->name.lexeme, core::Value());
+
+    if (expr->supperClass)
+    {
+        environment_ = makeShared<Environment>(environment_);
+        environment_->define("super", core::Value(supperClass));
+    }
 
     map<string, shared_ptr<InFunction>> methods;
     for (auto method : expr->methods)
@@ -244,8 +272,14 @@ core::Value Interpreter::visit(ClassExpr* expr)
         methods.emplace(method->name.lexeme, makeShared<InFunction>(this, method.get(), environment_, string(method->name.lexeme) == "init"));
     }
 
-    auto inClass = makeShared<InClass>(expr->name.lexeme, methods);
-    environment_->assign(expr->name, core::Value(inClass));
+    auto inClass = makeShared<InClass>(expr->name.lexeme, supperClass, methods);
+
+    if (supperClass != nullptr)
+    {
+        environment_ = environment_->enclosing();
+    }
+
+    environment_->assign(expr->name.lexeme, core::Value(inClass));
     return core::Value();
 }
 
@@ -283,9 +317,36 @@ core::Value Interpreter::visit(This* expr)
     return lookUpVariable(expr->keyword, expr);
 }
 
+core::Value Interpreter::visit(Super* expr)
+{
+    auto it = locals_.find(expr);
+    if (it != locals_.end())
+    {        
+        auto valSuper = environment_->getAt(it->second, "super");
+        auto objSuper = valSuper.get<shared_ptr<core::Object>>();
+        auto super = static_cast<InClass*>(objSuper.get());
+        if (super == nullptr)
+        {
+            ASSERT(false, "Cant find super class. ");
+        }
+
+        // "this" is always one level nearer than "super"'s environment.
+        auto valThis = environment_->getAt(it->second - 1, "this");
+        auto objThis = valThis.get<shared_ptr<core::Object>>();
+        auto _this = std::dynamic_pointer_cast<InClassInstance>(objThis);
+        if (_this == nullptr)
+        {
+            ASSERT(false, "Cant find this. ");
+        }
+        auto method = super->method(expr->method.lexeme);
+        return core::Value(method->bind(_this));
+    }
+    return core::Value();
+}
+
 void Interpreter::execute(const vector<ExprPtr>& statements, const shared_ptr<Environment>& env)
 {
-    // becaus return realize by exception (
+    // becaus return realize by exception 
     ScopeGuard<shared_ptr<Environment>> guard(environment_);
     environment_ = env;
     
@@ -308,9 +369,13 @@ core::Value Interpreter::lookUpVariable(Token name, Expr* expr)
         return environment_->getAt(it->second, name.lexeme);
     }
     
-    return globals_->get(name);    
+    return globals_->get(name.lexeme);    
 }
 
+void Interpreter::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
+{
+    globals_->define(name, core::Value(fnc));
+}
 
 }
 }
