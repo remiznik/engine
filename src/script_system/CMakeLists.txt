@@ -29,6 +29,8 @@ set(SCRIPT_SYSTEM_SRC
     vm/vm_memory.cpp
     vm/vm_debug.h
     vm/vm_debug.cpp
+    vm/vm_value.h
+    vm/vm_value.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

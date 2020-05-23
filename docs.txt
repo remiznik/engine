@@ -9,6 +9,9 @@ https://ruslanspivak.com/lsbasi-part1/ simple interpreter
 ### optimazi 
 http://richardartoul.github.io/jekyll/update/2015/04/26/hidden-classes.html get property 
 
+###
+https://github.com/munificent/craftinginterpreters/tree/master/test
+
 # game engine 
 
 ## profiler 
