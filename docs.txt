@@ -19,6 +19,8 @@ https://github.com/bombomby/optick not have gui for Linux.
 ### books
     Physically Based Rendering: From Theory to Implementation\
     https://www.3dgep.com/learning-directx-12-1/ directx 12
+    https://proglib.io/p/best-gamedev-books/ merge
+
 
 ## math 
 https://qna.habr.com/q/269411
