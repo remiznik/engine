@@ -3,6 +3,7 @@ set(TESTS_SRC
     value_test.cpp
     script_test.cpp
     vm_test.cpp
+    vm_utils.cpp
 )
 
 

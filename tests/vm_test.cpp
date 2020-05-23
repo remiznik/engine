@@ -27,8 +27,11 @@ TEST(check_chunk, vm)
 
 } 
 
+
+
 TEST(check_constatn, vm) 
 {
+
     script_system::vm::Chunk chunk;
     script_system::vm::initChunk(&chunk);
     int constant = script_system::vm::addConstant(&chunk, 1.2);
@@ -39,6 +42,11 @@ TEST(check_constatn, vm)
     script_system::vm::disassembleChunk(&chunk, "test");
 
     script_system::vm::freeChunk(&chunk);    
+
+
+    
+
+
 } 
 
     
