@@ -34,6 +34,12 @@ namespace vm {
 		return chunk->constants.count - 1;
 	}
 
+	void writeConstant(Chunk* chunk, Value value, int line)
+	{
+		writeChunk(chunk, OP_CONSTANT_LONG, line);
+		int constant = addConstant(chunk, value);
+	}
+
 	void freeChunk(Chunk* chunk)
 	{
 		FREE_ARRAY(int, chunk->lines, chunk->capacity);

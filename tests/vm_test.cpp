@@ -39,6 +39,12 @@ TEST(check_constatn, vm)
     script_system::vm::disassembleChunk(&chunk, "test");
 
     script_system::vm::freeChunk(&chunk);    
+
+    
+    //int v = 1024;
+    //uint a = (v >> 8) & 0x00ff;  // 255
+    //uint b = v & 0x00ff;       // 241    
+
 } 
 
     

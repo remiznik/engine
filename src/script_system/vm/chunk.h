@@ -5,6 +5,7 @@
 namespace script_system {
 namespace vm {
 	typedef enum {
+		OP_CONSTANT_LONG,
 		OP_CONSTANT,
   		OP_RETURN,       
 	} OpCode;   
@@ -19,6 +20,7 @@ namespace vm {
 
 	void initChunk(Chunk* chunk);	
 	void writeChunk(Chunk* chunk, uint8_t byte, int line);
+	void writeConstant(Chunk* chunk, Value value, int line);
 	int addConstant(Chunk* chunk, Value value);
 	void freeChunk(Chunk* chunk);
 }
