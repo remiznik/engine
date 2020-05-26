@@ -1,6 +1,7 @@
 
 #include "common.h"
 #include "vm_memory.h"
+#include "utils.h"
 
 namespace script_system {
 namespace vm {
@@ -38,6 +39,10 @@ namespace vm {
 	{
 		writeChunk(chunk, OP_CONSTANT_LONG, line);
 		int constant = addConstant(chunk, value);
+		uint8_t a, b;		
+		utils::convertIntTwoUint(constant, a, b);
+		writeChunk(chunk, a, line);
+		writeChunk(chunk, b, line);
 	}
 
 	void freeChunk(Chunk* chunk)

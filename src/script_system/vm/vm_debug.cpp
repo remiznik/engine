@@ -1,6 +1,8 @@
 
 #include "vm_debug.h"
+#include "utils.h"
 #include <stdio.h>
+
 
 namespace script_system {
 namespace vm {
@@ -18,6 +20,18 @@ namespace vm {
 			printValue(chunk->constants.values[constant]);
 			printf("'\n");
 			return offset + 2;
+		}
+
+		int constantLongInstruction(const char* name, Chunk* chunk, int offset)
+		{
+			uint8_t a = chunk->code[offset + 1];
+			uint8_t b = chunk->code[offset + 2];
+			int constant;			
+			utils::convertTwoUintInt(a, b, constant);
+			printf("%-16s %4d '", name, constant);
+			printValue(chunk->constants.values[constant]);
+			printf("'\n");
+			return offset + 3;
 		}
 	}
 
@@ -50,8 +64,12 @@ namespace vm {
 			return simpleInstruction("OP_RETURN", offset);
 			break;
 		case OP_CONSTANT:
-			return constantInstruction("OP_CONSTANT", chunk, offset);
+			return constantInstruction("OP_CONSTANT", chunk, offset);			
 			break;
+		case OP_CONSTANT_LONG:
+			return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
+			break;
+
 		default:
 			printf("Unknow opcode %d\n", instruction);
 			return offset + 1;
