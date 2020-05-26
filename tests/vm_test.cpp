@@ -27,8 +27,11 @@ TEST(check_chunk, vm)
 
 } 
 
+
+
 TEST(check_constatn, vm) 
 {
+
     script_system::vm::Chunk chunk;
     script_system::vm::initChunk(&chunk);
     int constant = script_system::vm::addConstant(&chunk, 1.2);
@@ -40,10 +43,9 @@ TEST(check_constatn, vm)
 
     script_system::vm::freeChunk(&chunk);    
 
+
     
-    //int v = 1024;
-    //uint a = (v >> 8) & 0x00ff;  // 255
-    //uint b = v & 0x00ff;       // 241    
+
 
 } 
 
