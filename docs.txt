@@ -11,6 +11,7 @@ http://richardartoul.github.io/jekyll/update/2015/04/26/hidden-classes.html get 
 
 ###
 https://github.com/munificent/craftinginterpreters/tree/master/test
+https://www.lua.org/doc/jucs05.pdf
 
 # game engine 
 
@@ -23,6 +24,10 @@ https://github.com/bombomby/optick not have gui for Linux.
     Physically Based Rendering: From Theory to Implementation\
     https://www.3dgep.com/learning-directx-12-1/ directx 12
     https://proglib.io/p/best-gamedev-books/ merge
+
+### other
+https://codepen.io/tutsplus/pen/OVxXZE?__cf_chl_jschl_tk__=80891a7d8ded5f6d0551a6049aa05bbe6ddabf1d-1590824293-0-ATJ-zyp5rdBAEILBJd4QJwvrzA9iebTShmnCGDDPBOFPz8LdgMAQD4KXLrAe5N8Oe5Emf-6wr7t72fE0bY1QlqRw9-_KcYlusk9NA9UxlFxDfSNiPqOnSdo1ybjG5jUjjYtr_LGf6-FGco1osfA0PadsWu0mEsiE9bup1pnrhR8-b-BhseGobYXoSDHjPUjIl7jDQn4RmmK7Wa1HsDnHDYnnU23j8HbwZKhVwjER_HeRQmgAIG-J8aUpfuik6oEx-4Xm-OIzvNdW0Mrt3FGzMud0O3-cVBxLrrIgcpCDKbpb9R-YvaRNLCRC_aon0tKH2jaiGO0t-fY8o8Hp0hM1WvXDhgx7U6BFFX0ypkhj9EzA
+https://www.shadertoy.com/new
 
 
 ## math 

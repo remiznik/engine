@@ -2,12 +2,16 @@
 
 #include "chunk.h"
 
+#define STACK_MAX 256
+
 namespace script_system {
 namespace vm {
 typedef struct vm
 {
     Chunk* chunk;
     uint8_t* ip;
+    Value stack[STACK_MAX];
+    Value* stackTop;
 } VM;
 
 typedef enum {            
@@ -19,6 +23,9 @@ typedef enum {
 
 void initVM();
 void freeVM();
+
+void push(Value value);
+Value pop();
 
 InterpretResult interpret(Chunk* chunk);
 	
