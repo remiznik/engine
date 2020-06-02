@@ -33,6 +33,12 @@ set(SCRIPT_SYSTEM_SRC
     vm/vm_value.cpp
     vm/utils.h
     vm/utils.cpp
+    vm/vm_run.h
+    vm/vm_run.cpp
+    vm/compiler.h
+    vm/compiler.cpp
+    vm/scanner.h
+    vm/scanner.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

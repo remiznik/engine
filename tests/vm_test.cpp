@@ -73,7 +73,7 @@ TEST(interpret_nigete, vm)
     script_system::vm::writeChunk(&chunk, script_system::vm::OP_RETURN, 123);
 
     script_system::vm::initVM();
-    script_system::vm::interpret(&chunk);
+    //script_system::vm::interpret(&chunk);
     
 
     script_system::vm::freeChunk(&chunk); 
