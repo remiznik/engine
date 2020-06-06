@@ -6,6 +6,7 @@
 
 #include "chunk.h"
 
+#define DEBUG_PRINT_CODE
 #define DEBUG_TRACE_EXECUTION
 
 namespace script_system {

@@ -73,10 +73,15 @@ TEST(interpret_nigete, vm)
     script_system::vm::writeChunk(&chunk, script_system::vm::OP_RETURN, 123);
 
     script_system::vm::initVM();
-    //script_system::vm::interpret(&chunk);
+    //script_system::vm::interpret("2");
     
 
     script_system::vm::freeChunk(&chunk); 
 }
 
+TEST(simple_check, vm) 
+{
+    auto reslut = script_system::vm::interpret("2+3");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
     

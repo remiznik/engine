@@ -4,6 +4,7 @@ set(TESTS_SRC
     script_test.cpp
     vm_test.cpp
     vm_utils.cpp
+    vm_scanner.cpp
 )
 
 

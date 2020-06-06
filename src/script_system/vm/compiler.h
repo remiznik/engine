@@ -1,9 +1,11 @@
 #pragma once
 
+#include "vm/chunk.h"
+
 namespace script_system {
 namespace vm {
 
-void compile(const char* source);
+bool compile(const char* source, Chunk* chunk);
 	
 }
 }
