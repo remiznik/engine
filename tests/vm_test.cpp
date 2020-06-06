@@ -79,9 +79,15 @@ TEST(interpret_nigete, vm)
     script_system::vm::freeChunk(&chunk); 
 }
 
-TEST(simple_check, vm) 
+TEST(two_plus_three, vm) 
 {
     auto reslut = script_system::vm::interpret("2+3");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(simple_check, vm) 
+{
+    auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
     
