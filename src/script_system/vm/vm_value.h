@@ -10,7 +10,7 @@ namespace vm {
     {
         int count;
         int capacity;
-        Value* values;
+        script_system::vm::Value* values;
     } ValueArray;
 
     void initValueArray(ValueArray* array);              
