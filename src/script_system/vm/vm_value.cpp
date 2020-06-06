@@ -1,6 +1,6 @@
 #include "vm_value.h"
 #include "vm_memory.h"
-
+#include "vm/common.h"
 #include <stdio.h>
 
 namespace script_system {
@@ -33,7 +33,7 @@ namespace vm {
 
     void printValue(Value value)
     {
-        printf("%g", value);
+        printf("%g", AS_NUMBER(value));
     }
 }
 }

@@ -4,6 +4,8 @@
 #include "vm/chunk.h"
 #include "vm/vm_debug.h"
 
+#include "vm/common.h"
+
 #include <stdio.h>
 #include <cstdlib>
 
@@ -227,7 +229,7 @@ namespace {
   void number() 
   {
     double  value = strtod(parser.previous.start, nullptr);
-    emitConstant(value);
+    emitConstant(NUMBER_VAL(value));
   }
 
   void unary()

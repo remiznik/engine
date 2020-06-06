@@ -1,8 +1,10 @@
 #pragma once
 
+#include "vm/common.h"
+
 namespace script_system {
 namespace vm {
-    typedef double Value;
+//    typedef double Value;
 
     typedef struct vm_value
     {
