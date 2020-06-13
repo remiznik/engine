@@ -29,56 +29,6 @@ TEST(in_chunk, vm)
 } 
 
 
-TEST(check_chunk, vm) 
-{
-
-    script_system::vm::Chunk chunk;
-    script_system::vm::initChunk(&chunk);
-    int constant = script_system::vm::addConstant(&chunk, 1.2);
-    
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_CONSTANT, 123);
-    script_system::vm::writeChunk(&chunk, constant, 123);
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_RETURN, 123);
-    script_system::vm::writeConstant(&chunk, 15.2, 123);
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_RETURN, 123);
-    //script_system::vm::disassembleChunk(&chunk, "test");
-
-    EXPECT_EQ (chunk.count,  7);
-    EXPECT_EQ (chunk.capacity,  8);
-    EXPECT_EQ (chunk.constants.capacity,  8);
-    EXPECT_EQ (chunk.constants.count,  2);
-
-    script_system::vm::freeChunk(&chunk); 
-} 
-
-TEST(interpret_nigete, vm) 
-{
-    script_system::vm::Chunk chunk;
-    script_system::vm::initChunk(&chunk);
-    int constant = script_system::vm::addConstant(&chunk, 1.2);    
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_CONSTANT, 123);
-    script_system::vm::writeChunk(&chunk, constant, 123);
-    constant = addConstant(&chunk, 3.4);    
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_CONSTANT, 123);   
-    script_system::vm::writeChunk(&chunk, constant, 123);
-
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_ADD, 123);        
-
-    constant = addConstant(&chunk, 5.6);    
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_CONSTANT, 123);   
-    script_system::vm::writeChunk(&chunk, constant, 123);
-
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_DIVIDE, 123);  
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_NEGATE, 123);
-    script_system::vm::writeChunk(&chunk, script_system::vm::OP_RETURN, 123);
-
-    script_system::vm::initVM();
-    //script_system::vm::interpret("2");
-    
-
-    script_system::vm::freeChunk(&chunk); 
-}
-
 TEST(two_plus_three, vm) 
 {
     auto reslut = script_system::vm::interpret("2+3");
@@ -88,6 +38,12 @@ TEST(two_plus_three, vm)
 TEST(simple_check, vm) 
 {
     auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(type_of_values, vm) 
+{
+    auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil)");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
     

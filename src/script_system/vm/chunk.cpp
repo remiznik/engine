@@ -1,5 +1,5 @@
 
-#include "common.h"
+#include "vm/chunk.h"
 #include "vm_memory.h"
 #include "utils.h"
 

@@ -23,6 +23,7 @@ set(SCRIPT_SYSTEM_SRC
     vm/vm.h
     vm/vm.cpp
     vm/common.h
+    vm/common.cpp
     vm/chunk.h
     vm/chunk.cpp
     vm/vm_memory.h
