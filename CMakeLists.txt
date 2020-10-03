@@ -17,11 +17,8 @@ set(LIB_NAME "lib")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIB_NAME "lib")
 endif()
-#include SFML
-set(SFML_DIR "${SFML_PACKAGE_DIR}/${LIB_NAME}/cmake")
-include_directories("${SFML_PACKAGE_DIR}/include")
-link_directories("${SFML_PACKAGE_DIR}/${LIB_NAME}")
-message(" lib ${SFML_PACKAGE_DIR}/${LIB_NAME}" )
+
+
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
@@ -47,7 +44,7 @@ add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
 target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
-target_link_libraries(${PROJECT_NAME} optimized core script_system graphics sfml-graphics sfml-system sfml-window)
+target_link_libraries(${PROJECT_NAME} optimized core script_system graphics)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
