@@ -1,7 +1,4 @@
 #pragma once
-
-#include <SFML/Graphics/RenderWindow.hpp>
-
 #include <vector>
 #include <memory>
 
@@ -18,7 +15,6 @@ namespace engine
 		bool draw();
 	private:
 		std::vector<std::shared_ptr<Shape>> shapes_;
-		sf::RenderWindow renderTarget_;
 	
 	};
 }
