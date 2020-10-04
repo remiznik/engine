@@ -1,25 +1,4 @@
-set(SCRIPT_SYSTEM_SRC 
-    token.h
-    token.cpp
-    scanner.h
-    scanner.cpp
-    script.h
-    script.cpp
-    ast.h
-    ast.cpp
-    ast_visitor.h
-    ast_printer.h
-    ast_printer.cpp
-    parser.h
-    parser.cpp
-    interpreter.h
-    interpreter.cpp
-    environment.h
-    environment.cpp
-    resolver.h
-    resolver.cpp
-    class_def.h
-    class_def.cpp
+set(SCRIPT_SYSTEM_SRC     
     vm/vm.h
     vm/vm.cpp
     vm/common.h
