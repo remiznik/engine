@@ -1,6 +1,6 @@
 
 #include "vm/chunk.h"
-#include "vm_memory.h"
+#include "memory.h"
 #include "utils.h"
 
 namespace script_system {

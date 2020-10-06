@@ -1,5 +1,5 @@
-#include "vm_run.h"
-#include "vm.h"
+#include "vm/run.h"
+#include "vm/vm.h"
 
 #include <stdio.h> 
 #include <stdlib.h>

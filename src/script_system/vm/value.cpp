@@ -1,5 +1,5 @@
-#include "vm_value.h"
-#include "vm_memory.h"
+#include "vm/value.h"
+#include "vm/memory.h"
 #include "vm/common.h"
 #include <stdio.h>
 

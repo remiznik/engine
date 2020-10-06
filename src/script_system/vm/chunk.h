@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-#include "vm_value.h"
+#include "value.h"
 
 namespace script_system {
 namespace vm {

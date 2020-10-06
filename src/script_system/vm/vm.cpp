@@ -1,6 +1,6 @@
 #include "vm.h"
-#include "vm_value.h"
-#include "vm_debug.h"
+#include "value.h"
+#include "debug.h"
 #include "compiler.h"
 
 #include "vm/common.h"

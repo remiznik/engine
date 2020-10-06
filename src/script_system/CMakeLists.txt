@@ -5,16 +5,16 @@ set(SCRIPT_SYSTEM_SRC
     vm/common.cpp
     vm/chunk.h
     vm/chunk.cpp
-    vm/vm_memory.h
-    vm/vm_memory.cpp
-    vm/vm_debug.h
-    vm/vm_debug.cpp
-    vm/vm_value.h
-    vm/vm_value.cpp
+    vm/memory.h
+    vm/memory.cpp
+    vm/debug.h
+    vm/debug.cpp
+    vm/value.h
+    vm/value.cpp
     vm/utils.h
     vm/utils.cpp
-    vm/vm_run.h
-    vm/vm_run.cpp
+    vm/run.h
+    vm/run.cpp
     vm/compiler.h
     vm/compiler.cpp
     vm/scanner.h

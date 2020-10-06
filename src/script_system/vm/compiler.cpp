@@ -2,10 +2,10 @@
 #include "vm/scanner.h"
 
 #include "vm/chunk.h"
-#include "vm/vm_debug.h"
+#include "vm/debug.h"
 
 #include "vm/common.h"
-#include "vm/vm_value.h"
+#include "vm/value.h"
 
 
 #include <stdio.h>

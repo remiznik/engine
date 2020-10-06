@@ -1,4 +1,4 @@
-#include "vm_memory.h"
+#include "vm/memory.h"
 #include <cstdlib>
 
 namespace script_system {
