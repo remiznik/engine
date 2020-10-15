@@ -7,6 +7,7 @@
 #include "vm/common.h"
 #include "vm/value.h"
 
+#include "vm/object.h"
 
 #include <stdio.h>
 #include <cstdlib>
@@ -21,6 +22,7 @@ namespace {
   void binary();
   void number();
   void literal();
+  void string();
 
 
   typedef enum {                  
@@ -74,7 +76,7 @@ namespace {
     { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS            
     { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL      
     { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER      
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_STRING          
+    { string,   NULL,    PREC_NONE },       // TOKEN_STRING          
     { number,   NULL,    PREC_NONE },       // TOKEN_NUMBER          
     { NULL,     NULL,    PREC_NONE },       // TOKEN_AND             
     { NULL,     NULL,    PREC_NONE },       // TOKEN_CLASS           
@@ -234,6 +236,11 @@ namespace {
   {
     double  value = strtod(parser.previous.start, nullptr);
     emitConstant(NUMBER_VAL(value));
+  }
+
+  void string()
+  {
+      emitConstant(OBJ_VAL(vm::copyString(parser.previous.start + 1, parser.previous.length - 2)));
   }
 
   void literal()

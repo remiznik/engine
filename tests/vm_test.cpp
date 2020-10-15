@@ -25,7 +25,6 @@ TEST(in_chunk, vm)
     EXPECT_EQ (chunk.constants.capacity,  0);
     EXPECT_EQ (chunk.constants.count,  0);
     EXPECT_EQ (chunk.lines, nullptr);
-
 } 
 
 
@@ -46,4 +45,16 @@ TEST(type_of_values, vm)
     auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil)");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(value_string, vm)
+{
+    auto reslut = script_system::vm::interpret("\"str\"");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
     
+
+TEST(string_concatenate, vm)
+{
+    auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\"");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}

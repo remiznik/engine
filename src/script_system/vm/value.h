@@ -4,12 +4,16 @@
 
 namespace script_system {
 namespace vm {
+
+    typedef struct sObj Obj;
+    typedef struct sObjString ObjString;
 //    typedef double Value;
 
     typedef enum {            
   		VAL_BOOL,               
   		VAL_NIL, 
-  		VAL_NUMBER,             
+  		VAL_NUMBER,
+        VAL_OBJ
 	} ValueType; 
 
     struct Value
@@ -18,6 +22,7 @@ namespace vm {
         union {
             bool boolean;
             double number;
+            Obj* obj;
         } as;
 
         Value() : type(ValueType::VAL_NIL)
@@ -33,16 +38,24 @@ namespace vm {
         {
             as.number = number;
         }
+
+        Value(Obj* obj) : type (ValueType::VAL_OBJ)
+        {
+            as.obj = obj;
+        }
     };
 	
 #define IS_BOOL(value)    ((value).type == VAL_BOOL)  
 #define IS_NIL(value)     ((value).type == VAL_NIL)   
 #define IS_NUMBER(value)  ((value).type == VAL_NUMBER)
+#define IS_OBJ(value)     ((value).type == VAL_OBJ)
 #define AS_BOOL(value)    ((value).as.boolean)                       
 #define AS_NUMBER(value)  ((value).as.number) 
+#define AS_OBJ(value)     ((value).as.obj)
 #define BOOL_VAL(value)   (Value(value)) 
 #define NIL_VAL           (Value())       
 #define NUMBER_VAL(value) (Value(value))
+#define OBJ_VAL(object)   (Value((Obj*)object))
 
     typedef struct vm_value
     {
