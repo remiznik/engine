@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-
+#include <cstring>
 namespace script_system {
 namespace vm {
 VM vm;

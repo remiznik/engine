@@ -7,7 +7,7 @@ namespace engine
 	{
 	public:
 		Rectangle();
-
+		
 		virtual void draw() override;
 		virtual void setPosition(float x, float y) override;
 		virtual void setSize(int w, int h) override;

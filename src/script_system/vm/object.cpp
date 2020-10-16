@@ -4,6 +4,8 @@
 #include "vm/memory.h"
 #include "vm/vm.h"
 
+#include <cstring>
+
 namespace script_system {
 	namespace vm {
 

@@ -4,6 +4,8 @@
 #include "vm/object.h"
 #include "core/types.h"
 
+#include <cstring>
+
 namespace script_system {
 namespace vm {
     void initValueArray(ValueArray* array)
