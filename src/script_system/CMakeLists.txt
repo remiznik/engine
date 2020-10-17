@@ -21,6 +21,8 @@ set(SCRIPT_SYSTEM_SRC
     vm/scanner.cpp
 	vm/object.h
 	vm/object.cpp
+    vm/table.h
+    vm/table.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 
