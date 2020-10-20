@@ -6,6 +6,7 @@
 #include <stack>
 #include <set>
 #include <cstdio>
+#include <cstring>
 
 using string = std::string;
 
