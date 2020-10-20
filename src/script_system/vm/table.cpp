@@ -3,6 +3,8 @@
 #include "vm/value.h"
 #include "vm/object.h"
 
+#include "core/types.h"
+
 namespace script_system {
 namespace vm {
 
@@ -11,13 +13,29 @@ namespace vm {
 	Entry* findEntry(Entry* entries, int capacity, ObjString* key)
 	{
 		uint32_t index = key->hash % capacity;
+		Entry* tombstone = nullptr;
 		for (;;)
 		{
 			Entry* entry = &entries[index];
-			if (entry->key == key || entry->key == nullptr)
+			if (entry->key == nullptr)
+			{
+				if (IS_NIL(entry->value))
+				{
+					return tombstone != nullptr ? tombstone : entry;
+				} 
+				else
+				{
+					if (tombstone == nullptr)
+					{
+						tombstone = entry;
+					}
+				}
+			}
+			else if (entry->key == key)
 			{
 				return entry;
 			}
+
 
 			index = (index + 1) % capacity;
 		}
@@ -32,6 +50,7 @@ namespace vm {
 			entries[i].value = nullptr;
 		}
 
+		table->capacity = 0;
 		for (int i = 0; i < table->capacity; ++i)
 		{
 			Entry* entry = &table->entries[i];
@@ -40,6 +59,7 @@ namespace vm {
 			Entry* dest = findEntry(entries, capacity, entry->key);
 			dest->key = entry->key;
 			dest->value = entry->value;
+			table->count++;
 		}
 		FREE_ARRAY(Entry, table->entries, table->capacity);
 
@@ -70,7 +90,7 @@ namespace vm {
 		Entry* entry = findEntry(table->entries, table->capacity, key);
 
 		const bool isNewKey = entry->key == nullptr;
-		if (isNewKey) table->count++;
+		if (isNewKey && IS_NIL(entry->value)) table->count++;
 
 		entry->key = key;
 		entry->value = value;
@@ -113,6 +133,30 @@ namespace vm {
 
 		return true;
 		return true;
+	}
+
+	ObjString* tableFindString(Table* table, const char* chars, int length, uint32_t hash)
+	{
+		if (table->count == 0) return nullptr;
+
+		uint32_t index = hash % table->capacity;
+
+		for (;;)
+		{
+			Entry* entry = &table->entries[index];
+			if (entry->key == nullptr)
+			{
+				if (IS_NIL(entry->value)) return nullptr;
+			}
+			else if (entry->key->length == length && entry->key->hash == hash && memcmp(entry->key->chars, chars, length) == 0)
+			{
+				return entry->key;
+			}
+
+			index = (index + 1) % table->capacity;
+		}
+
+		return nullptr;
 	}
 
 }
