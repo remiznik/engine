@@ -36,7 +36,6 @@ namespace vm {
 				return entry;
 			}
 
-
 			index = (index + 1) % capacity;
 		}
 	}
@@ -47,10 +46,9 @@ namespace vm {
 		for (int i = 0; i < capacity; ++i)
 		{
 			entries[i].key = nullptr;
-			entries[i].value = nullptr;
+			entries[i].value = NIL_VAL;
 		}
-
-		table->capacity = 0;
+		
 		for (int i = 0; i < table->capacity; ++i)
 		{
 			Entry* entry = &table->entries[i];
