@@ -38,9 +38,6 @@ namespace {
     }          
 }
 
-
-
-
 void push(Value value)
 {
     *vm.stackTop = value;
@@ -129,6 +126,7 @@ static InterpretResult run() {
         }
         case OP_NIL:    push(NIL_VAL); break;
         case OP_FALSE:  push(BOOL_VAL(false)); break;
+        case OP_POP: pop(); break;
         case OP_TRUE:   push(BOOL_VAL(true)); break;        
         case OP_SUBTRACT: BINARY_OP(NUMBER_VAL, -); break;
         case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
@@ -171,11 +169,10 @@ static InterpretResult run() {
 
             push(NUMBER_VAL(-AS_NUMBER(pop())));        
             break;
-        case OP_RETURN:
+        case OP_PRINT:
         {
             printValue(pop());
             printf("\n");
-            return INTERPRET_OK;
             break;
         }
         

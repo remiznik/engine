@@ -23,6 +23,13 @@ namespace {
   void number();
   void literal();
   void string();
+  void printStatement();
+  void statement();
+  void expressionStatement();
+  void varDeclaration();
+  uint8_t parseVariable(const char* message);
+  uint8_t identifierConstant(Token* name);
+  void defineVariable(uint8_t global);
 
 
   typedef enum {                  
@@ -162,6 +169,18 @@ namespace {
     errorAtCurrent(message);
   }
 
+  bool check(TokenType type)
+  {
+    return parser.current.type == type;
+  }
+
+  bool match(TokenType type)
+  {
+    if (!check(type)) return false;
+    advance();
+    return true;
+  }
+
   void emitByte(uint8_t byte)
   {
     writeChunk(currentChunk(), byte, parser.previous.line);
@@ -232,11 +251,112 @@ namespace {
     parsePrecedence(PREC_ASSIGNMENT);
   }
 
+  void synchronize()
+  {
+    parser.panicMode = false;
+
+    while(parser.current.type != TOKEN_EOF)
+    {
+      if (parser.previous.type == TOKEN_SEMICOLON) return;
+
+      switch(parser.current.type)
+      {
+        case TOKEN_CLASS:
+        case TOKEN_FUN:
+        case TOKEN_VAR:
+        case TOKEN_FOR:
+        case TOKEN_IF:
+        case TOKEN_WHILE:
+        case TOKEN_PRINT:
+        case TOKEN_RETURN:
+          return;
+        default:
+        ;
+      }
+      advance();
+    }
+  }
+
+  void declaration()
+  {
+
+    if (match(TOKEN_VAR))
+    {
+      varDeclaration();
+    }
+    else
+    {
+      statement();
+    }
+
+
+    if (parser.panicMode) synchronize();
+  }
+
+  void varDeclaration()
+  {
+    uint8_t global = parseVariable("Expect variable name");
+
+    if (match(TOKEN_EQUAL))
+    {
+      expression();
+    }
+    else 
+    {
+      emitByte(OP_NIL);
+    }
+    consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+
+    defineVariable(global);
+  }
+
+  uint8_t parseVariable(const char* message)
+  {
+    consume(TOKEN_IDENTIFIER, message );
+    return identifierConstant(&parser.previous);
+  }
+
+  uint8_t identifierConstant(Token* name)
+  {
+    return makeConstant(OBJ_VAL(copyString(name->start, name->length))); 
+  }
+
+  void defineVariable(uint8_t global)
+  {
+    emitBytes(OP_DEFINE_GLOBAL, global);
+  }
+
+  void statement()
+  {
+    if(match(TOKEN_PRINT))
+    {
+      printStatement();
+    }
+    else 
+    {
+      expressionStatement();
+    }
+  }
+
+  void expressionStatement()
+  {
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';' after expression");
+    emitByte(OP_POP);
+  }
+
+  void printStatement()
+  {
+    expression();
+    consume(TOKEN_SEMICOLON, "Expect ';'' after value.");
+    emitByte(OP_PRINT);
+  }
+
   void number() 
   {
     double  value = strtod(parser.previous.start, nullptr);
     emitConstant(NUMBER_VAL(value));
-  }
+  } 
 
   void string()
   {
@@ -312,8 +432,10 @@ bool compile(const char* source, Chunk* chunk)
     parser.panicMode = false;
 
     advance();
-    expression();
-    consume(TOKEN_EOF,"expect end of expression");
+    while(!match(TOKEN_EOF))
+    {
+      declaration();
+    }
     endCompiler();
     //int line = -1;                                                              
     //for (;;) {                                                                  
@@ -327,6 +449,6 @@ bool compile(const char* source, Chunk* chunk)
     //  printf("%2d '%.*s'\n", token.type, token.length, token.start); 
     //  if (token.type == TOKEN_EOF) break;      
     return !parser.hadError;
-  }  
+  }
 }
 }

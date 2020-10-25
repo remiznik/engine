@@ -5,6 +5,7 @@ set(TESTS_SRC
     vm_test.cpp
     vm_utils.cpp
     vm_scanner.cpp
+    vm_interpret.cpp
 )
 
 
