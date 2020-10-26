@@ -23,6 +23,7 @@ namespace {
   void number();
   void literal();
   void string();
+  void variable();
   void printStatement();
   void statement();
   void expressionStatement();
@@ -30,6 +31,7 @@ namespace {
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
   void defineVariable(uint8_t global);
+  void namedVariable(Token name);
 
 
   typedef enum {                  
@@ -82,7 +84,7 @@ namespace {
     { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL   
     { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS            
     { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL      
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_IDENTIFIER      
+    { variable, NULL,    PREC_NONE },       // TOKEN_IDENTIFIER      
     { string,   NULL,    PREC_NONE },       // TOKEN_STRING          
     { number,   NULL,    PREC_NONE },       // TOKEN_NUMBER          
     { NULL,     NULL,    PREC_NONE },       // TOKEN_AND             
@@ -361,6 +363,17 @@ namespace {
   void string()
   {
       emitConstant(OBJ_VAL(vm::copyString(parser.previous.start + 1, parser.previous.length - 2)));
+  }
+
+  void variable()
+  {
+    namedVariable(parser.previous);
+  }
+
+  void namedVariable(Token name)
+  {
+    uint8_t arg  = identifierConstant(&name);
+    emitBytes(OP_GET_GLOBAL, arg);
   }
 
   void literal()

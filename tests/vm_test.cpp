@@ -30,7 +30,7 @@ TEST(in_chunk, vm)
 
 TEST(two_plus_three, vm) 
 {
-    auto reslut = script_system::vm::interpret("2+3");
+    auto reslut = script_system::vm::interpret("print 1 + 2;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
