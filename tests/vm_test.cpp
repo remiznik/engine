@@ -30,31 +30,49 @@ TEST(in_chunk, vm)
 
 TEST(two_plus_three, vm) 
 {
-    auto reslut = script_system::vm::interpret("print 1 + 2;");
+    auto reslut = script_system::vm::interpret("1 + 2;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(simple_check, vm) 
 {
-    auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4");
+    auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(type_of_values, vm) 
 {
-    auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil)");
+    auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil);");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(value_string, vm)
 {
-    auto reslut = script_system::vm::interpret("\"str\"");
+    auto reslut = script_system::vm::interpret("\"str\";");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
     
 
 TEST(string_concatenate, vm)
 {
-    auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\"");
+    auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\";");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(create_var, vm)
+{
+    auto reslut = script_system::vm::interpret("var a;");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(create_var_and_initialize, vm)
+{
+    auto reslut = script_system::vm::interpret("var a = 1+2;");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(create_var_and_initialize_print, vm)
+{
+    auto reslut = script_system::vm::interpret("var a = 1+2;\n print a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }

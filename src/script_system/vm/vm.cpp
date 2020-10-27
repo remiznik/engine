@@ -197,6 +197,10 @@ static InterpretResult run() {
             printf("\n");
             break;
         }
+        case OP_RETURN:
+        {
+            return INTERPRET_OK;
+        }
         
         default:
             break;
@@ -206,7 +210,7 @@ static InterpretResult run() {
 #undef READ_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
-    return INTERPRET_OK;
+    
 }
 
 InterpretResult interpret(const char* source)
