@@ -17,13 +17,13 @@ namespace vm {
 
 namespace {
 
-  void grouping();
-  void unary();
-  void binary();
-  void number();
-  void literal();
-  void string();
-  void variable();
+  void grouping(bool);
+  void unary(bool);
+  void binary(bool);
+  void number(bool);
+  void literal(bool);
+  void string(bool);
+  void variable(bool);
   void printStatement();
   void statement();
   void expressionStatement();
@@ -31,7 +31,7 @@ namespace {
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
   void defineVariable(uint8_t global);
-  void namedVariable(Token name);
+  void namedVariable(Token name, bool);
 
 
   typedef enum {                  
@@ -53,10 +53,11 @@ namespace {
     Token previous;
     bool hadError; 
     bool panicMode;
+
   } Parser; 
   Parser parser;  
 
-  typedef void (*ParseFn)();
+  typedef void (*ParseFn)(bool);
 
   typedef struct {        
     ParseFn prefix;       
@@ -238,13 +239,19 @@ namespace {
       return;
     }
 
-    prefixRule();
+    bool canAssigment = precedence <= PREC_ASSIGNMENT;
+    prefixRule(canAssigment);
 
     while (precedence <= getRule(parser.current.type)->precedence)
     {
       advance();
       ParseFn infixRule = getRule(parser.previous.type)->infix;
-      infixRule();
+      infixRule(canAssigment);
+    }
+
+    if (canAssigment && match(TOKEN_EQUAL))
+    {
+        error("Invalid assigment target.");
     }
   }
 
@@ -354,29 +361,37 @@ namespace {
     emitByte(OP_PRINT);
   }
 
-  void number() 
+  void number(bool) 
   {
     double  value = strtod(parser.previous.start, nullptr);
     emitConstant(NUMBER_VAL(value));
   } 
 
-  void string()
+  void string(bool)
   {
       emitConstant(OBJ_VAL(vm::copyString(parser.previous.start + 1, parser.previous.length - 2)));
   }
 
-  void variable()
+  void variable(bool canAsigment)
   {
-    namedVariable(parser.previous);
+    namedVariable(parser.previous, canAsigment);
   }
 
-  void namedVariable(Token name)
+  void namedVariable(Token name, bool canAsigment)
   {
-    uint8_t arg  = identifierConstant(&name);
-    emitBytes(OP_GET_GLOBAL, arg);
+      uint8_t arg = identifierConstant(&name);
+      if (canAsigment && match(TOKEN_EQUAL))
+      {
+          expression();
+          emitBytes(OP_SET_GLOBAL, arg);
+      }
+      else
+      {
+          emitBytes(OP_GET_GLOBAL, arg);
+      }
   }
 
-  void literal()
+  void literal(bool)
   {
     switch (parser.previous.type) {
       case TOKEN_FALSE: emitByte(OP_FALSE); break;
@@ -389,7 +404,7 @@ namespace {
 
 
 
-  void unary()
+  void unary(bool)
   {
     TokenType operatorType = parser.previous.type;
 
@@ -404,7 +419,7 @@ namespace {
     }
   }
 
-  void binary()
+  void binary(bool)
   {
     TokenType operatorType = parser.previous.type;
 
@@ -428,7 +443,7 @@ namespace {
     }
   }
 
-  void grouping()
+  void grouping(bool)
   {
     expression();
     consume(TOKEN_RIGHT_PAREN, "Experct ')' after expression. ");

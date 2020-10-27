@@ -76,3 +76,10 @@ TEST(create_var_and_initialize_print, vm)
     auto reslut = script_system::vm::interpret("var a = 1+2;\n print a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+
+TEST(create_var_and_assigment, vm)
+{
+    auto reslut = script_system::vm::interpret("var a = 1+2;\n a = 25;");
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
