@@ -9,6 +9,8 @@
 
 #include "vm/object.h"
 
+#include "core/types.h"
+
 #include <stdio.h>
 #include <cstdlib>
 
@@ -55,6 +57,7 @@ namespace {
     bool panicMode;
 
   } Parser; 
+
   Parser parser;  
 
   typedef void (*ParseFn)(bool);
@@ -65,47 +68,68 @@ namespace {
     Precedence precedence;
   } ParseRule;
 
+  typedef struct {
+      Token name;
+      int depth;
+  } Local;
+
+  typedef struct {
+      Local locals[UINT8_COUNT];
+      int localCount;
+      int scopeDepth;
+  } Compiler;
+
+  Compiler* current = nullptr;
+
+  void initCompiler(Compiler* compiler)
+  {
+      compiler->localCount = 0;
+      compiler->scopeDepth = 0;
+      current = compiler;
+  }
+
+
   ParseRule rules[] = {                                              
-    { grouping, NULL,    PREC_NONE },       // TOKEN_LEFT_PAREN      
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_PAREN     
-    { NULL,     NULL,    PREC_NONE },      // TOKEN_LEFT_BRACE
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_RIGHT_BRACE     
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_COMMA           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_DOT             
+    { grouping, nullptr,    PREC_NONE },       // TOKEN_LEFT_PAREN      
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RIGHT_PAREN     
+    { nullptr,     nullptr,    PREC_NONE },      // TOKEN_LEFT_BRACE
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RIGHT_BRACE     
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_COMMA           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_DOT             
     { unary,    binary,  PREC_TERM },       // TOKEN_MINUS           
-    { NULL,     binary,  PREC_TERM },       // TOKEN_PLUS            
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_SEMICOLON       
-    { NULL,     binary,  PREC_FACTOR },     // TOKEN_SLASH           
-    { NULL,     binary,  PREC_FACTOR },     // TOKEN_STAR            
-    { unary,    NULL,    PREC_NONE },       // TOKEN_BANG            
-    { NULL,     binary,  PREC_EQUALITY },   // TOKEN_BANG_EQUAL      
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_EQUAL           
-    { NULL,     binary,  PREC_EQUALITY },   // TOKEN_EQUAL_EQUAL     
-    { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER         
-    { NULL,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL   
-    { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS            
-    { NULL,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL      
-    { variable, NULL,    PREC_NONE },       // TOKEN_IDENTIFIER      
-    { string,   NULL,    PREC_NONE },       // TOKEN_STRING          
-    { number,   NULL,    PREC_NONE },       // TOKEN_NUMBER          
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_AND             
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_CLASS           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_ELSE            
-    { literal,  NULL,    PREC_NONE },       // TOKEN_FALSE           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_FOR             
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_FUN             
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_IF              
-    { literal,  NULL,    PREC_NONE },       // TOKEN_NIL             
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_OR              
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_PRINT           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_RETURN          
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_SUPER           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_THIS            
-    { literal,  NULL,    PREC_NONE },       // TOKEN_TRUE            
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_VAR             
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_WHILE           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_ERROR           
-    { NULL,     NULL,    PREC_NONE },       // TOKEN_EOF             
+    { nullptr,     binary,  PREC_TERM },       // TOKEN_PLUS            
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SEMICOLON       
+    { nullptr,     binary,  PREC_FACTOR },     // TOKEN_SLASH           
+    { nullptr,     binary,  PREC_FACTOR },     // TOKEN_STAR            
+    { unary,    nullptr,    PREC_NONE },       // TOKEN_BANG            
+    { nullptr,     binary,  PREC_EQUALITY },   // TOKEN_BANG_EQUAL      
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_EQUAL           
+    { nullptr,     binary,  PREC_EQUALITY },   // TOKEN_EQUAL_EQUAL     
+    { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_GREATER         
+    { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL   
+    { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_LESS            
+    { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL      
+    { variable, nullptr,    PREC_NONE },       // TOKEN_IDENTIFIER      
+    { string,   nullptr,    PREC_NONE },       // TOKEN_STRING          
+    { number,   nullptr,    PREC_NONE },       // TOKEN_NUMBER          
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_AND             
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_CLASS           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_ELSE            
+    { literal,  nullptr,    PREC_NONE },       // TOKEN_FALSE           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_FOR             
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_FUN             
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_IF              
+    { literal,  nullptr,    PREC_NONE },       // TOKEN_NIL             
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_OR              
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_PRINT           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RETURN          
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SUPER           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_THIS            
+    { literal,  nullptr,    PREC_NONE },       // TOKEN_TRUE            
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_VAR             
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_WHILE           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_ERROR           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_EOF             
   };
 
   ParseRule* getRule(TokenType type) 
@@ -115,6 +139,7 @@ namespace {
 
 
   Chunk* compilingChunk;
+
   Chunk* currentChunk()
   {
     return compilingChunk;
@@ -319,9 +344,15 @@ namespace {
     defineVariable(global);
   }
 
+
+
   uint8_t parseVariable(const char* message)
   {
     consume(TOKEN_IDENTIFIER, message );
+
+    declareVariable();
+    if (current->scopeDepth > 0) return 0;
+
     return identifierConstant(&parser.previous);
   }
 
@@ -330,8 +361,53 @@ namespace {
     return makeConstant(OBJ_VAL(copyString(name->start, name->length))); 
   }
 
+  void declareVariable()
+  {
+      if (current->scopeDepth == 0) return;
+
+      Token* name = &parser.previous;
+      for (int i = current->localCount - 1; i >= 0; i--)
+      {
+          Local* local = &current->locals[i];
+          if (local->depth != -1 && local->depth < current->scopeDepth)
+          {
+              break;
+          }
+
+          if (identifiersEqual(name, &local->name))
+          {
+              error("Already variable with this name in this scope");
+          }
+      }
+      addLocal(*name);
+  }
+
+  bool identifiersEqual(Token* a, Token* b)
+  {
+      if (a->length != b->length) return false;
+      return memcmp(a->start, b->start, a->length) == 0;
+  }
+
+  void addLocal(Token name)
+  {
+      if (current->localCount == UINT8_COUNT)
+      {
+          error("Too many locak variable in function.");
+          return;
+      }
+
+      Local* local = &current->locals[current->localCount++];
+      local->name = name;
+      local->depth = current->scopeDepth;
+  }
+
   void defineVariable(uint8_t global)
   {
+    if (current->scopeDepth > 0)
+    {
+        return;
+    }
+
     emitBytes(OP_DEFINE_GLOBAL, global);
   }
 
@@ -341,10 +417,36 @@ namespace {
     {
       printStatement();
     }
-    else 
+    else if (match(TOKEN_LEFT_BRACE))
+    {
+        beginScope();
+        block();
+        endScope();
+    }
+    else
     {
       expressionStatement();
     }
+  }
+
+  void beginScope()
+  {
+      current->scopeDepth++;
+  }
+
+  void endScope()
+  {
+      current->scopeDepth--;
+  }
+
+  void block()
+  {
+      while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+      {
+          declaration();
+      }
+
+      consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
   }
 
   void expressionStatement()
@@ -454,6 +556,8 @@ namespace {
 bool compile(const char* source, Chunk* chunk)
 {
     initScanner(source);
+    Compiler compiler;
+    initCompiler(&compiler);
     compilingChunk = chunk;
 
     parser.hadError = false; 
