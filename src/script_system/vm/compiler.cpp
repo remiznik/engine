@@ -30,6 +30,12 @@ namespace {
   void statement();
   void expressionStatement();
   void varDeclaration();
+  void declareVariable();
+  bool identifiersEqual(Token* a, Token* b);
+  void addLocal(Token name);
+  void beginScope();
+  void endScope();
+  void block();
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
   void defineVariable(uint8_t global);
@@ -398,13 +404,19 @@ namespace {
 
       Local* local = &current->locals[current->localCount++];
       local->name = name;
-      local->depth = current->scopeDepth;
+      local->depth = -1;
+  }
+
+  void markInitialized()
+  {
+    current->locals[current->localCount - 1].depth = current->scopeDepth;
   }
 
   void defineVariable(uint8_t global)
   {
     if (current->scopeDepth > 0)
     {
+        markInitialized();
         return;
     }
 
@@ -437,6 +449,13 @@ namespace {
   void endScope()
   {
       current->scopeDepth--;
+
+      while (current->localCount > 0 && current->locals[current->localCount - 1].depth > current->scopeDepth)
+      {
+        emitByte(OP_POP);
+        current->localCount--;
+      }
+
   }
 
   void block()
@@ -479,17 +498,45 @@ namespace {
     namedVariable(parser.previous, canAsigment);
   }
 
+  int resolveLocal(Compiler* compiler, Token* name)
+  {
+    for (int i = compiler->localCount - 1; i >= 0; i--)
+    {
+      auto local = &compiler->locals[i];
+      if (identifiersEqual(name, &local->name))
+      {
+        if (local->depth == -1)
+        {
+          error("Can`t read local variable in its own initializer.");
+        }
+        return i;
+      }
+    }
+    return -1;
+  }
   void namedVariable(Token name, bool canAsigment)
   {
-      uint8_t arg = identifierConstant(&name);
-      if (canAsigment && match(TOKEN_EQUAL))
+      uint8_t getOp, setOp;
+      int arg  = resolveLocal(current, &name);
+      if  (arg != -1)
       {
-          expression();
-          emitBytes(OP_SET_GLOBAL, arg);
+        getOp = OP_GET_LOCAL;
+        setOp = OP_SET_LOCAL;        
       }
       else
       {
-          emitBytes(OP_GET_GLOBAL, arg);
+        arg = identifierConstant(&name);
+        getOp = OP_GET_GLOBAL;
+        setOp = OP_SET_LOCAL;
+      }
+      if (canAsigment && match(TOKEN_EQUAL))
+      {
+          expression();
+          emitBytes(setOp, arg);
+      }
+      else
+      {
+          emitBytes(getOp, arg);
       }
   }
 
