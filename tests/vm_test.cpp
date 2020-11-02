@@ -83,3 +83,20 @@ TEST(create_var_and_assigment, vm)
     auto reslut = script_system::vm::interpret("var a = 1+2;\n a = 25;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+
+TEST(local_var, vm)
+{
+    const char* source =
+        "{"
+        "   var a = 1+2;"
+        "   {"
+        "       var b = a + 3;"
+        "       a = b + 3;"
+        "   }"
+        "   print a;"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
