@@ -26,6 +26,7 @@ namespace {
   void literal(bool);
   void string(bool);
   void variable(bool);
+  void and_(bool);
   void printStatement();
   void statement();
   void expressionStatement();
@@ -37,6 +38,7 @@ namespace {
   void endScope();
   void block();
   void ifStatement();
+
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
   void defineVariable(uint8_t global);
@@ -117,10 +119,10 @@ namespace {
     { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_GREATER_EQUAL   
     { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_LESS            
     { nullptr,     binary,  PREC_COMPARISON }, // TOKEN_LESS_EQUAL      
-    { variable, nullptr,    PREC_NONE },       // TOKEN_IDENTIFIER      
-    { string,   nullptr,    PREC_NONE },       // TOKEN_STRING          
-    { number,   nullptr,    PREC_NONE },       // TOKEN_NUMBER          
-    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_AND             
+    { variable,   nullptr,    PREC_NONE },       // TOKEN_IDENTIFIER      
+    { string,     nullptr,    PREC_NONE },       // TOKEN_STRING          
+    { number,     nullptr,    PREC_NONE },       // TOKEN_NUMBER          
+    { nullptr,     and_,    PREC_AND },       // TOKEN_AND             
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_CLASS           
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_ELSE            
     { literal,  nullptr,    PREC_NONE },       // TOKEN_FALSE           
@@ -616,6 +618,16 @@ namespace {
       default:
         return;
     }
+  }
+
+  void and_(bool)
+  {
+      int endJump = emitJump(OP_JUMP_IF_FALSE);
+
+      emitByte(OP_POP);
+      parsePrecedence(PREC_AND);
+
+      patchJump(endJump);
   }
 
   void binary(bool)

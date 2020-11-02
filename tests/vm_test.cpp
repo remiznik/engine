@@ -134,3 +134,17 @@ TEST(if_else_statement, vm)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(and_statement, vm)
+{
+    const char* source =
+        "{"
+        "   print true and true;" // true        
+        "   print true and false;" // false
+        "   print false and fasle;" // false
+        "   print false and true;" // false
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
