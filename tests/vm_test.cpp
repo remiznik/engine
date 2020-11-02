@@ -100,3 +100,37 @@ TEST(local_var, vm)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(if_statement, vm)
+{
+    const char* source =
+        "{"
+        "   var a = 1+2;"
+        "   if (a > 0)"
+        "   {"
+        "    print a;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(if_else_statement, vm)
+{
+    const char* source =
+        "{"
+        "   var a = 1+2;"
+        "   if (a < 0)"
+        "   {"
+        "    print a;"
+        "   }"
+        "   else"
+        "   {"
+        "     print false;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}

@@ -22,6 +22,8 @@ namespace vm {
 		OP_EQUAL,
 		OP_NEGATE,
 		OP_PRINT,
+		OP_JUMP,
+		OP_JUMP_IF_FALSE,
 		OP_ADD,     
   		OP_SUBTRACT,
   		OP_MULTIPLY,

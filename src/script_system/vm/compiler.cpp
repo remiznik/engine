@@ -36,10 +36,12 @@ namespace {
   void beginScope();
   void endScope();
   void block();
+  void ifStatement();
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
   void defineVariable(uint8_t global);
   void namedVariable(Token name, bool);
+
 
 
   typedef enum {                  
@@ -429,6 +431,10 @@ namespace {
     {
       printStatement();
     }
+    else if (match(TOKEN_IF))
+    {
+        ifStatement();
+    }
     else if (match(TOKEN_LEFT_BRACE))
     {
         beginScope();
@@ -439,6 +445,50 @@ namespace {
     {
       expressionStatement();
     }
+  }
+
+  int emitJump(uint8_t instruction)
+  {
+      emitByte(instruction);
+      emitByte(0xff);
+      emitByte(0xff);
+      return currentChunk()->count - 2;
+  }
+
+  void patchJump(int offset)
+  {
+      int jump = currentChunk()->count - offset - 2;
+
+      if (jump > UINT16_MAX)
+      {
+          error("To much code to jump over.");
+      }
+
+      currentChunk()->code[offset] = (jump >> 8) & 0xff;
+      currentChunk()->code[offset + 1] = jump & 0xff;
+  }
+
+  void ifStatement()
+  {
+      consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+      expression();
+      consume(TOKEN_RIGHT_PAREN, "Eexpect ')' after condition.");
+
+      int thenJump = emitJump(OP_JUMP_IF_FALSE);
+      emitByte(OP_POP);
+      statement();
+
+      int elseJump = emitJump(OP_JUMP);
+
+      patchJump(thenJump);
+      emitByte(OP_POP);
+
+      if (match(TOKEN_ELSE))
+      {
+          statement();
+      }
+      patchJump(elseJump);
+      
   }
 
   void beginScope()
