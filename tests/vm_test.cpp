@@ -141,8 +141,22 @@ TEST(and_statement, vm)
         "{"
         "   print true and true;" // true        
         "   print true and false;" // false
-        "   print false and fasle;" // false
+        "   print false and false;" // false
         "   print false and true;" // false
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(or_statement, vm)
+{
+    const char* source =
+        "{"
+        "   print true or true;" // true        
+        "   print true or false;" // true
+        "   print false or false ;" // false
+        "   print false or true;" // true
         "}";
 
     auto reslut = script_system::vm::interpret(source);

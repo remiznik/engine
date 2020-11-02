@@ -27,6 +27,7 @@ namespace {
   void string(bool);
   void variable(bool);
   void and_(bool);
+  void or_(bool);
   void printStatement();
   void statement();
   void expressionStatement();
@@ -130,7 +131,7 @@ namespace {
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_FUN             
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_IF              
     { literal,  nullptr,    PREC_NONE },       // TOKEN_NIL             
-    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_OR              
+    { nullptr,     or_,    PREC_OR},       // TOKEN_OR              
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_PRINT           
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RETURN          
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SUPER           
@@ -627,6 +628,18 @@ namespace {
       emitByte(OP_POP);
       parsePrecedence(PREC_AND);
 
+      patchJump(endJump);
+  }
+
+  void or_(bool)
+  {
+      int elseJump = emitJump(OP_JUMP_IF_FALSE);
+      int endJump = emitJump(OP_JUMP);
+
+      patchJump(elseJump);
+      emitByte(OP_POP);
+
+      parsePrecedence(PREC_OR);
       patchJump(endJump);
   }
 
