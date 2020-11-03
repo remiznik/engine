@@ -99,6 +99,7 @@ namespace vm {
     	case OP_PRINT:			return simpleInstruction("OP_PRINT", offset); 
 		case OP_JUMP:			return jumpInstruction("OP_JUMP", 1, chunk, offset);
 		case OP_JUMP_IF_FALSE:	return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
+		case OP_LOOP:			return jumpInstruction("OP_LOOP", -1, chunk, offset);
 		default:	printf("Unknow opcode %d\n", instruction);	return offset + 1;
 		}
 	}

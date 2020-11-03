@@ -162,3 +162,19 @@ TEST(or_statement, vm)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(while_statement, vm)
+{
+    const char* source =
+        "{"
+        "   var i = 0;"
+        "   while(i < 10)"
+        "   {"
+        "       print i;"
+        "       i = i + 1;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}

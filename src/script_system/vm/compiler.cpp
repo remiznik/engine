@@ -39,6 +39,7 @@ namespace {
   void endScope();
   void block();
   void ifStatement();
+  void whileStatement();
 
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
@@ -438,6 +439,10 @@ namespace {
     {
         ifStatement();
     }
+    else if (match(TOKEN_WHILE))
+    {
+        whileStatement();
+    }
     else if (match(TOKEN_LEFT_BRACE))
     {
         beginScope();
@@ -456,6 +461,17 @@ namespace {
       emitByte(0xff);
       emitByte(0xff);
       return currentChunk()->count - 2;
+  }
+
+  void emitLoop(int loopStart)
+  {
+      emitByte(OP_LOOP);
+
+      int offset = currentChunk()->count - loopStart + 2;
+      if (offset > UINT16_MAX) error("Loop body too large.");
+
+      emitByte((offset >> 8) & 0xff);
+      emitByte(offset & 0xff);
   }
 
   void patchJump(int offset)
@@ -492,6 +508,24 @@ namespace {
       }
       patchJump(elseJump);
       
+  }
+
+  void whileStatement()
+  {
+      int loopStart = currentChunk()->count;
+      consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+      expression();
+      consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition. ");
+
+      int exitJump = emitJump(OP_JUMP_IF_FALSE);
+
+      emitByte(OP_POP);
+      statement();
+
+      emitLoop(loopStart);
+
+      patchJump(exitJump);
+      emitByte(OP_POP);
   }
 
   void beginScope()
