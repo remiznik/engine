@@ -178,3 +178,64 @@ TEST(while_statement, vm)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(for_full_statement, vm)
+{
+    const char* source =
+        "{"
+        "   for(var i =0; i < 10; i = i + 1)"
+        "   {"
+        "       print i;"        
+        "   }"
+        "}";
+     
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(for_withot_increment_statement, vm)
+{
+    const char* source =
+        "{"
+        "   for(var i =0; i < 10;)"
+        "   {"
+        "       print i;"
+        "       i = i + 1;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(for_without_declaretion_statement, vm)
+{
+    const char* source =
+        "{"
+        "   var i = 0;"
+        "   for(; i < 10; i = i + 1)"
+        "   {"
+        "       print i;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+
+TEST(for_withot_increment_and_declaration_statement, vm)
+{
+    const char* source =
+        "{"
+        "   var i = 0;"
+        "   for(; i < 10;)"
+        "   {"
+        "       print i;"
+        "       i = i + 1;"
+        "   }"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
