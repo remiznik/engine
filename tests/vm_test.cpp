@@ -4,7 +4,7 @@
 #include "script_system/vm/debug.h"
 #include "script_system/vm/vm.h"
 
-TEST(in_chunk, vm) 
+TEST(vm, in_chunk) 
 {
     script_system::vm::Chunk chunk;
     script_system::vm::initChunk(&chunk);
@@ -28,64 +28,64 @@ TEST(in_chunk, vm)
 } 
 
 
-TEST(two_plus_three, vm) 
+TEST(vm, two_plus_three) 
 {
     auto reslut = script_system::vm::interpret("1 + 2;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(simple_check, vm) 
+TEST(vm, simple_check) 
 {
     auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(type_of_values, vm) 
+TEST(vm, type_of_values)
 {
     auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil);");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(value_string, vm)
+TEST(vm, value_string)
 {
     auto reslut = script_system::vm::interpret("\"str\";");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
     
 
-TEST(string_concatenate, vm)
+TEST(vm, string_concatenate)
 {
     auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\";");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(create_var, vm)
+TEST(vm, create_var)
 {
     auto reslut = script_system::vm::interpret("var a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(create_var_and_initialize, vm)
+TEST(vm, create_var_and_initialize)
 {
     auto reslut = script_system::vm::interpret("var a = 1+2;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(create_var_and_initialize_print, vm)
+TEST(vm, create_var_and_initialize_print)
 {
     auto reslut = script_system::vm::interpret("var a = 1+2;\n print a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 
-TEST(create_var_and_assigment, vm)
+TEST(vm, create_var_and_assigment)
 {
     auto reslut = script_system::vm::interpret("var a = 1+2;\n a = 25;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 
-TEST(local_var, vm)
+TEST(vm, local_var)
 {
     const char* source =
         "{"
@@ -101,7 +101,7 @@ TEST(local_var, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(if_statement, vm)
+TEST(vm, if_statement)
 {
     const char* source =
         "{"
@@ -116,7 +116,7 @@ TEST(if_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(if_else_statement, vm)
+TEST(vm, if_else_statement)
 {
     const char* source =
         "{"
@@ -135,7 +135,7 @@ TEST(if_else_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(and_statement, vm)
+TEST(vm, and_statement)
 {
     const char* source =
         "{"
@@ -149,7 +149,7 @@ TEST(and_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(or_statement, vm)
+TEST(vm, or_statement)
 {
     const char* source =
         "{"
@@ -163,7 +163,7 @@ TEST(or_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(while_statement, vm)
+TEST(vm, while_statement)
 {
     const char* source =
         "{"
@@ -179,7 +179,7 @@ TEST(while_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(for_full_statement, vm)
+TEST(vm, for_full_statement)
 {
     const char* source =
         "{"
@@ -193,7 +193,7 @@ TEST(for_full_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(for_withot_increment_statement, vm)
+TEST(vm, for_withot_increment_statement)
 {
     const char* source =
         "{"
@@ -208,7 +208,7 @@ TEST(for_withot_increment_statement, vm)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
-TEST(for_without_declaretion_statement, vm)
+TEST(vm, for_without_declaretion_statement)
 {
     const char* source =
         "{"
@@ -224,7 +224,7 @@ TEST(for_without_declaretion_statement, vm)
 }
 
 
-TEST(for_withot_increment_and_declaration_statement, vm)
+TEST(vm, for_without_increment_and_declaration_statement)
 {
     const char* source =
         "{"
@@ -238,4 +238,26 @@ TEST(for_withot_increment_and_declaration_statement, vm)
 
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(vm, switch_statment)
+{
+    const char* source =
+        "{"
+        "   var i = 3;"
+        "   switch (i)"
+        "   {"
+        "       case 1:"
+        "       {"
+        "           print 1;"
+        "       }"
+        "       case 2:"
+        "       {"
+        "           print 2;"  
+        "       }"      
+        "   }"
+        "}";
+
+    auto result = script_system::vm::interpret(source);
+    EXPECT_EQ(result, script_system::vm::INTERPRET_OK);
 }

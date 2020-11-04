@@ -41,6 +41,7 @@ namespace {
   void ifStatement();
   void whileStatement();
   void forStatement();
+  void switchStatement();
 
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
@@ -111,7 +112,8 @@ namespace {
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_DOT             
     { unary,    binary,  PREC_TERM },       // TOKEN_MINUS           
     { nullptr,     binary,  PREC_TERM },       // TOKEN_PLUS            
-    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SEMICOLON       
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SEMICOLON     
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_COLON     
     { nullptr,     binary,  PREC_FACTOR },     // TOKEN_SLASH           
     { nullptr,     binary,  PREC_FACTOR },     // TOKEN_STAR            
     { unary,    nullptr,    PREC_NONE },       // TOKEN_BANG            
@@ -141,6 +143,9 @@ namespace {
     { literal,  nullptr,    PREC_NONE },       // TOKEN_TRUE            
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_VAR             
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_WHILE           
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SWITCH
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_CASE
+    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_DEFAULT
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_ERROR           
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_EOF             
   };
@@ -448,6 +453,10 @@ namespace {
     {
         forStatement();
     }
+    else if (match(TOKEN_SWITCH))
+    {
+        switchStatement();
+    }
     else if (match(TOKEN_LEFT_BRACE))
     {
         beginScope();
@@ -587,6 +596,29 @@ namespace {
 
       endScope();
   }
+
+  void switchStatement()
+  {
+      consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
+      expression();
+      consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition. ");
+      consume(TOKEN_LEFT_BRACE, "Expect '{' after condition. ");
+
+      while (match(TOKEN_CASE))
+      {
+          expression();
+          consume(TOKEN_COLON, "Expect ':' after case expresion.");
+      
+          int thenJump = emitJump(OP_JUMP_IF_FALSE);
+          emitByte(OP_POP);          
+          statement();
+      
+          patchJump(thenJump);
+          emitByte(OP_POP);
+      }
+      consume(TOKEN_RIGHT_BRACE, "Expect '{' after condition. ");
+  }
+
 
   void beginScope()
   {
