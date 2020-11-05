@@ -599,6 +599,7 @@ namespace {
 
   void switchStatement()
   {
+      int loopStart = currentChunk()->count;
       consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
       expression();
       consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition. ");
@@ -608,14 +609,16 @@ namespace {
       {
           expression();
           consume(TOKEN_COLON, "Expect ':' after case expresion.");
-      
-          int thenJump = emitJump(OP_JUMP_IF_FALSE);
-          emitByte(OP_POP);          
+          emitByte(OP_EQUAL);
+             
           statement();
-      
+          
           patchJump(thenJump);
-          emitByte(OP_POP);
+          emitByte(OP_POP); 
+                    
+          patchJump(bodyJump);
       }
+
       consume(TOKEN_RIGHT_BRACE, "Expect '{' after condition. ");
   }
 
