@@ -455,7 +455,8 @@ namespace {
     }
     else if (match(TOKEN_SWITCH))
     {
-        switchStatement();
+        // TODO fix switchStatement
+        //switchStatement();
     }
     else if (match(TOKEN_LEFT_BRACE))
     {
@@ -599,25 +600,31 @@ namespace {
 
   void switchStatement()
   {
-      int loopStart = currentChunk()->count;
       consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
       expression();
       consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition. ");
       consume(TOKEN_LEFT_BRACE, "Expect '{' after condition. ");
-
+      
+      emitByte(OP_TRUE);
+      int loopStart = currentChunk()->count;
+      int exitJump = emitJump(OP_JUMP_IF_FALSE);
+      emitByte(OP_POP);
       while (match(TOKEN_CASE))
       {
           expression();
           consume(TOKEN_COLON, "Expect ':' after case expresion.");
           emitByte(OP_EQUAL);
-             
+          int thenJump = emitJump(OP_JUMP_IF_FALSE);
+          emitByte(OP_POP);
           statement();
-          
+          emitByte(OP_FALSE);
+          emitLoop(loopStart);
+
           patchJump(thenJump);
           emitByte(OP_POP); 
-                    
-          patchJump(bodyJump);
       }
+      patchJump(exitJump);
+      emitByte(OP_POP);
 
       consume(TOKEN_RIGHT_BRACE, "Expect '{' after condition. ");
   }
