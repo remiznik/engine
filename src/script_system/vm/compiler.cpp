@@ -275,16 +275,17 @@ namespace {
     emitByte(OP_RETURN);
   }
 
-  void endCompiler()
+  ObjFunction* endCompiler()
   {
     emitReturn();
+    ObjFunction* function = current->function;
 #ifdef DEBUG_PRINT_CODE                      
     if (!parser.hadError) 
     {                    
-      disassembleChunk(currentChunk(), "code");
+      disassembleChunk(currentChunk(), function->name != nullptr ? function->name->chars : "<script>");
     }                                          
-#endif                                       
-
+#endif                                     
+    return function;
   }
 
   void parsePrecedence(Precedence precedence)
@@ -826,7 +827,7 @@ namespace {
 
 }
 
-bool compile(const char* source, Chunk* chunk)
+ObjFunction* compile(const char* source, Chunk* chunk)
 {
     initScanner(source);
     Compiler compiler;
@@ -840,7 +841,7 @@ bool compile(const char* source, Chunk* chunk)
     {
       declaration();
     }
-    endCompiler();
+    ObjFunction* function = endCompiler();
     //int line = -1;                                                              
     //for (;;) {                                                                  
     //  Token token = scanToken();                                                
@@ -852,7 +853,7 @@ bool compile(const char* source, Chunk* chunk)
     //  }                                                                         
     //  printf("%2d '%.*s'\n", token.type, token.length, token.start); 
     //  if (token.type == TOKEN_EOF) break;      
-    return !parser.hadError;
+    return parser.hadError ? nullptr : function;
   }
 }
 }

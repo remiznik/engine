@@ -82,6 +82,11 @@ namespace script_system {
 
 		void printFunction(ObjFunction* function)
 		{
+			if (function->name == nullptr)
+			{
+				printf("<script>");
+				return;
+			}
 			printf("<fn %s>", function->name->chars);
 		}
 
