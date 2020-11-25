@@ -28,26 +28,43 @@ TEST(vm, in_chunk)
 } 
 
 
+class TestVM
+{
+public:
+    TestVM()
+    {
+        script_system::vm::initVM();
+    }
+    ~TestVM()
+    {
+        script_system::vm::freeVM();
+    }
+};
+
 TEST(vm, two_plus_three) 
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("1 + 2;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);    
 }
 
 TEST(vm, simple_check) 
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(vm, type_of_values)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil);");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(vm, value_string)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("\"str\";");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
@@ -55,24 +72,28 @@ TEST(vm, value_string)
 
 TEST(vm, string_concatenate)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\";");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(vm, create_var)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("var a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(vm, create_var_and_initialize)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("var a = 1+2;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
 TEST(vm, create_var_and_initialize_print)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("var a = 1+2;\n print a;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
@@ -80,6 +101,7 @@ TEST(vm, create_var_and_initialize_print)
 
 TEST(vm, create_var_and_assigment)
 {
+    TestVM vm;
     auto reslut = script_system::vm::interpret("var a = 1+2;\n a = 25;");
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
@@ -87,6 +109,7 @@ TEST(vm, create_var_and_assigment)
 
 TEST(vm, local_var)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -103,6 +126,7 @@ TEST(vm, local_var)
 
 TEST(vm, if_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -118,6 +142,7 @@ TEST(vm, if_statement)
 
 TEST(vm, if_else_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -137,6 +162,7 @@ TEST(vm, if_else_statement)
 
 TEST(vm, and_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   print true and true;" // true        
@@ -151,6 +177,7 @@ TEST(vm, and_statement)
 
 TEST(vm, or_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   print true or true;" // true        
@@ -165,6 +192,7 @@ TEST(vm, or_statement)
 
 TEST(vm, while_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var i = 0;"
@@ -181,6 +209,7 @@ TEST(vm, while_statement)
 
 TEST(vm, for_full_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   for(var i =0; i < 10; i = i + 1)"
@@ -195,6 +224,7 @@ TEST(vm, for_full_statement)
 
 TEST(vm, for_without_increment_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   for(var i =0; i < 10;)"
@@ -210,6 +240,7 @@ TEST(vm, for_without_increment_statement)
 
 TEST(vm, for_without_declaretion_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var i = 0;"
@@ -226,6 +257,7 @@ TEST(vm, for_without_declaretion_statement)
 
 TEST(vm, for_without_increment_and_declaration_statement)
 {
+    TestVM vm;
     const char* source =
         "{"
         "   var i = 0;"
