@@ -17,6 +17,11 @@
 namespace script_system {
 namespace vm {
 
+    typedef enum {
+        TYPE_FUNCTION,
+        TYPE_SCRIPT
+    } FunctionType;
+
 namespace {
 
   void grouping(bool);
@@ -28,6 +33,7 @@ namespace {
   void variable(bool);
   void and_(bool);
   void or_(bool);
+  void call(bool);
   void printStatement();
   void statement();
   void expressionStatement();
@@ -42,6 +48,9 @@ namespace {
   void whileStatement();
   void forStatement();
   void switchStatement();
+  void funDeclaration();
+  void function(FunctionType);
+  void markInitialized();
 
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
@@ -87,11 +96,6 @@ namespace {
       int depth;
   } Local;
 
-  typedef enum {
-      TYPE_FUNCTION,
-      TYPE_SCRIPT
-  } FunctionType;
-
   struct Compiler {
       struct Compiler* enclosing;
       ObjFunction* function;
@@ -115,6 +119,11 @@ namespace {
     compiler->function = newFunction();
     current = compiler;
 
+    if (type != TYPE_SCRIPT)
+    {
+        current->function->name = copyString(parser.previous.start, parser.previous.length);
+    }
+
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
     local->name.start = "";
@@ -123,7 +132,7 @@ namespace {
 
 
   ParseRule rules[] = {                                              
-    { grouping, nullptr,    PREC_NONE },       // TOKEN_LEFT_PAREN      
+    { grouping, call,    PREC_CALL},       // TOKEN_LEFT_PAREN      
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RIGHT_PAREN     
     { nullptr,     nullptr,    PREC_NONE },      // TOKEN_LEFT_BRACE
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RIGHT_BRACE     
@@ -868,6 +877,30 @@ namespace {
     consume(TOKEN_RIGHT_PAREN, "Experct ')' after expression. ");
   }
 
+  uint8_t argumentList()
+  {
+      uint8_t argCount = 0;
+      if (!check(TOKEN_RIGHT_PAREN))
+      {
+          do
+          {
+              expression();
+              if (argCount == 255)
+              {
+                  error("Can`t have mor than 255 arguments.");
+              }
+              argCount++;
+          } while(match(TOKEN_COMMA));
+      }
+      consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+      return argCount;
+  }
+
+  void call(bool canAssign)
+  {
+      uint8_t argCount = argumentList();
+      emitBytes(OP_CALL, argCount);
+  }
 }
 
 ObjFunction* compile(const char* source)

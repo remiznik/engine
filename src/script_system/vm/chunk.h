@@ -29,6 +29,7 @@ namespace vm {
   		OP_MULTIPLY,
   		OP_DIVIDE,
 		OP_LOOP,
+		OP_CALL, 
   		OP_RETURN,		       
 	} OpCode;   
 
@@ -46,4 +47,6 @@ namespace vm {
 	int addConstant(Chunk* chunk, Value value);
 	void freeChunk(Chunk* chunk);
 }
+
+
 }
