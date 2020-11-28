@@ -33,6 +33,13 @@ namespace script_system {
 			return function;
 		}
 
+		ObjNative* newNative(NativeFn function)
+		{
+			ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
+			native->function = function;
+			return native;
+		}
+
 		uint32_t hashString(const char* key, int length)
 		{
 			uint32_t hash = 2166136261u;
@@ -97,6 +104,11 @@ namespace script_system {
 			case OBJ_FUNCTION:
 			{
 				printFunction(AS_FUNCTION(value));
+				break;
+			}
+			case OBJ_NATIVE:
+			{
+				printf("<native fn>");
 				break;
 			}
 			case OBJ_STRING:

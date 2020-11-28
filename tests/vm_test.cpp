@@ -271,6 +271,61 @@ TEST(vm, for_without_increment_and_declaration_statement)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+TEST(vm, simple_sum_function)
+{
+    TestVM vm;
+    const char* source =
+        "fun sum()"
+        "{"
+        "   return 1 + 2;"
+        "}"
+        "print sum();";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+TEST(vm, function_with_args)
+{
+    TestVM vm;
+    const char* source =
+        "fun sum(a, b)"
+        "{"
+        "   return a + b;"
+        "}"
+        "sum(1, 3);";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(vm, function_fibonachi_ten)
+{
+    TestVM vm;
+    const char* source =
+        "fun fib(a)"
+        "{"
+        "   if ( a < 2 ) return a;"
+        "   return fib(a -1) + fib(a -2);"        
+        "}"
+        "print fib(10);";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+
+TEST(vm, native_clock_function)
+{
+    TestVM vm;
+    const char* source =
+        "var t = clock();"        
+        "print t;";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)
 //{

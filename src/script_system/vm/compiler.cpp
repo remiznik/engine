@@ -45,6 +45,7 @@ namespace {
   void endScope();
   void block();
   void ifStatement();
+  void returnStatment();
   void whileStatement();
   void forStatement();
   void switchStatement();
@@ -283,6 +284,7 @@ namespace {
 
   void emitReturn()
   {
+    emitByte(OP_NIL);
     emitByte(OP_RETURN);
   }
 
@@ -485,6 +487,10 @@ namespace {
     {
         ifStatement();
     }
+    else if (match(TOKEN_RETURN))
+    {
+        returnStatment();
+    }
     else if (match(TOKEN_WHILE))
     {
         whileStatement();
@@ -563,6 +569,25 @@ namespace {
       }
       patchJump(elseJump);
       
+  }
+
+  void returnStatment()
+  {
+      if (current->type == TYPE_SCRIPT)
+      {
+          error("Can`t return from top-level code.");
+      }
+
+      if (match(TOKEN_SEMICOLON))
+      {
+          emitReturn();
+      }
+      else
+      {
+          expression();
+          consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+          emitByte(OP_RETURN);
+      }
   }
 
   void whileStatement()
