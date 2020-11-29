@@ -366,12 +366,7 @@ InterpretResult interpret(const char* source)
 
     push(OBJ_VAL(function));
     callValue(OBJ_VAL(function), 0);
-
-    CallFrame* frame = &vm.frames[vm.frameCount++];
-    frame->function = function;
-    frame->ip = function->chunk.code;
-    frame->slots = vm.stack;
-
+    
     return run();
 }   
 

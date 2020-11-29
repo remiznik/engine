@@ -326,6 +326,24 @@ TEST(vm, native_clock_function)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, count_time_calculate_fibonachi_35)
+{
+    TestVM vm;
+    const char* source =
+        "var start = clock();"
+        "fun fib(a)"
+        "{"
+        "   if ( a < 2 ) return a;"
+        "   return fib(a -1) + fib(a -2);"
+        "}"
+        "fib(35);"
+        "print clock() - start;";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)
 //{
