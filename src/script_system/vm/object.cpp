@@ -28,9 +28,17 @@ namespace script_system {
 			ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
 
 			function->arity = 0;
+			function->upvalueCount = 0;
 			function->name = nullptr;
 			initChunk (&function->chunk);
 			return function;
+		}
+
+		ObjClosure* newClosure(ObjFunction* function)
+		{
+			ObjClosure* closure = ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE);
+			closure->function = function;
+			return closure;
 		}
 
 		ObjNative* newNative(NativeFn function)
@@ -104,6 +112,11 @@ namespace script_system {
 			case OBJ_FUNCTION:
 			{
 				printFunction(AS_FUNCTION(value));
+				break;
+			}
+			case OBJ_CLOSURE:
+			{
+				printFunction(AS_CLOSURE(value)->function);
 				break;
 			}
 			case OBJ_NATIVE:

@@ -15,6 +15,8 @@ namespace vm {
 		OP_SET_LOCAL,
 		OP_SET_GLOBAL,
 		OP_GET_GLOBAL,
+		OP_GET_UPVALUE,
+		OP_SET_UPVALUE,
 		OP_DEFINE_GLOBAL,
 		OP_GREATER,
 		OP_LESS,
@@ -30,6 +32,7 @@ namespace vm {
   		OP_DIVIDE,
 		OP_LOOP,
 		OP_CALL, 
+		OP_CLOSURE,
   		OP_RETURN,		       
 	} OpCode;   
 

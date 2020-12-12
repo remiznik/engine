@@ -343,6 +343,39 @@ TEST(vm, count_time_calculate_fibonachi_35)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, closure)
+{
+    TestVM vm;
+    //const char* source =
+    //    "var x = \"global\";"
+    //    "fun outer()"
+    //    "{"
+    //    " var x = \"outer\";"
+    //    " fun inner()"
+    //    " {"
+    //    "   print x;"
+    //    " }"
+    //    " inner();"
+    //    "}"
+    //    "outer();"
+    //    ;
+
+    const char* source =
+        "fun makeClosure(value){"
+        " fun closure() {"
+        "   print value;"
+        " }"
+        " return closure;"
+        "}"
+        "var doughunt = makeClosure(\"doughunt\");"
+        "var bagle = makeClosure(\"bagle\");"
+        "doughunt();"
+        "bagle();";
+
+    //auto reslut = script_system::vm::interpret(source);
+    //EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
 
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)

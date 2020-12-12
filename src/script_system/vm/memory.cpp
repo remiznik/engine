@@ -21,6 +21,11 @@ namespace vm {
                 FREE(ObjFunction, object);
                 break;
             }
+            case OBJ_CLOSURE:
+            {
+                FREE(ObjClosure, object);
+                break;
+            }
             case OBJ_NATIVE:
             {
                 FREE(ObjNative, object);
@@ -32,6 +37,7 @@ namespace vm {
                 FREE(ObjString, object);
                 break;
             }
+
         }
 
         void* reallocate(void* previous, size_t oldSize, size_t newSize)

@@ -97,12 +97,18 @@ namespace {
       int depth;
   } Local;
 
+  typedef struct {
+      uint8_t index;
+      bool isLocal;
+  } Upvalue;
+
   struct Compiler {
       struct Compiler* enclosing;
       ObjFunction* function;
       FunctionType type;
 
       Local locals[UINT8_COUNT];
+      Upvalue upvalues[UINT8_COUNT];
       int localCount;
       int scopeDepth;
   };
@@ -747,7 +753,13 @@ namespace {
       block();
 
       ObjFunction* function = endCompiler();
-      emitBytes(OP_CONSTANT, makeConstant(OBJ_VAL(function)));
+      emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+
+      for (int i = 0; i < function->upvalueCount; i++)
+      {
+          emitByte(compiler.upvalues[i].isLocal ? 1 : 0);
+          emitByte(compiler.upvalues[i].index);
+      }
   }
 
   void expressionStatement()
@@ -796,6 +808,50 @@ namespace {
     }
     return -1;
   }
+  int addUpvalue(Compiler* compiler, uint8_t index, bool isLocal)
+  {
+      int upvalueCount = compiler->function->upvalueCount;
+
+      for (int i = 0; i < upvalueCount; i++)
+      {
+          Upvalue* upvalue = &compiler->upvalues[i];
+          if (upvalue->index == index && upvalue->isLocal == isLocal)
+          {
+              return i;
+          }
+      }
+
+      if (upvalueCount == UINT8_COUNT)
+      {
+          error("To many closure varibles in function");
+          return 0;
+      }
+
+      compiler->upvalues[upvalueCount].isLocal = isLocal;
+      compiler->upvalues[upvalueCount].index = index;
+      return compiler->function->upvalueCount++;
+  }
+  int resolveUpvalue(Compiler* compiler, Token* name)
+  {
+      if (compiler->enclosing == nullptr)
+      {
+          return -1;
+      }
+
+      int local = resolveLocal(compiler->enclosing, name);
+      if (local != -1)
+      {
+          return addUpvalue(compiler, (uint8_t)local, true);
+      }
+
+      int upvalue = resolveUpvalue(compiler->enclosing, name);
+      if (upvalue != -1)
+      {
+          return addUpvalue(compiler, (uint8_t)upvalue, false);
+      }
+      return -1;
+   }
+
   void namedVariable(Token name, bool canAsigment)
   {
       uint8_t getOp, setOp;
@@ -804,6 +860,11 @@ namespace {
       {
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;        
+      }
+      else if ((arg = resolveUpvalue(current, &name)) !=1)
+      {
+          getOp = OP_GET_UPVALUE;
+          setOp = OP_SET_UPVALUE;   
       }
       else
       {
