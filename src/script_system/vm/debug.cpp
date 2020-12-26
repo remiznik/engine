@@ -104,6 +104,7 @@ namespace vm {
 		case OP_JUMP_IF_FALSE:	return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
 		case OP_LOOP:			return jumpInstruction("OP_LOOP", -1, chunk, offset);
 		case OP_CALL:			return byteInstruction("OP_CALL", chunk, offset);
+		case OP_CLOSE_UPVALUE:	return simpleInstruction("OP_CLOSE_UPVALUE", offset);
 		case OP_CLOSURE:
 		{
 			offset++;

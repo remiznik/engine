@@ -4,7 +4,7 @@
 #include "vm/object.h"
 
 namespace script_system {
-namespace vm {
+namespace vm {	
 
 ObjFunction* compile(const char* source);
 	

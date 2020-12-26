@@ -36,9 +36,26 @@ namespace script_system {
 
 		ObjClosure* newClosure(ObjFunction* function)
 		{
+			ObjUpvalue** upvalues = ALLOCATE(ObjUpvalue*, function->upvalueCount);
+			for (int i = 0; i < function->upvalueCount; i++)
+			{
+				upvalues[i] = nullptr;
+			}
+
 			ObjClosure* closure = ALLOCATE_OBJ(ObjClosure, OBJ_CLOSURE);
 			closure->function = function;
+			closure->upvalues = upvalues;
+			closure->upvalueCount = function->upvalueCount;
 			return closure;
+		}
+
+		ObjUpvalue* newUpvalue(Value* slot)
+		{
+			ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
+			upvalue->location = slot;
+			upvalue->closed = NIL_VAL;
+			upvalue->next = nullptr;
+			return upvalue;
 		}
 
 		ObjNative* newNative(NativeFn function)
@@ -117,6 +134,11 @@ namespace script_system {
 			case OBJ_CLOSURE:
 			{
 				printFunction(AS_CLOSURE(value)->function);
+				break;
+			}
+			case OBJ_UPVALUE:
+			{
+				printf("upvalue");
 				break;
 			}
 			case OBJ_NATIVE:

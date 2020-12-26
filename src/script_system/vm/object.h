@@ -22,6 +22,7 @@ namespace vm {
 	typedef enum {
 		OBJ_FUNCTION,
 		OBJ_CLOSURE,
+		OBJ_UPVALUE,
 		OBJ_NATIVE,
 		OBJ_STRING,
 	} ObjType;
@@ -40,15 +41,25 @@ namespace vm {
 		ObjString* name;
 	} ObjFunction;
 	ObjFunction* newFunction();
-	
+
+	typedef struct ObjUpvalue {
+		Obj obj;
+		Value* location;
+		Value closed;
+		ObjUpvalue* next;
+	} ObjUpvalue;
+	ObjUpvalue* newUpvalue(Value* slot);
+
 	typedef struct {
 		Obj obj;
 		ObjFunction* function;
+		ObjUpvalue** upvalues;
+		int upvalueCount;
 	} ObjClosure;
 	ObjClosure* newClosure(ObjFunction* function);
 
-	typedef Value(*NativeFn)(int argCount, Value* args);
 
+	typedef Value(*NativeFn)(int argCount, Value* args);
 	typedef struct {
 		Obj obj;
 		NativeFn function;
