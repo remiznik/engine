@@ -882,7 +882,7 @@ namespace {
       {
         arg = identifierConstant(&name);
         getOp = OP_GET_GLOBAL;
-        setOp = OP_SET_LOCAL;
+        setOp = OP_SET_GLOBAL;
       }
       if (canAsigment && match(TOKEN_EQUAL))
       {
