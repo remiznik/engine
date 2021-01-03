@@ -447,6 +447,46 @@ TEST(vm, gc_test_two)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, class_define)
+{
+    TestVM vm;
+
+    const char* source =
+        "class Brioche{}"
+        "print Brioche;";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(vm, class_instance)
+{
+    TestVM vm;
+
+    const char* source =
+        "class Brioche{}"
+        "print Brioche();";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+
+TEST(vm, class_instance_fields)
+{
+    TestVM vm;
+
+    const char* source =
+        "class Pair{}"
+        "var pair = Pair();"
+        "pair.first = 1;"
+        "pair.second = 2;"
+        "print pair.first + pair.second;";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
 
 
 // TODO : Fix switch statement

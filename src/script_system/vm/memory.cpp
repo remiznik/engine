@@ -25,6 +25,19 @@ namespace vm {
 #endif 
             switch (object->type)
             {
+
+            case OBJ_CLASS:
+            {
+                FREE(ObjClass, object);
+                break;
+            }
+            case OBJ_INSTANCE:
+            {
+                ObjInstance* instance = (ObjInstance*)object;
+                freeTable(&instance->fields);
+                FREE(ObjClass, object);
+                break;
+            }
             case OBJ_FUNCTION:
             {
                 ObjFunction* function = (ObjFunction*)object;
@@ -143,6 +156,19 @@ namespace vm {
 
                 switch (object->type)
                 {
+                case OBJ_CLASS:
+                {
+                    ObjClass* cls = (ObjClass*)object;
+                    markObject((Obj*)cls->name);
+                    break;
+                }
+                case OBJ_INSTANCE:
+                {
+                    ObjInstance* instance = (ObjInstance*)object;
+                    markObject((Obj*)instance->cls);
+                    markTable(&instance->fields);
+                    break;
+                }
                 case OBJ_CLOSURE:
                 {
                     ObjClosure* closure = (ObjClosure*)object;

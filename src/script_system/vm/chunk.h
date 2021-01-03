@@ -17,6 +17,8 @@ namespace vm {
 		OP_GET_GLOBAL,
 		OP_GET_UPVALUE,
 		OP_SET_UPVALUE,
+		OP_SET_PROPERTY,
+		OP_GET_PROPERTY,
 		OP_DEFINE_GLOBAL,
 		OP_GREATER,
 		OP_LESS,
@@ -34,6 +36,7 @@ namespace vm {
 		OP_CALL, 
 		OP_CLOSURE,
 		OP_CLOSE_UPVALUE,
+		OP_CLASS,
   		OP_RETURN,		       
 	} OpCode;   
 

@@ -94,6 +94,8 @@ namespace vm {
     	case OP_GET_GLOBAL:		return constantInstruction("OP_GET_GLOBAL", chunk, offset);
 		case OP_GET_UPVALUE:	return byteInstruction("OP_GET_UPVALUE", chunk, offset);
 		case OP_SET_UPVALUE:	return byteInstruction("OP_SET_UPVALUE", chunk, offset);
+		case OP_SET_PROPERTY:	return constantInstruction("OP_SET_PROPERTY", chunk, offset);
+		case OP_GET_PROPERTY:	return constantInstruction("OP_GET_PROPERTY", chunk, offset);
     	case OP_DEFINE_GLOBAL:	return constantInstruction("OP_DEFINE_GLOBAL", chunk, offset);
 		case OP_NOT:			return simpleInstruction("OP_NOT", offset);
 		case OP_EQUAL:			return simpleInstruction("OP_EQUAL", offset);  
@@ -105,6 +107,7 @@ namespace vm {
 		case OP_LOOP:			return jumpInstruction("OP_LOOP", -1, chunk, offset);
 		case OP_CALL:			return byteInstruction("OP_CALL", chunk, offset);
 		case OP_CLOSE_UPVALUE:	return simpleInstruction("OP_CLOSE_UPVALUE", offset);
+		case OP_CLASS:			return constantInstruction("OP_CLASS", chunk, offset);
 		case OP_CLOSURE:
 		{
 			offset++;

@@ -53,6 +53,21 @@ namespace script_system {
 			return closure;
 		}
 
+		ObjClass* newClass(ObjString* name)
+		{
+			ObjClass* cls = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
+			cls->name = name;
+			return cls;
+		}
+
+		ObjInstance* newInstance(ObjClass* cls)
+		{
+			ObjInstance* instance = ALLOCATE_OBJ(ObjInstance, OBJ_INSTANCE);
+			instance->cls = cls;
+			initTable(&instance->fields);
+			return instance;
+		}
+
 		ObjUpvalue* newUpvalue(Value* slot)
 		{
 			ObjUpvalue* upvalue = ALLOCATE_OBJ(ObjUpvalue, OBJ_UPVALUE);
@@ -132,6 +147,16 @@ namespace script_system {
 		{
 			switch (OBJ_TYPE(value))
 			{
+			case OBJ_CLASS:
+			{
+				printf("%s", AS_CLASS(value)->name->chars);
+				break;
+			}
+			case OBJ_INSTANCE:
+			{
+				printf("%s instance", AS_INSTANCE(value)->cls->name->chars);
+				break;
+			}
 			case OBJ_FUNCTION:
 			{
 				printFunction(AS_FUNCTION(value));
