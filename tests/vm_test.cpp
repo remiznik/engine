@@ -40,7 +40,7 @@ public:
         script_system::vm::freeVM();
     }
 };
-
+//
 TEST(vm, two_plus_three) 
 {
     TestVM vm;
@@ -417,6 +417,36 @@ TEST(vm, closure_closeove)
     auto reslut = script_system::vm::interpret(source);
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
+
+
+TEST(vm, gc_test_one)
+{
+    TestVM vm;
+
+    const char* source =
+        "var a = \"first value\";"
+        "a = \"update\";"
+        "print a;";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(vm, gc_test_two)
+{
+    TestVM vm;
+
+    const char* source =
+        "var global = \"string\";"
+        "{"
+        "  var local = \"another\";"
+        "  print global + local;"
+        "}";
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
 
 
 // TODO : Fix switch statement

@@ -30,6 +30,7 @@ namespace vm {
 	struct sObj
 	{
 		ObjType type;
+		bool isMarked;
 		struct  sObj* next;
 	};
 

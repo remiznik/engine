@@ -7,7 +7,6 @@ namespace vm {
 
     typedef struct sObj Obj;
     typedef struct sObjString ObjString;
-//    typedef double Value;
 
     typedef enum {            
   		VAL_BOOL,               

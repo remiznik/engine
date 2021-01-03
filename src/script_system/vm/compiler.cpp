@@ -9,6 +9,8 @@
 
 #include "vm/object.h"
 
+#include "vm/memory.h"
+
 #include "core/types.h"
 
 #include <stdio.h>
@@ -1029,5 +1031,15 @@ ObjFunction* compile(const char* source)
     //  if (token.type == TOKEN_EOF) break;      
     return parser.hadError ? nullptr : function;
   }
+
+    void markCompilerRoots()
+    {
+        Compiler* compiler = current;
+        while (compiler != nullptr)
+        {
+            memory::markObject((Obj*)compiler->function);
+            compiler = compiler->enclosing;
+        }
+    }
 }
 }

@@ -16,9 +16,13 @@ namespace script_system {
 		{
 			Obj* object = (Obj*)script_system::vm::memory::reallocate(nullptr, 0, size);
 			object->type = type;
+			object->isMarked = false;
 
 			object->next = vm.objects;
 			vm.objects = object;
+#ifdef DEBUG_LOG_GC
+			printf("%p allocate %zd for %d\n", (void*)object, size, type);
+#endif
 
 			return object;
 		}
@@ -82,7 +86,9 @@ namespace script_system {
 			string->chars = chars;
 			string->hash = hash;
 			
+			push(OBJ_VAL(string));
 			tableSet(&vm.strings, string, NIL_VAL);
+			pop();
 
 			return string;
 		}

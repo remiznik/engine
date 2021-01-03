@@ -1,6 +1,7 @@
 #pragma once
 #include <stddef.h>
 
+#include "vm/value.h"
 
 #define ALLOCATE(type, count) \
     (type*)script_system::vm::memory::reallocate(nullptr, 0, sizeof(type) * (count))
@@ -24,7 +25,12 @@ namespace vm {
 namespace memory {
 
     void* reallocate(void* previous, size_t oldSize, size_t newSize);    
+    void markObject(Obj* object);
+    void markValue(Value value);
+    void collectGarbage();
     void freeObjects();
+
+ 
 
 }
 }

@@ -157,5 +157,28 @@ namespace vm {
 		return nullptr;
 	}
 
+	void markTable(Table* table)
+	{
+		for (int i = 0; i < table->capacity; i++)
+		{
+			Entry* entry = &table->entries[i];
+			memory::markObject((Obj*)entry->key);
+			memory::markValue(entry->value);
+		}
+	}
+
+	void tableRemoveWhite(Table* table)
+	{
+		for (int i = 0; i < table->capacity; ++i)
+		{
+			Entry* entry = &table->entries[i];
+			if (entry->key != nullptr && !entry->key->obj.isMarked)
+			{
+				tableDelete(table, entry->key);
+			}
+		}
+	}
+
+
 }
 }

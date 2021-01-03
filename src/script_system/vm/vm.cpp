@@ -182,8 +182,8 @@ void closeUpvalues(Value* last)
 
 void concatenate()
 {
-    ObjString* b = AS_STRING(pop());
-    ObjString* a = AS_STRING(pop());
+    ObjString* b = AS_STRING(peek(0));
+    ObjString* a = AS_STRING(peek(1));
     
     int length = a->length + b->length;
     char* chars = ALLOCATE(char, length + 1);
@@ -192,6 +192,8 @@ void concatenate()
     chars[length] = '\0';
 
     ObjString* result = takeString(chars, length);
+    pop();
+    pop();
     push(OBJ_VAL(result));
 }
 
@@ -199,6 +201,13 @@ void initVM()
 {
     resetStack();
     vm.objects = nullptr;
+    vm.grayCount = 0;
+    vm.grayCapacity = 0;
+    vm.grayStack = nullptr;
+
+    vm.bytesAllocated = 0;
+    vm.nextGC = 1024 * 1024;
+
     initTable(&vm.globals); 
     initTable(&vm.strings);
 
