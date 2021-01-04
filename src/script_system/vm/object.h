@@ -15,6 +15,7 @@ namespace vm {
 #define IS_STRING(value) isObjType(value, OBJ_STRING)
 #define IS_CLASS(value) isObjType(value, OBJ_CLASS)
 #define IS_INSTANCE(value) isObjType(value, OBJ_INSTANCE)
+#define IS_BOUND_METHOD(value) isObjType(value, OBJ_BOUND_METHOD)
 
 #define AS_FUNCTION(value) ((ObjFunction*)AS_OBJ(value))
 #define AS_CLOSURE(value) ((ObjClosure*) AS_OBJ(value))
@@ -23,9 +24,11 @@ namespace vm {
 #define AS_CSTRING(value) (((ObjString*)AS_OBJ(value))->chars)
 #define AS_CLASS(value) ((ObjClass*)AS_OBJ(value))
 #define AS_INSTANCE(value) ((ObjInstance*)AS_OBJ(value))
+#define AS_BOUND_METHOD(value) ((ObjBoundMethod*)AS_OBJ(value))
 
 	typedef enum {
 		OBJ_CLASS,
+		OBJ_BOUND_METHOD,
 		OBJ_INSTANCE,
 		OBJ_FUNCTION,
 		OBJ_CLOSURE,
@@ -69,8 +72,16 @@ namespace vm {
 	typedef struct {
 		Obj obj;
 		ObjString* name;
+		Table methods;
 	} ObjClass;
 	ObjClass* newClass(ObjString* name);
+
+	typedef struct {
+		Obj obj;
+		Value receiver;
+		ObjClosure* method;
+	} ObjBoundMethod;
+	ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method);
 
 	typedef struct {
 		Obj obj;
@@ -94,8 +105,6 @@ namespace vm {
 		char* chars;
 		uint32_t hash;
 	};
-
-	
 
 	static inline bool isObjType(Value value, ObjType type)
 	{

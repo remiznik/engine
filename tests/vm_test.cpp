@@ -487,7 +487,23 @@ TEST(vm, class_instance_fields)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, class_method)
+{
+    TestVM vm;
 
+    const char* source =
+        "class Scone{"
+        "   topping(first, second) {"
+        "       print \"second with \" + first + \" and \" + second;"
+        "   }"
+        "}"
+        "var scone = Scone();"
+        "scone.topping(\"berries\", \"cream\");"
+        ;
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
 
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)

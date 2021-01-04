@@ -120,6 +120,11 @@ bool callValue(Value callee, int argCount)
             vm.stackTop[-argCount - 1] = OBJ_VAL(newInstance(cls));
             return true;
         }
+        case OBJ_BOUND_METHOD:
+        {
+            ObjBoundMethod* bound = AS_BOUND_METHOD(callee);
+            return call(bound->method, argCount);
+        }
         case OBJ_CLOSURE:
         {
             return call(AS_CLOSURE(callee), argCount);
@@ -138,6 +143,21 @@ bool callValue(Value callee, int argCount)
     }
     runtimeError("Can only call function and classes.");
     return false;
+}
+
+bool bindMethod(ObjClass* cls, ObjString* name)
+{
+    Value method;
+    if (!tableGet(&cls->methods, name, &method))
+    {
+        runtimeError("Undefined property '%s'.", name->chars);
+        return false;
+    }
+
+    ObjBoundMethod* bound = newBoundMethod(peek(0), AS_CLOSURE(method));
+    pop();
+    push(OBJ_VAL(bound));
+    return true;
 }
 
 bool isFalsey(Value value) 
@@ -184,6 +204,14 @@ void closeUpvalues(Value* last)
         upvalue->location = &upvalue->closed;
         vm.openUpvalues = upvalue->next;
     }
+}
+
+void defineMethod(ObjString* name)
+{
+    Value method = peek(0);
+    ObjClass* cls = AS_CLASS(peek(1));
+    tableSet(&cls->methods, name, method);
+    pop();
 }
 
 void concatenate()
@@ -335,9 +363,12 @@ static InterpretResult run() {
                 push(value);
                 break;
             }
-           
-            runtimeError("undefined property '%s' .", name->chars);
-            return INTERPRET_RUNTIME_ERROR;
+
+            if (!bindMethod(instance->cls, name))
+            {
+                return INTERPRET_RUNTIME_ERROR;
+            }
+            break;
         }
         case OP_SET_PROPERTY:
         {
@@ -467,6 +498,12 @@ static InterpretResult run() {
         case OP_CLASS:
         {
             push(OBJ_VAL(newClass(READ_STRING())));
+            break;
+        }
+        
+        case OP_METHOD:
+        {
+            defineMethod(READ_STRING());
             break;
         }
 

@@ -57,7 +57,16 @@ namespace script_system {
 		{
 			ObjClass* cls = ALLOCATE_OBJ(ObjClass, OBJ_CLASS);
 			cls->name = name;
+			initTable(&cls->methods);
 			return cls;
+		}
+
+		ObjBoundMethod* newBoundMethod(Value receiver, ObjClosure* method)
+		{
+			ObjBoundMethod* bound = ALLOCATE_OBJ(ObjBoundMethod, OBJ_BOUND_METHOD);
+			bound->receiver = receiver;
+			bound->method = method;
+			return bound;
 		}
 
 		ObjInstance* newInstance(ObjClass* cls)
@@ -150,6 +159,11 @@ namespace script_system {
 			case OBJ_CLASS:
 			{
 				printf("%s", AS_CLASS(value)->name->chars);
+				break;
+			}
+			case OBJ_BOUND_METHOD:
+			{
+				printFunction(AS_BOUND_METHOD(value)->method->function);
 				break;
 			}
 			case OBJ_INSTANCE:
