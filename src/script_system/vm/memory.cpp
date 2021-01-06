@@ -173,6 +173,7 @@ namespace vm {
                 case OBJ_BOUND_METHOD:
                 {
                     ObjBoundMethod* bound = (ObjBoundMethod*)object;
+
                     markValue(bound->receiver);
                     markObject((Obj*)bound->method);
                     break;
@@ -270,6 +271,7 @@ namespace vm {
 
                 markTable(&vm.globals);
                 markCompilerRoots();
+                markObject((Obj*)vm.initString);
             }
         }
 

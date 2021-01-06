@@ -35,6 +35,16 @@ namespace vm {
 			return offset + 3;
 		}
 
+		int invokeInstruction(const char* name, Chunk* chunk, int offset)
+		{
+			uint8_t constant = chunk->code[offset + 1];
+			uint8_t argCount = chunk->code[offset + 2];
+			printf("%-16s (%d args) %4d '", name, argCount, constant);
+			printValue(chunk->constants.values[constant]);
+			printf("'\n");
+			return offset + 3;
+		}
+
 		int byteInstruction(const char* name, Chunk* chunk, int offset)
 		{
 			uint8_t slot = chunk->code[offset + 1];
@@ -109,6 +119,7 @@ namespace vm {
 		case OP_CLOSE_UPVALUE:	return simpleInstruction("OP_CLOSE_UPVALUE", offset);
 		case OP_CLASS:			return constantInstruction("OP_CLASS", chunk, offset);
 		case OP_METHOD:			return constantInstruction("OP_METHOD", chunk, offset);
+		case OP_INVOKE:			return invokeInstruction("OP_INVOKE", chunk, offset);
 		case OP_CLOSURE:
 		{
 			offset++;

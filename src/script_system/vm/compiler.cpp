@@ -21,6 +21,8 @@ namespace vm {
 
     typedef enum {
         TYPE_FUNCTION,
+        TYPE_METHOD,
+        TYPE_INITIALIZER,
         TYPE_SCRIPT
     } FunctionType;
 
@@ -28,6 +30,7 @@ namespace {
 
   void grouping(bool);
   void dot(bool);
+  void this_(bool);
   void unary(bool);
   void binary(bool);
   void number(bool);
@@ -55,6 +58,7 @@ namespace {
   void funDeclaration();
   void function(FunctionType);
   void markInitialized();
+  uint8_t argumentList();
 
   uint8_t parseVariable(const char* message);
   uint8_t identifierConstant(Token* name);
@@ -117,7 +121,14 @@ namespace {
       int scopeDepth;
   };
 
+  struct ClassCompiler
+  {
+      struct ClassCompiler* enclosing;
+      Token name;
+  };
+
   Compiler* current = nullptr;
+  ClassCompiler* currentClass = nullptr;
 
   void initCompiler(Compiler* compiler, FunctionType type)
   {
@@ -138,8 +149,16 @@ namespace {
     Local* local = &current->locals[current->localCount++];
     local->depth = 0;
     local->isCaptured = false;
-    local->name.start = "";
-    local->name.length = 0;
+    if (type != TYPE_FUNCTION)
+    {
+        local->name.start = "this";
+        local->name.length = 4;
+    }
+    else
+    {
+        local->name.start = "";
+        local->name.length = 0;
+    }
   }
 
 
@@ -179,7 +198,7 @@ namespace {
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_PRINT           
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RETURN          
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SUPER           
-    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_THIS            
+    { this_,     nullptr,    PREC_NONE },       // TOKEN_THIS            
     { literal,  nullptr,    PREC_NONE },       // TOKEN_TRUE            
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_VAR             
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_WHILE           
@@ -295,7 +314,15 @@ namespace {
 
   void emitReturn()
   {
-    emitByte(OP_NIL);
+    if (current->type == TYPE_INITIALIZER)
+    {
+        emitBytes(OP_GET_LOCAL, 0);
+    }
+    else
+    {
+        emitByte(OP_NIL);
+    }
+    
     emitByte(OP_RETURN);
   }
 
@@ -374,7 +401,11 @@ namespace {
   {
       consume(TOKEN_IDENTIFIER, "Expect method name.");
       uint8_t constant = identifierConstant(&parser.previous);
-      FunctionType type = TYPE_FUNCTION;
+      FunctionType type = TYPE_METHOD;
+      if (parser.previous.length == 4 && memcmp(parser.previous.start, "init", 4) == 0)
+      {
+          type = TYPE_INITIALIZER;
+      }
       function(type);
       emitBytes(OP_METHOD, constant);
   }
@@ -385,6 +416,11 @@ namespace {
       Token className = parser.previous;
       uint8_t nameConstant = identifierConstant(&parser.previous);
       declareVariable();
+
+      ClassCompiler classCompiler;
+      classCompiler.name = parser.previous;
+      classCompiler.enclosing = currentClass;
+      currentClass = &classCompiler;
 
       emitBytes(OP_CLASS, nameConstant);
       defineVariable(nameConstant);
@@ -397,6 +433,8 @@ namespace {
       }
       consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
       emitByte(OP_POP);
+
+      currentClass = currentClass->enclosing;
   }
 
   void declaration()
@@ -629,6 +667,10 @@ namespace {
       }
       else
       {
+          if (current->type == TYPE_INITIALIZER)
+          {
+              error("Can`t return a value from an initializer.");
+          }
           expression();
           consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
           emitByte(OP_RETURN);
@@ -931,6 +973,16 @@ namespace {
       }
   }
 
+  void this_(bool canAssign)
+  {
+      if (currentClass == nullptr)
+      {
+          error("Can't use 'this' outside class.");
+          return;
+      }
+      variable(false);
+  }
+
   void literal(bool)
   {
     switch (parser.previous.type) {
@@ -951,6 +1003,12 @@ namespace {
       {
           expression();
           emitBytes(OP_SET_PROPERTY, name);
+      }
+      else if (match(TOKEN_LEFT_PAREN))
+      {
+          uint8_t argCount = argumentList();
+          emitBytes(OP_INVOKE, name);
+          emitByte(argCount);
       }
       else
       {

@@ -505,6 +505,50 @@ TEST(vm, class_method)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, class_init_method)
+{
+    TestVM vm;
+
+    const char* source =
+        "class CoffeMaker{"
+        "   init(coffee) {"
+        "    this.coffee = coffee;"
+        "   }"
+        "   brew() {"
+        "     print \"Enjoy your cup of \" + this.coffee;"
+        "     this.coffee = nil;"
+        "   }"
+        "}"
+        "var maker = CoffeMaker(\"coffe adn chicory\");"
+        "maker.brew();"
+        ;
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+TEST(vm, class_invoking_fields)
+{
+    TestVM vm;
+
+    const char* source =
+        "class Oops{"
+        "   init() {"
+        "       fun f() {"
+        "           print \"not a method\";"  
+        "       }"
+        "       this.field = f;"
+        "   }"        
+        "}"
+        "var oops = Oops();"
+        "oops.field();"
+        ;
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
+
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)
 //{
