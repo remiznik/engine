@@ -31,6 +31,7 @@ namespace {
   void grouping(bool);
   void dot(bool);
   void this_(bool);
+  void super_(bool);
   void unary(bool);
   void binary(bool);
   void number(bool);
@@ -125,6 +126,7 @@ namespace {
   {
       struct ClassCompiler* enclosing;
       Token name;
+      bool hasSuperclass;
   };
 
   Compiler* current = nullptr;
@@ -197,7 +199,7 @@ namespace {
     { nullptr,     or_,    PREC_OR},       // TOKEN_OR              
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_PRINT           
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_RETURN          
-    { nullptr,     nullptr,    PREC_NONE },       // TOKEN_SUPER           
+    { super_,     nullptr,    PREC_NONE },       // TOKEN_SUPER           
     { this_,     nullptr,    PREC_NONE },       // TOKEN_THIS            
     { literal,  nullptr,    PREC_NONE },       // TOKEN_TRUE            
     { nullptr,     nullptr,    PREC_NONE },       // TOKEN_VAR             
@@ -410,6 +412,14 @@ namespace {
       emitBytes(OP_METHOD, constant);
   }
 
+  Token syntheticToken(const char* text)
+  {
+      Token token;
+      token.start = text;
+      token.length = (int)strlen(text);
+      return token;
+  }
+
   void classDeclaration()
   {
       consume(TOKEN_IDENTIFIER, "Expect class name.");
@@ -417,13 +427,34 @@ namespace {
       uint8_t nameConstant = identifierConstant(&parser.previous);
       declareVariable();
 
-      ClassCompiler classCompiler;
-      classCompiler.name = parser.previous;
-      classCompiler.enclosing = currentClass;
-      currentClass = &classCompiler;
 
       emitBytes(OP_CLASS, nameConstant);
       defineVariable(nameConstant);
+
+      ClassCompiler classCompiler;
+      classCompiler.name = parser.previous;
+      classCompiler.enclosing = currentClass;
+      classCompiler.hasSuperclass = false;
+      currentClass = &classCompiler;
+
+      if (match(TOKEN_LESS))
+      {
+          consume(TOKEN_IDENTIFIER, "Expect supperclass name.");
+          variable(false);
+          if (identifiersEqual(&className, &parser.previous))
+          {
+              error("A class can`t inherit form itself.");
+          }
+
+          beginScope();
+          addLocal(syntheticToken("super"));
+          defineVariable(0);
+
+          namedVariable(className, false);
+          emitByte(OP_INHERIT);
+          classCompiler.hasSuperclass = true;
+      }
+
 
       namedVariable(className, false);
       consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
@@ -433,6 +464,11 @@ namespace {
       }
       consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
       emitByte(OP_POP);
+
+      if (classCompiler.hasSuperclass)
+      {
+          endScope();
+      }
 
       currentClass = currentClass->enclosing;
   }
@@ -981,6 +1017,34 @@ namespace {
           return;
       }
       variable(false);
+  }
+
+  void super_(bool canAssign)
+  {
+      if (currentClass == nullptr)
+      {
+          error("Can`t use 'super' outside of a class.");
+      } 
+      else if (!currentClass->hasSuperclass)
+      {
+          error("Can`t use 'super' in a class whit no superclass.");
+      }
+      consume(TOKEN_DOT, "Expect '.' after 'super'.");
+      consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
+      uint8_t name = identifierConstant(&parser.previous);
+      namedVariable(syntheticToken("this"), false);
+      if (match(TOKEN_LEFT_PAREN))
+      {
+          uint8_t argCount = argumentList();
+          namedVariable(syntheticToken("super"), false);
+          emitBytes(OP_SUPER_INVOKE, name);
+          emitByte(argCount);
+      } 
+      else
+      {
+          namedVariable(syntheticToken("super"), false);
+          emitBytes(OP_GET_SUPER, name);
+      }
   }
 
   void literal(bool)

@@ -19,6 +19,7 @@ namespace vm {
 		OP_SET_UPVALUE,
 		OP_SET_PROPERTY,
 		OP_GET_PROPERTY,
+		OP_GET_SUPER,
 		OP_DEFINE_GLOBAL,
 		OP_GREATER,
 		OP_LESS,
@@ -37,8 +38,10 @@ namespace vm {
 		OP_CLOSURE,
 		OP_CLOSE_UPVALUE,
 		OP_CLASS,
+		OP_INHERIT,
 		OP_METHOD,
 		OP_INVOKE,
+		OP_SUPER_INVOKE,
   		OP_RETURN,		       
 	} OpCode;   
 

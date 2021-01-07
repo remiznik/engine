@@ -548,6 +548,33 @@ TEST(vm, class_invoking_fields)
     EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
 }
 
+TEST(vm, class_supperclass)
+{
+    TestVM vm;
+
+    const char* source =
+        "class Doughnut {"
+        "   cook() {"
+        "       print \"Dunk in the fryer.\";"
+        "       this.finish(\"sprinles\");"
+        "   }"
+        "   finish(ingredient) {"
+        "       print \"Finish with \" + ingredient;"
+        "   }"
+        "}"
+        "class Cruller < Doughnut {"
+        "   finish(ingredient) {"
+        "       super.finish(\"icnig\");"
+        "   }"
+        "}"
+        "var cruller = Cruller();"
+        "cruller.cook();"
+        ;
+
+    auto reslut = script_system::vm::interpret(source);
+    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+}
+
 
 // TODO : Fix switch statement
 //TEST(vm, switch_statment)
