@@ -11,6 +11,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LIB_NAME "lib")
 endif()
 
+
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 add_subdirectory ("src/core")
@@ -39,6 +40,4 @@ add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 target_link_libraries(${PROJECT_NAME} optimized core script_system graphics )
 target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
-
-
 

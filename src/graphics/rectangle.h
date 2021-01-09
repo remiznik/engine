@@ -1,6 +1,7 @@
 #pragma once
 #include "shape.h"
 
+
 namespace engine
 {
 	class Rectangle : public Shape
