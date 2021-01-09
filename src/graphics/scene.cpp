@@ -1,7 +1,6 @@
 #include "scene.h"
 #include "shape.h"
 
-
 namespace engine
 {
 

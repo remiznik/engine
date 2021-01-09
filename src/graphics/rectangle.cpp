@@ -1,14 +1,10 @@
 #include "rectangle.h"
 
-
 namespace engine
 {
-
 	Rectangle::Rectangle()
 	{
-
 	}
-
 	void Rectangle::setPosition(float x, float y)
 	{
 	}
@@ -17,8 +13,7 @@ namespace engine
 	{
 	}
 
-	void Rectangle::draw(sf::RenderWindow& target)
+	void Rectangle::draw()
 	{
-
 	}
 }

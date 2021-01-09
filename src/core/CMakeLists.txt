@@ -1,18 +1,11 @@
 set(CORE_SRC 
     types.h
     types.cpp
-    value.h
-    value.cpp
     logger.h
     logger.cpp
-    any_value.h
-    value_impl.h
-    value_impl.cpp
     assert.h
     file_reader.h
     file_reader.cpp
-    object.h
-    object.cpp
     callabel.h
 )
 add_library( core ${CORE_SRC} )

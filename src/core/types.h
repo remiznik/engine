@@ -5,6 +5,8 @@
 #include <memory>
 #include <stack>
 #include <set>
+#include <cstdio>
+#include <cstring>
 
 using string = std::string;
 
@@ -30,6 +32,7 @@ shared_ptr<T> makeShared(_Types&&... _Args)
     static const _Alloc alloc;
     return std::allocate_shared<T, _Alloc>(alloc, std::forward<_Types>(_Args)...);
 }
+
 
 
 template<class T>

@@ -2,6 +2,10 @@ set(TESTS_SRC
     main.cpp
     value_test.cpp
     script_test.cpp
+    vm_test.cpp
+    vm_utils.cpp
+    vm_scanner.cpp
+    vm_interpret.cpp
 )
 
 

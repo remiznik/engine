@@ -1,44 +1,28 @@
-#include "script.h"
+#include "script_system/script.h"
 
-#include "core/value.h"
-#include "core/callabel.h"
+#include "vm/vm.h"
 
-#include "ast.h"
-#include "ast_printer.h"
-#include "parser.h"
-#include "resolver.h"
+#include "core/file_reader.h"
 
-#include <iostream>
+namespace script_system {
 
-namespace script_system
-{
-	using namespace parser;
-
+	void Script::init()
+	{
+		vm::initVM();
+	}
 	
-
-	Script::Script()
-		: scanner_(logger_), interpreter_(logger_)
-	{	
+	void Script::fini()
+	{
+		vm::freeVM();
 	}
 
-	void Script::run(const string& fileName)
+	bool Script::run(const char* path)
 	{
-		auto s = reader_.read(fileName);
-		execute(s);			
-	}
+		core::FileReader reader;
+		auto text = reader.read(path);
 
-	void Script::execute(const string& script)
-	{
-		auto tokens = scanner_.scan(script);		
-		Parser parser(logger_, tokens);
-		auto t = parser.parse();		
-		Resolver res(&interpreter_, logger_);
-		res.resolve(t);
-		interpreter_.interpret(t);
-	}
+		auto result = vm::interpret(text.c_str());
 
-	void Script::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
-	{
-		interpreter_.registreFunction(name, fnc);
+		return result == vm::INTERPRET_OK;
 	}
 }
