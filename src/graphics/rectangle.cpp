@@ -2,7 +2,6 @@
 
 namespace engine
 {
-
 	Rectangle::Rectangle()
 	{
 	}
