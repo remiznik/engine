@@ -1,11 +1,9 @@
 set(TESTS_SRC 
-    main.cpp
-    value_test.cpp
-    script_test.cpp
-    vm_test.cpp
-    vm_utils.cpp
-    vm_scanner.cpp
-    vm_interpret.cpp
+    main.cpp        
+    script_system/vm_utils.cpp
+    script_system/vm_scanner.cpp
+    script_system/vm_interpret.cpp
+    script_system/vm_benchmark.cpp
 )
 
 
