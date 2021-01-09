@@ -23,6 +23,8 @@ set(SCRIPT_SYSTEM_SRC
 	vm/object.cpp
     vm/table.h
     vm/table.cpp
+    script.h
+    script.cpp
 )
 add_library( script_system ${SCRIPT_SYSTEM_SRC} )
 

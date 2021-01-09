@@ -24,9 +24,7 @@ add_subdirectory ("tests")
 
 # setup project
 set ( MAIN_SRCS
-	src/main.cpp    
-	src/fps_lock.h
-	src/fps_lock.cpp    
+	src/main.cpp	
 )
 source_group( "main" FILES ${MAIN_SRCS} )
 
