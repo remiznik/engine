@@ -19,6 +19,7 @@ add_subdirectory ("src/script_system")
 
 
 #tests 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 add_subdirectory("third_party/googletest")
 add_subdirectory ("tests")
 
