@@ -1,7 +1,6 @@
 #pragma once
 #include "shape.h"
 
-#include <SFML/Graphics/RectangleShape.hpp>
 
 namespace engine
 {
@@ -13,7 +12,5 @@ namespace engine
 		virtual void draw(sf::RenderWindow& target) override;
 		virtual void setPosition(float x, float y) override;
 		virtual void setSize(int w, int h) override;
-	private:
-		sf::RectangleShape shape_;		
 	};
 }
