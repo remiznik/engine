@@ -66,6 +66,9 @@ namespace vm {
             }
             case OBJ_NATIVE:
             {
+                ObjNative* native = (ObjNative*)object;
+                //TODO : fix 
+                delete native->function;
                 FREE(ObjNative, object);
                 break;
             }

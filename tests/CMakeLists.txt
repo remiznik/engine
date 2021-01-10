@@ -1,5 +1,6 @@
 set(TESTS_SRC 
     main.cpp        
+    script_system/script_tests.cpp
     script_system/vm_utils.cpp
     script_system/vm_scanner.cpp
     script_system/vm_interpret.cpp

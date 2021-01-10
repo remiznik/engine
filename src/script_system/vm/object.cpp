@@ -89,7 +89,7 @@ namespace script_system {
 		ObjNative* newNative(NativeFn function)
 		{
 			ObjNative* native = ALLOCATE_OBJ(ObjNative, OBJ_NATIVE);
-			native->function = function;
+			native->function = new  NativeFn(function);
 			return native;
 		}
 

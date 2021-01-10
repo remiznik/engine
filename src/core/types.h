@@ -34,7 +34,6 @@ shared_ptr<T> makeShared(_Types&&... _Args)
 }
 
 
-
 template<class T>
 class ScopeGuard
 {

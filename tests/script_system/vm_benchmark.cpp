@@ -1,27 +1,32 @@
 
 #include "gtest/gtest.h"
 
-#include "script_system/vm/vm.h"
+#include "script_system/script.h"
+#include "script_system/native_function.h"
 
 namespace {
-    class TestVM
+    class TestScript
     {
     public:
-        TestVM()
+        TestScript()
         {
-            script_system::vm::initVM();
+            script.init();
+            script.registreFunction("clock", makeShared<script_system::ClockFunction>());
         }
-        ~TestVM()
+        ~TestScript()
         {
-            script_system::vm::freeVM();
+            script.fini();
         }
-    };
 
+        script_system::Script script;
+
+    };
 }
 
-TEST(vm, class_benchmark_time)
+
+TEST(vm_benchmark, class_time)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Zoo{"
@@ -55,13 +60,13 @@ TEST(vm, class_benchmark_time)
         "print sum;"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
-TEST(vm, class_benchmark_count)
+TEST(vm_benchmark, class_count)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Zoo{"
@@ -96,7 +101,35 @@ TEST(vm, class_benchmark_count)
         "print count;"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
+}
+
+TEST(vm_benchmark, native_clock_function)
+{
+    TestScript vm;
+    const char* source =
+        "var t = clock();"
+        "print t;";
+
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
+}
+
+TEST(vm_benchmark, count_time_calculate_fibonachi_35)
+{
+    TestScript vm;
+    const char* source =
+        "var start = clock();"
+        "fun fib(a)"
+        "{"
+        "   if ( a < 2 ) return a;"
+        "   return fib(a -1) + fib(a -2);"
+        "}"
+        "fib(35);"
+        "print clock() - start;";
+
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
     

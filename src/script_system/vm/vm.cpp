@@ -12,16 +12,13 @@
 #include <stdarg.h>
 #include <cstring>
 
-#include <time.h>
+#include <functional>
+
 
 namespace script_system {
 namespace vm {
 VM vm;
 
-Value clockNative(int argCount, Value* args)
-{
-    return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
 
 namespace {
 
@@ -32,13 +29,13 @@ namespace {
         vm.openUpvalues = nullptr;
     }
 
-    void runtimeError(const char* format, ...) 
+    void runtimeError(const char* format, ...)
     {
-        va_list args;                                    
-        va_start(args, format);                          
-        vfprintf(stderr, format, args);                  
-        va_end(args);                                    
-        fputs("\n", stderr);                             
+        va_list args;
+        va_start(args, format);
+        vfprintf(stderr, format, args);
+        va_end(args);
+        fputs("\n", stderr);
 
         for (int i = vm.frameCount - 1; i >= 0; i--)
         {
@@ -56,9 +53,9 @@ namespace {
                 fprintf(stderr, "%s()\n", function->name->chars);
             }
         }
-        resetStack();                                    
-    }          
-
+        resetStack();
+    }
+}
     void defineNative(const char* name, NativeFn function)
     {
         push(OBJ_VAL(copyString(name, (int)strlen(name))));
@@ -67,7 +64,7 @@ namespace {
         pop();
         pop();
     }
-}
+
 
 void push(Value value)
 {
@@ -143,8 +140,8 @@ bool callValue(Value callee, int argCount)
         }
         case OBJ_NATIVE:
         {
-            NativeFn native = AS_NATIVE(callee);
-            Value result = native(argCount, vm.stackTop - argCount);
+            NativeFn* native = AS_NATIVE(callee);
+            Value result = (*native)(argCount, vm.stackTop - argCount);
             vm.stackTop -= argCount + 1;
             push(result);
             return true;
@@ -272,7 +269,7 @@ void concatenate()
     push(OBJ_VAL(result));
 }
 
-void initVM() 
+void initVM()
 {
     resetStack();
     vm.objects = nullptr;
@@ -283,13 +280,15 @@ void initVM()
     vm.bytesAllocated = 0;
     vm.nextGC = 1024 * 1024;
 
-    initTable(&vm.globals); 
+    initTable(&vm.globals);
     initTable(&vm.strings);
 
     vm.initString = nullptr;
     vm.initString = copyString("init", 4);
 
-    defineNative("clock", clockNative);
+    
+    
+    //defineNative("clock", std::bind(&A::clockNative, &t, std::placeholders::_1, std::placeholders::_2));
 }
 
 void freeVM()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "vm/common.h"
 #include "vm/value.h"
 #include "vm/chunk.h"
@@ -90,11 +92,13 @@ namespace vm {
 	} ObjInstance;
 	ObjInstance* newInstance(ObjClass* cls);
 
-
-	typedef Value(*NativeFn)(int argCount, Value* args);
+	
+		
+	//typedef Value(*NativeFn)(int argCount, Value* args);
+	using NativeFn = std::function < Value(int, Value*)>;
 	typedef struct {
 		Obj obj;
-		NativeFn function;
+		NativeFn* function;
 	} ObjNative;
 	ObjNative* newNative(NativeFn function);
 

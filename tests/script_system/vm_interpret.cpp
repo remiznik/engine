@@ -1,91 +1,95 @@
 
 #include "gtest/gtest.h"
-#include "script_system/vm/vm.h"
+#include "script_system/script.h"
+#include "script_system/native_function.h"
 
 namespace {
-    class TestVM
+    class TestScript
     {
     public:
-        TestVM()
+        TestScript()
         {
-            script_system::vm::initVM();
+            script.init();
         }
-        ~TestVM()
+        ~TestScript()
         {
-            script_system::vm::freeVM();
+            script.fini();
         }
+        
+        script_system::Script script;
+
     };
 }
 
 TEST(vm, two_plus_three)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("1 + 2;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("1 + 2;");    
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, simple_check)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("(-1 + 2) * 3 - -4;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("(-1 + 2) * 3 - -4;");
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, type_of_values)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("!(5 - 4 > 3 * 2 == !nil);");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("!(5 - 4 > 3 * 2 == !nil);");
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, value_string)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("\"str\";");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("\"str\";");
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, string_concatenate)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("\"one\" + \"tow\" + \"three\";");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("\"one\" + \"tow\" + \"three\";");
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, create_var)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("var a;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("var a;");
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, create_var_and_initialize)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("var a = 1+2;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("var a = 1+2;");
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, create_var_and_initialize_print)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("var a = 1+2;\n print a;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("var a = 1+2;\n print a;");
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, create_var_and_assigment)
 {
-    TestVM vm;
-    auto reslut = script_system::vm::interpret("var a = 1+2;\n a = 25;");
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    TestScript vm;
+    auto reslut = vm.script.run("var a = 1+2;\n a = 25;");
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, local_var)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -96,13 +100,13 @@ TEST(vm, local_var)
         "   print a;"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, if_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -112,13 +116,13 @@ TEST(vm, if_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, if_else_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var a = 1+2;"
@@ -132,13 +136,13 @@ TEST(vm, if_else_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, and_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   print true and true;" // true        
@@ -147,13 +151,13 @@ TEST(vm, and_statement)
         "   print false and true;" // false
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, or_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   print true or true;" // true        
@@ -162,13 +166,13 @@ TEST(vm, or_statement)
         "   print false or true;" // true
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, while_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var i = 0;"
@@ -179,13 +183,13 @@ TEST(vm, while_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, for_full_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   for(var i =0; i < 10; i = i + 1)"
@@ -194,13 +198,13 @@ TEST(vm, for_full_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, for_without_increment_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   for(var i =0; i < 10;)"
@@ -210,13 +214,13 @@ TEST(vm, for_without_increment_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, for_without_declaretion_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var i = 0;"
@@ -226,14 +230,14 @@ TEST(vm, for_without_declaretion_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, for_without_increment_and_declaration_statement)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "{"
         "   var i = 0;"
@@ -244,13 +248,13 @@ TEST(vm, for_without_increment_and_declaration_statement)
         "   }"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, simple_sum_function)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "fun sum()"
         "{"
@@ -258,12 +262,12 @@ TEST(vm, simple_sum_function)
         "}"
         "print sum();";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 TEST(vm, function_with_args)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "fun sum(a, b)"
         "{"
@@ -271,13 +275,13 @@ TEST(vm, function_with_args)
         "}"
         "sum(1, 3);";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, function_fibonachi_ten)
 {
-    TestVM vm;
+    TestScript vm;
     const char* source =
         "fun fib(a)"
         "{"
@@ -286,42 +290,14 @@ TEST(vm, function_fibonachi_ten)
         "}"
         "print fib(10);";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
-
-TEST(vm, native_clock_function)
-{
-    TestVM vm;
-    const char* source =
-        "var t = clock();"
-        "print t;";
-
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
-}
-
-TEST(vm, count_time_calculate_fibonachi_35)
-{
-    TestVM vm;
-    const char* source =
-        "var start = clock();"
-        "fun fib(a)"
-        "{"
-        "   if ( a < 2 ) return a;"
-        "   return fib(a -1) + fib(a -2);"
-        "}"
-        "fib(35);"
-        "print clock() - start;";
-
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
-}
 
 TEST(vm, closure)
 {
-    TestVM vm;
+    TestScript vm;
     //const char* source =
     //    "var x = \"global\";"
     //    "fun outer()"
@@ -348,13 +324,13 @@ TEST(vm, closure)
         "doughunt();"
         "bagle();";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, closure_outside)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "fun outer(){"
@@ -366,13 +342,13 @@ TEST(vm, closure_outside)
         "}"
         "outer();";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, closure_closeove)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "var globalSet;"
@@ -390,27 +366,27 @@ TEST(vm, closure_closeove)
         "globalGet();"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, gc_test_one)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "var a = \"first value\";"
         "a = \"update\";"
         "print a;";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, gc_test_two)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "var global = \"string\";"
@@ -419,38 +395,38 @@ TEST(vm, gc_test_two)
         "  print global + local;"
         "}";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_define)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Brioche{}"
         "print Brioche;";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_instance)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Brioche{}"
         "print Brioche();";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 
 TEST(vm, class_instance_fields)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Pair{}"
@@ -459,13 +435,13 @@ TEST(vm, class_instance_fields)
         "pair.second = 2;"
         "print pair.first + pair.second;";
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_method)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Scone{"
@@ -477,13 +453,13 @@ TEST(vm, class_method)
         "scone.topping(\"berries\", \"cream\");"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_init_method)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class CoffeMaker{"
@@ -499,13 +475,13 @@ TEST(vm, class_init_method)
         "maker.brew();"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_invoking_fields)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Oops{"
@@ -520,13 +496,13 @@ TEST(vm, class_invoking_fields)
         "oops.field();"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 TEST(vm, class_supperclass)
 {
-    TestVM vm;
+    TestScript vm;
 
     const char* source =
         "class Doughnut {"
@@ -547,8 +523,8 @@ TEST(vm, class_supperclass)
         "cruller.cook();"
         ;
 
-    auto reslut = script_system::vm::interpret(source);
-    EXPECT_EQ(reslut, script_system::vm::INTERPRET_OK);
+    auto reslut = vm.script.run(source);
+    EXPECT_TRUE(reslut);
 }
 
 // TODO : Fix switch statement
@@ -574,6 +550,6 @@ TEST(vm, class_supperclass)
 //        "   }"
 //        "}";
 //
-//    auto result = script_system::vm::interpret(source);
+//    auto result = vm.script.run(source);
 //    EXPECT_EQ(result, script_system::vm::INTERPRET_OK);
 //}

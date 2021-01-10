@@ -49,10 +49,13 @@ extern VM vm;
 void initVM();
 void freeVM();
 
+
+
 void push(Value value);
 Value pop();
 
 InterpretResult interpret(const char* chunk);
+void defineNative(const char* name, NativeFn function);
 	
 }
 }

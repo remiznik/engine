@@ -23,6 +23,8 @@ set(SCRIPT_SYSTEM_SRC
 	vm/object.cpp
     vm/table.h
     vm/table.cpp
+    native_function.cpp
+    native_function.h
     script.h
     script.cpp
 )
