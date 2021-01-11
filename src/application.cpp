@@ -2,6 +2,8 @@
 #include <WindowsX.h>
 #include <DirectXMath.h>
 
+
+#include "script_system/native_function.h"
 #include "core/m_assert.h"
 
 #include <thread>
@@ -17,29 +19,91 @@ namespace app {
 			return Application::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 		}
 
-		//class UpdateCamera : public core::Callable
-		//{
-		//public:
-		//	UpdateCamera(render::RenderD12& render)
-		//		: render_(render)
-		//	{}
-		//
-		//	virtual core::Value call(const vector<core::Value>& args) override
-		//	{
-		//		ASSERT(args.size() == 3, "Wrong count of args.");
-		//
-		//		render_.updateCamera(args[0].get<double>(), args[1].get<double>(), args[2].get<double>());
-		//		return core::Value();
-		//	}
-		//
-		//	virtual string toString() const
-		//	{
-		//		return "UpdateCamera";
-		//	}
-		//
-		//private:
-		//	render::RenderD12& render_;
-		//};
+		constexpr const double& clamp(const double& v, const double& lo, const double& hi)
+		{
+			return (v < lo) ? lo : (hi < v) ? hi : v;
+		}
+
+		class Clamp : public script_system::NativeFunction
+		{
+		public:
+			
+			virtual script_system::vm::Value call(int count, script_system::vm::Value* args) override
+			{
+				using namespace script_system::vm;
+				return NUMBER_VAL(clamp(AS_NUMBER(args[0]), AS_NUMBER(args[1]), AS_NUMBER(args[2])));
+			}
+
+		};
+
+		class UpdateCamera : public script_system::NativeFunction
+		{
+			public:
+			UpdateCamera(render::RenderD12& render)
+				: render_(render)
+			{}
+		
+			virtual script_system::vm::Value call(int count, script_system::vm::Value* args) override
+			{
+				render_.updateCamera(float(AS_NUMBER(args[0])), float(AS_NUMBER(args[1])), float(AS_NUMBER(args[2])));
+				return script_system::vm::Value();
+			}
+
+		private:
+			render::RenderD12& render_;
+		};
+
+		class GetState : public script_system::NativeFunction
+		{
+		public:
+			GetState(Application& app)
+				: app_(app)
+			{}
+
+			virtual script_system::vm::Value call(int count, script_system::vm::Value* args) override
+			{
+				using namespace script_system::vm;
+				return NUMBER_VAL(double(app_.getState()));
+			}
+
+
+		private:
+			Application& app_;
+		};
+
+		class GetX : public script_system::NativeFunction
+		{
+		public:
+			GetX(Application& app)
+				: app_(app)
+			{}
+
+			virtual script_system::vm::Value call(int count, script_system::vm::Value* args) override
+			{
+				using namespace script_system::vm;
+				return NUMBER_VAL(double(app_.getX()));
+			}
+			
+		private:
+			Application& app_;
+		};
+
+		class GetY : public script_system::NativeFunction
+		{
+		public:
+			GetY(Application& app)
+				: app_(app)
+			{}
+
+			virtual script_system::vm::Value call(int count, script_system::vm::Value* args) override
+			{
+				using namespace script_system::vm;
+				return NUMBER_VAL(double(app_.getY()));
+			}
+
+		private:
+			Application& app_;
+		};
 
 	}
 
@@ -71,11 +135,19 @@ namespace app {
 
 		if (!scene_.initialize())
 			return false;
-
-		//script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
-
+		
 		if (!script_.init())
 			return false;
+
+
+		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
+		script_.registreFunction("getState", makeShared<GetState>(*this));
+		script_.registreFunction("getX", makeShared<GetX>(*this));
+		script_.registreFunction("getY", makeShared<GetY>(*this));
+		script_.registreFunction("clamp", makeShared<Clamp>());
+
+		auto source = fileSystem_.readFile("../res/scripts/test.scr");
+		script_.run(source.c_str());
 
 		return true;
 	}
@@ -278,7 +350,7 @@ namespace app {
 
 	void Application::update()
 	{
-		//script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
+		auto result = script_.call("enterFrame");
 		btnState_ = 0;		
 	}
 

@@ -15,6 +15,10 @@ namespace app {
 		bool initialize();
 		void run();
 
+		int getState() const { return btnState_; }
+		int getX() const { return lastMousePos_.x;  }
+		int getY() const { return lastMousePos_.y; }
+
 		static Application* Application::GetApp();
 
 		virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

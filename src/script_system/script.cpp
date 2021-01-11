@@ -33,4 +33,9 @@ namespace script_system {
 
 		return result.second;
 	}
+
+	bool Script::call(const char* name)
+	{
+		return vm::call(name);
+	}
 }

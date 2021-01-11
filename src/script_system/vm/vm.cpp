@@ -642,5 +642,25 @@ InterpretResult interpret(const char* source)
     return run();
 }   
 
+bool call(const char* name)
+{
+    Value value;
+    ObjString* sringName = copyString(name, strlen(name));
+    if (!tableGet(&vm.globals, sringName, &value))
+    {
+        return false;
+    }
+
+    ObjFunction* function = AS_CLOSURE(value)->function;
+
+    push(OBJ_VAL(function));
+    ObjClosure* closure = newClosure(function);
+    pop();
+    push(OBJ_VAL(closure));
+    callValue(OBJ_VAL(closure), 0);
+
+    return run() == INTERPRET_OK;
+}
+
 }
 }

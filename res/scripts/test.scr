@@ -35,11 +35,14 @@ var theta = 1.5 * PI;
 var phi = 0.2 * PI;
 var radius = 15;
 
-updateCamera(radius, phi, theta);
+//updateCamera(radius, phi, theta);
 
 // call from engine 
-fun update(s, x, y)
+fun enterFrame()
 {
+  var s = getState();
+  var x = getX();
+  var y = getY();
   if (s == 1.0)
   {
     leftButton(x, y); 
@@ -51,5 +54,6 @@ fun update(s, x, y)
   
   lastX = x;
   lastY = y;
-}
 
+  print s;  
+}

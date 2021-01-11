@@ -13,6 +13,8 @@ namespace script_system {
 
 		bool run(const char* path);
 
+		bool call(const char* name);
+
 		bool registreFunction(const char* name, const shared_ptr<NativeFunction>& function);
 
 	private:
