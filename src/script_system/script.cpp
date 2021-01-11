@@ -3,15 +3,14 @@
 #include "vm/vm.h"
 #include "script_system/native_function.h"
 
-#include "core/file_reader.h"
-
 #include <functional>
 
 namespace script_system {
 
-	void Script::init()
+	bool Script::init()
 	{
 		vm::initVM();
+		return true;
 	}
 	
 	void Script::fini()
@@ -34,17 +33,4 @@ namespace script_system {
 
 		return result.second;
 	}
-
-	void Script::update(int st, int x, int y)
-	{
-		interpreter_.update(st, x, y);
-	}
-
-	void Script::registreFunction(const string& name, const shared_ptr<class core::Callable>& fnc)
-	{
-		interpreter_.registreFunction(name, fnc);
-	}
-
-
-
 }

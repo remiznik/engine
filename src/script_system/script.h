@@ -8,7 +8,7 @@ namespace script_system {
 	class Script
 	{
 	public:
-		void init();
+		bool init();
 		void fini();
 
 		bool run(const char* path);

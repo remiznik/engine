@@ -285,10 +285,6 @@ void initVM()
 
     vm.initString = nullptr;
     vm.initString = copyString("init", 4);
-
-    
-    
-    //defineNative("clock", std::bind(&A::clockNative, &t, std::placeholders::_1, std::placeholders::_2));
 }
 
 void freeVM()

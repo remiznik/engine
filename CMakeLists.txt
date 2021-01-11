@@ -28,7 +28,6 @@ add_subdirectory ("tests")
 # setup project
 set ( MAIN_SRCS
 	src/main.cpp    
-	src/fps_lock.cpp    
 	src/application.h
 	src/application.cpp
 )
@@ -39,5 +38,5 @@ add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
 target_link_libraries(${PROJECT_NAME} optimized core script_system graphics )
-target_link_libraries(${PROJECT_NAME} debug core script_system graphics)
+target_link_libraries(${PROJECT_NAME} debug core script_system graphics render)
 

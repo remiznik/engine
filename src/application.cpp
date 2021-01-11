@@ -2,7 +2,6 @@
 #include <WindowsX.h>
 #include <DirectXMath.h>
 
-#include "core/callabel.h"
 #include "core/m_assert.h"
 
 #include <thread>
@@ -18,29 +17,29 @@ namespace app {
 			return Application::GetApp()->MsgProc(hwnd, msg, wParam, lParam);
 		}
 
-		class UpdateCamera : public core::Callable
-		{
-		public:
-			UpdateCamera(render::RenderD12& render)
-				: render_(render)
-			{}
-
-			virtual core::Value call(const vector<core::Value>& args) override
-			{
-				ASSERT(args.size() == 3, "Wrong count of args.");
-
-				render_.updateCamera(args[0].get<double>(), args[1].get<double>(), args[2].get<double>());
-				return core::Value();
-			}
-
-			virtual string toString() const
-			{
-				return "UpdateCamera";
-			}
-
-		private:
-			render::RenderD12& render_;
-		};
+		//class UpdateCamera : public core::Callable
+		//{
+		//public:
+		//	UpdateCamera(render::RenderD12& render)
+		//		: render_(render)
+		//	{}
+		//
+		//	virtual core::Value call(const vector<core::Value>& args) override
+		//	{
+		//		ASSERT(args.size() == 3, "Wrong count of args.");
+		//
+		//		render_.updateCamera(args[0].get<double>(), args[1].get<double>(), args[2].get<double>());
+		//		return core::Value();
+		//	}
+		//
+		//	virtual string toString() const
+		//	{
+		//		return "UpdateCamera";
+		//	}
+		//
+		//private:
+		//	render::RenderD12& render_;
+		//};
 
 	}
 
@@ -51,7 +50,7 @@ namespace app {
 	}
 
 	Application::Application() 
-		: script_(fileSystem_), scene_(render_), resourceManager_(fileSystem_)
+		: scene_(render_), resourceManager_(fileSystem_)
 
 	{
 		assert(app_ == nullptr);
@@ -73,9 +72,9 @@ namespace app {
 		if (!scene_.initialize())
 			return false;
 
-		script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
+		//script_.registreFunction("updateCamera", makeShared<UpdateCamera>(render_));
 
-		if (!script_.initialize())
+		if (!script_.init())
 			return false;
 
 		return true;
@@ -279,7 +278,7 @@ namespace app {
 
 	void Application::update()
 	{
-		script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
+		//script_.update(btnState_, lastMousePos_.x, lastMousePos_.y);
 		btnState_ = 0;		
 	}
 
