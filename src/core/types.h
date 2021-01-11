@@ -5,6 +5,7 @@
 #include <memory>
 #include <stack>
 #include <set>
+#include <unordered_map>
 #include <cstdio>
 #include <cstring>
 #include <unordered_map>
