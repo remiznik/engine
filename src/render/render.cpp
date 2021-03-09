@@ -689,10 +689,10 @@ namespace render
 		}
 	} 
 
-	int RenderD12::createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices)
+	int RenderD12::createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices, const math::Vector3& position)
 	{
 		auto item = std::make_unique<RenderItem>();
-		DirectX::XMMATRIX rightCylWorld = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f) * DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+		DirectX::XMMATRIX rightCylWorld = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f) * DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 		DirectX::XMStoreFloat4x4(&item->World, rightCylWorld);
 
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
@@ -717,7 +717,7 @@ namespace render
 
 		item->ObjCBIndex = objCBIndex_++;		
 		item->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-		item->IndexCount = indices.size();
+		item->IndexCount = static_cast<uint16_t>(indices.size());
 		item->StartIndexLocation = 0;
 		item->BaseVertexLocation = 0;
 		item->canDraw = true;
@@ -725,6 +725,8 @@ namespace render
 		CreateConstantBuffer(item.get());
 
 		renderItems_.push_back(std::move(item));
+
+		return 0;
 	}
 	
 }

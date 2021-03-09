@@ -39,7 +39,7 @@ namespace render
 		int NumFramesDirty = gNumFrameResources;
 
 		// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
-		UINT ObjCBIndex = -1;
+		uint16_t ObjCBIndex = -1;
 
 		std::array<std::unique_ptr<UploadBuffer<ObjectConstants>>, 3> ObjectCB;
 
@@ -49,8 +49,8 @@ namespace render
 		D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 		// DrawIndexedInstanced parameters.
-		UINT IndexCount = 0;
-		UINT StartIndexLocation = 0;
+		uint16_t IndexCount = 0;
+		uint16_t StartIndexLocation = 0;
 		int BaseVertexLocation = 0;
 		bool canDraw{ false };
 	};
@@ -71,7 +71,7 @@ namespace render
 		void resize();
 		void updateCamera(float radius, float phi, float theta);
 		
-		int createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices);
+		int createRenderItem(const vector<math::Vertex>& vertices, const vector<uint16_t>& indices, const math::Vector3& pos);
 
 	private:
 		void FlushCommandQueue();

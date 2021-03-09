@@ -22,7 +22,7 @@ namespace render {
 		if (!isCreated_)
 		{	
 			isCreated_ = true;
-			render_.createRenderItem(shape_->model().vertices(), shape_->model().indices());
+			render_.createRenderItem(shape_->model().vertices(), shape_->model().indices(), shape_->position());
 		}		
 	}
 }

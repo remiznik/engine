@@ -121,8 +121,8 @@ namespace app {
 		app_ = this;
 
 		//auto model = resourceManager_.getModel("skull.txt");
-		auto model = resourceManager_.getObjModel("cube.obj");
-		scene_.createShape("cube.obj", model);
+		auto model = resourceManager_.getObjModel("cube.mdl");
+		scene_.createShape("cube.mdl", model);
 	}
 
 	bool Application::initialize()
