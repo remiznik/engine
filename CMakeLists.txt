@@ -37,6 +37,6 @@ source_group( "main" FILES ${MAIN_SRCS} )
 add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 
 
-target_link_libraries(${PROJECT_NAME} optimized core script_system graphics )
-target_link_libraries(${PROJECT_NAME} debug core script_system graphics render)
+target_link_libraries(${PROJECT_NAME} optimized core script_system )
+target_link_libraries(${PROJECT_NAME} debug core script_system render)
 

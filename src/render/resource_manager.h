@@ -12,9 +12,10 @@ namespace render {
 		ResourceManager(core::FileSystem& fileSystem);
 
 		Model getModel(const string& name);
+		Model getObjModel(const string& name);
 
 	private:
-		Model loadModel(const string& name);
+		Model loadModel(const string& name);		
 
 	private:
 		const core::FileSystem& fileSystem_;

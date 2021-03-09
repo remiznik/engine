@@ -15,10 +15,14 @@ set(RENDER_SRC
 	render.cpp
 	scene.h
 	scene.cpp
+	shape.h
+	shape.cpp
 	model.h
 	model.cpp
 	resource_manager.h
 	resource_manager.cpp
+	utils.h
+	utils.cpp
 )
 add_library( render ${RENDER_SRC} )
 

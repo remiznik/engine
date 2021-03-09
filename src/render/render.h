@@ -11,7 +11,7 @@
 #include "d3d12Utils/FrameResource.h"
 
 #include "core/types.h"
-#include "core/m_math.h"
+#include "utils.h"
 
 // Link necessary d3d12 libraries.
 #pragma comment(lib,"d3dcompiler.lib")
@@ -41,7 +41,9 @@ namespace render
 		// Index into GPU constant buffer corresponding to the ObjectCB for this render item.
 		UINT ObjCBIndex = -1;
 
-		MeshGeometry* Geo = nullptr;
+		std::array<std::unique_ptr<UploadBuffer<ObjectConstants>>, 3> ObjectCB;
+
+		std::unique_ptr<MeshGeometry> Geo{ nullptr };
 
 		// Primitive topology.
 		D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -50,6 +52,7 @@ namespace render
 		UINT IndexCount = 0;
 		UINT StartIndexLocation = 0;
 		int BaseVertexLocation = 0;
+		bool canDraw{ false };
 	};
 
 
@@ -68,9 +71,7 @@ namespace render
 		void resize();
 		void updateCamera(float radius, float phi, float theta);
 		
-
-		void setOpaque(const vector<RenderItem*>& opaqueRitems);
-		std::unique_ptr<MeshGeometry> createGeometry(const char* name, const vector<core::math::Vertex>& vertices, const vector<std::uint16_t>& indices);
+		int createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices);
 
 	private:
 		void FlushCommandQueue();
@@ -78,12 +79,11 @@ namespace render
 		void CreateCommandObjects();
 		void CreateSwapChain();
 		void CreateRtvAndDsvDescriptorHeaps();
+		void CreateConstantBuffer(RenderItem* item);
 
 
 		void BuildRootSignature();
 		void BuildShadersAndInputLayout();
-		void BuildShapeGeometry();
-		void BuildRenderItems();
 		void BuildFrameResources();
 		void BuildDescriptorHeaps();
 		void BuildConstantBufferViews();
@@ -92,7 +92,7 @@ namespace render
 		void UpdateObjectCBs();
 		void UpdateMainPassCB();
 
-		void DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const vector<RenderItem*>& ritems);
+		void DrawRenderItems(ID3D12GraphicsCommandList* cmdList);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView()const;
 		ID3D12Resource* CurrentBackBuffer() const;
@@ -111,6 +111,8 @@ namespace render
 		Microsoft::WRL::ComPtr<ID3D12Device> d3dDevice_;
 
 		Microsoft::WRL::ComPtr<ID3D12Fence> fence_;
+
+		std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
 
 		D3D12_VIEWPORT screenViewport_;
 		D3D12_RECT scissorRect_;
@@ -165,8 +167,10 @@ namespace render
 		int currFrameResourceIndex_ = 0;
 		
 		// Render items divided by PSO.
-		const int maxOpaqueItems_ = 2;
-		vector<RenderItem*> opaqueRitems_;
+		const int maxOpaqueItems_ = 2;		
+		vector<std::unique_ptr<RenderItem>> renderItems_;
+
+		UINT objCBIndex_ = 0;
 
 		PassConstants mainPassCB_;
 	};

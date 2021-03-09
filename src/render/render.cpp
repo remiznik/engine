@@ -86,14 +86,17 @@ namespace render
 
 		BuildRootSignature();
 		BuildShadersAndInputLayout();
-		BuildShapeGeometry();
-		BuildRenderItems();
+
 		BuildFrameResources();
+		
 		BuildDescriptorHeaps();
+		
 		BuildConstantBufferViews();
+		
 		BuildPSOs();
 
-		
+		//BuildShapeGeometry();
+
 		ThrowIfFailed(commandList_->Close());
 		ID3D12CommandList* cmdsLists[] = { commandList_.Get() };
 		commandQueue_->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
@@ -339,8 +342,7 @@ namespace render
 	}
 
 	void RenderD12::draw()
-	{
-		
+	{	
 
 		commandList_->RSSetViewports(1, &screenViewport_);
 		commandList_->RSSetScissorRects(1, &scissorRect_);
@@ -365,8 +367,8 @@ namespace render
 		auto passCbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
 		passCbvHandle.Offset(passCbvIndex, cbvSrvUavDescriptorSize_);
 		commandList_->SetGraphicsRootDescriptorTable(1, passCbvHandle);
-
-		DrawRenderItems(commandList_.Get(), opaqueRitems_);
+		
+		DrawRenderItems(commandList_.Get());
 
 		// Indicate a state transition on the resource usage.
 		commandList_->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -455,22 +457,11 @@ namespace render
 			IID_PPV_ARGS(rootSignature_.GetAddressOf())));
 	}
 
-	void RenderD12::BuildShapeGeometry()
-	{
-		
-	}
-
-	void RenderD12::BuildRenderItems()
-	{
-	
-	}
-
 	void RenderD12::BuildFrameResources()
 	{		
 		for (int i = 0; i < gNumFrameResources; ++i)
 		{
-			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),
-				1, (UINT)maxOpaqueItems_));
+			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),	1, (UINT)maxOpaqueItems_));
 		}
 	}
 
@@ -494,6 +485,29 @@ namespace render
 			IID_PPV_ARGS(&cbvHeap_)));
 	}
 
+	void RenderD12::CreateConstantBuffer(RenderItem* item)
+	{
+		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+
+		for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+		{
+			item->ObjectCB[frameIndex].reset(new UploadBuffer<ObjectConstants>(d3dDevice_.Get(), 1, true));
+			auto objectCB = item->ObjectCB[frameIndex]->Resource();
+			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+					
+			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+			handle.Offset(0, cbvSrvUavDescriptorSize_);
+		
+			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+			cbvDesc.BufferLocation = cbAddress;
+			cbvDesc.SizeInBytes = objCBByteSize;
+		
+			d3dDevice_->CreateConstantBufferView(&cbvDesc, handle);
+		}
+	}
+
+
 	void RenderD12::BuildConstantBufferViews()
 	{
 		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
@@ -501,28 +515,28 @@ namespace render
 		UINT objCount = (UINT)maxOpaqueItems_;
 
 		// Need a CBV descriptor for each object for each frame resource.
-		for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
-		{
-			auto objectCB = frameResources_[frameIndex]->ObjectCB->Resource();
-			for (UINT i = 0; i < objCount; ++i)
-			{
-				D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
-
-				// Offset to the ith object constant buffer in the buffer.
-				cbAddress += i * objCBByteSize;
-
-				// Offset to the object cbv in the descriptor heap.
-				int heapIndex = frameIndex * objCount + i;
-				auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
-				handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
-
-				D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-				cbvDesc.BufferLocation = cbAddress;
-				cbvDesc.SizeInBytes = objCBByteSize;
-
-				d3dDevice_->CreateConstantBufferView(&cbvDesc, handle);
-			}
-		}
+		//for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
+		//{
+		//	auto objectCB = frameResources_[frameIndex]->ObjectCB->Resource();
+		//	for (UINT i = 0; i < objCount; ++i)
+		//	{
+		//		D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+		//
+		//		// Offset to the ith object constant buffer in the buffer.
+		//		cbAddress += i * objCBByteSize;
+		//
+		//		// Offset to the object cbv in the descriptor heap.
+		//		int heapIndex = frameIndex * objCount + i;
+		//		auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
+		//		handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
+		//
+		//		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+		//		cbvDesc.BufferLocation = cbAddress;
+		//		cbvDesc.SizeInBytes = objCBByteSize;
+		//
+		//		d3dDevice_->CreateConstantBufferView(&cbvDesc, handle);
+		//	}
+		//}
 
 		UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
 
@@ -548,7 +562,6 @@ namespace render
 	void RenderD12::BuildPSOs()
 	{
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC opaquePsoDesc;
-
 		//
 		// PSO for opaque objects.
 		//
@@ -579,12 +592,8 @@ namespace render
 		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&opaquePsoDesc, IID_PPV_ARGS(&PSOs_["opaque"])));
 
 
-		//
-		// PSO for opaque wireframe objects.
-		//
-
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC opaqueWireframePsoDesc = opaquePsoDesc;
-		opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		opaqueWireframePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 		ThrowIfFailed(d3dDevice_->CreateGraphicsPipelineState(&opaqueWireframePsoDesc, IID_PPV_ARGS(&PSOs_["opaque_wireframe"])));
 	}
 
@@ -606,20 +615,21 @@ namespace render
 
 	void RenderD12::UpdateObjectCBs()
 	{
-		auto currObjectCB = currFrameResource_->ObjectCB.get();
-		for (auto& e : opaqueRitems_)
+		//currFrameResourceIndex_
+		//auto currObjectCB = currFrameResource_->ObjectCB.get();
+		for (auto& e : renderItems_)
 		{
 			// Only update the cbuffer data if the constants have changed.  
 			// This needs to be tracked per frame resource.
 			if (e->NumFramesDirty > 0)
 			{
 				XMMATRIX world = XMLoadFloat4x4(&e->World);
-
+		
 				ObjectConstants objConstants;
 				XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
-
-				currObjectCB->CopyData(e->ObjCBIndex, objConstants);
-
+		
+				e->ObjectCB[currFrameResourceIndex_]->CopyData(e->ObjCBIndex, objConstants);
+		
 				// Next FrameResource need to be updated too.
 				e->NumFramesDirty--;
 			}
@@ -647,72 +657,75 @@ namespace render
 		mainPassCB_.InvRenderTargetSize = XMFLOAT2(1.0f / clientWidth_, 1.0f / clientHeight_);
 		mainPassCB_.NearZ = 1.0f;
 		mainPassCB_.FarZ = 1000.0f;
-		//mainPassCB_.TotalTime = gt.TotalTime();
-		//mainPassCB_.DeltaTime = gt.DeltaTime();
+		mainPassCB_.TotalTime =0 ;
+		mainPassCB_.DeltaTime = 0;
 
 		auto currPassCB = currFrameResource_->PassCB.get();
 		currPassCB->CopyData(0, mainPassCB_);
 	}
 
-	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList, const vector<RenderItem*>& ritems)
+	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList)
 	{
 		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-		auto objectCB = currFrameResource_->ObjectCB->Resource();
-
-		// For each render item...
-		for (size_t i = 0; i < ritems.size(); ++i)
+		for (size_t i = 0; i < renderItems_.size(); ++i)
 		{
-			auto ri = ritems[i];
+			auto& ri = renderItems_[i];
+			if (ri->canDraw)
+			{
+				cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
+				cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
+				cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-			cmdList->IASetVertexBuffers(0, 1, &ri->Geo->VertexBufferView());
-			cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
-			cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
+				// Offset to the CBV in the descriptor heap for this object and for this frame resource.
+				UINT cbvIndex = currFrameResourceIndex_ * (UINT)renderItems_.size() + ri->ObjCBIndex;
+				auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
+				//	cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
 
-			// Offset to the CBV in the descriptor heap for this object and for this frame resource.
-			UINT cbvIndex = currFrameResourceIndex_ * (UINT)opaqueRitems_.size() + ri->ObjCBIndex;
-			auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-			cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
+				cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
-			cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
-
-			cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+				cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
+			}
 		}
 	} 
 
-	std::unique_ptr<MeshGeometry>  RenderD12::createGeometry(const char* name,  const vector<core::math::Vertex>& vertices, const vector<std::uint16_t>& indices)
+	int RenderD12::createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices)
 	{
+		auto item = std::make_unique<RenderItem>();
+		DirectX::XMMATRIX rightCylWorld = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f) * DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+		DirectX::XMStoreFloat4x4(&item->World, rightCylWorld);
+
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
 
+		item->Geo = std::make_unique<MeshGeometry>();
+		//geo->Name = name;
+		
+		ThrowIfFailed(D3DCreateBlob(vbByteSize, &item->Geo->VertexBufferCPU));
+		CopyMemory(item->Geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
 
-		auto geo = std::make_unique<MeshGeometry>();
-		geo->Name = name;
+		ThrowIfFailed(D3DCreateBlob(ibByteSize, &item->Geo->IndexBufferCPU));
+		CopyMemory(item->Geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
-		ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-		CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
+		item->Geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(), commandList_.Get(), vertices.data(), vbByteSize, item->Geo->VertexBufferUploader);
+		item->Geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(), commandList_.Get(), indices.data(), ibByteSize, item->Geo->IndexBufferUploader);
 
-		ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-		CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
+		item->Geo->VertexByteStride = sizeof(Vertex);
+		item->Geo->VertexBufferByteSize = vbByteSize;
+		item->Geo->IndexFormat = DXGI_FORMAT_R16_UINT;
+		item->Geo->IndexBufferByteSize = ibByteSize;
 
-		geo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
-			commandList_.Get(), vertices.data(), vbByteSize, geo->VertexBufferUploader);
+		item->ObjCBIndex = objCBIndex_++;		
+		item->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		item->IndexCount = indices.size();
+		item->StartIndexLocation = 0;
+		item->BaseVertexLocation = 0;
+		item->canDraw = true;
 
-		geo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(d3dDevice_.Get(),
-			commandList_.Get(), indices.data(), ibByteSize, geo->IndexBufferUploader);
+		CreateConstantBuffer(item.get());
 
-		geo->VertexByteStride = sizeof(Vertex);
-		geo->VertexBufferByteSize = vbByteSize;
-		geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-		geo->IndexBufferByteSize = ibByteSize;
-
-		return geo;
+		renderItems_.push_back(std::move(item));
 	}
-
-	void RenderD12::setOpaque(const vector<RenderItem*>& opaqueRitems)
-	{
-		opaqueRitems_ = opaqueRitems;
-	}
-
+	
 }
 

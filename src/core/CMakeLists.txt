@@ -4,9 +4,7 @@ set(CORE_SRC
     logger.h
     logger.cpp
     file_system.h
-    file_system.cpp    
-	m_math.h
-	m_math.cpp
+    file_system.cpp
 )
 add_library( core ${CORE_SRC} )
 

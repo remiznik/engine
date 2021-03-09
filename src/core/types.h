@@ -11,6 +11,7 @@
 #include <unordered_map>
 
 using string = std::string;
+using uint16_t = std::uint16_t;
 
 template<typename T, class _Alloc = std::allocator<T>>
 using vector = std::vector<T, _Alloc>;

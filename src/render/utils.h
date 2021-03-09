@@ -1,7 +1,6 @@
 #pragma once
 
-
-namespace core {
+namespace render {
 namespace math {
 
     struct Vector2
@@ -25,10 +24,10 @@ namespace math {
 
     struct Vector4
     {
-        float x;
-        float y;
-        float z;
-        float w;
+        float x{ 0 };
+        float y{ 0 };
+        float z{ 0 };
+        float w{ 0 };
 
         Vector4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w) {}
         Vector4() = default;

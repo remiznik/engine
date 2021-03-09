@@ -120,8 +120,9 @@ namespace app {
 		assert(app_ == nullptr);
 		app_ = this;
 
-		auto model = resourceManager_.getModel("skull.txt");
-		scene_.createShape("skull.txt", model);
+		//auto model = resourceManager_.getModel("skull.txt");
+		auto model = resourceManager_.getObjModel("cube.obj");
+		scene_.createShape("cube.obj", model);
 	}
 
 	bool Application::initialize()
@@ -356,8 +357,9 @@ namespace app {
 
 	void Application::draw()
 	{
-		render_.startDraw();
-		scene_.draw();
+		
+		render_.startDraw();		
+		scene_.draw();		
 		render_.draw();
 	}
 
@@ -377,8 +379,7 @@ namespace app {
 				update();
 				draw();
 			}			
-			std::this_thread::sleep_for(std::chrono::milliseconds(20));			
-			
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));	
 		}
 	}
 }
