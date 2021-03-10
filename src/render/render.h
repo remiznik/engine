@@ -139,13 +139,9 @@ namespace render
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> cbvHeap_{ nullptr };
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_{ nullptr };
 
-		std::unique_ptr<UploadBuffer<ObjectConstants>> ObjectCB_{ nullptr };
-
-		std::unique_ptr<MeshGeometry> BoxGeo_ = nullptr;
 		vector<D3D12_INPUT_ELEMENT_DESC> inputLayout_;
 		Microsoft::WRL::ComPtr<ID3DBlob> vsByteCode_ = nullptr;
 		Microsoft::WRL::ComPtr<ID3DBlob> psByteCode_ = nullptr;
-
 				
 		unordered_map<string, Microsoft::WRL::ComPtr<ID3DBlob>> shaders_;
 		unordered_map<string, Microsoft::WRL::ComPtr<ID3D12PipelineState>> PSOs_;
@@ -167,7 +163,7 @@ namespace render
 		int currFrameResourceIndex_ = 0;
 		
 		// Render items divided by PSO.
-		const int maxOpaqueItems_ = 2;		
+		const int maxOpaqueItems_ = 3;		
 		vector<std::unique_ptr<RenderItem>> renderItems_;
 
 		UINT objCBIndex_ = 0;

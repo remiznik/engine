@@ -461,7 +461,7 @@ namespace render
 	{		
 		for (int i = 0; i < gNumFrameResources; ++i)
 		{
-			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),	1, (UINT)maxOpaqueItems_));
+			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),	1));
 		}
 	}
 
@@ -489,15 +489,16 @@ namespace render
 	{
 		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-
 		for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
 		{
 			item->ObjectCB[frameIndex].reset(new UploadBuffer<ObjectConstants>(d3dDevice_.Get(), 1, true));
 			auto objectCB = item->ObjectCB[frameIndex]->Resource();
 			D3D12_GPU_VIRTUAL_ADDRESS cbAddress = objectCB->GetGPUVirtualAddress();
+			//cbAddress += frameIndex * objCBByteSize;
 					
+			int heapIndex = gNumFrameResources * item->ObjCBIndex + frameIndex;
 			auto handle = CD3DX12_CPU_DESCRIPTOR_HANDLE(cbvHeap_->GetCPUDescriptorHandleForHeapStart());
-			handle.Offset(0, cbvSrvUavDescriptorSize_);
+			handle.Offset(heapIndex, cbvSrvUavDescriptorSize_);
 		
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 			cbvDesc.BufferLocation = cbAddress;
@@ -510,9 +511,9 @@ namespace render
 
 	void RenderD12::BuildConstantBufferViews()
 	{
-		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+		//UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-		UINT objCount = (UINT)maxOpaqueItems_;
+		//UINT objCount = (UINT)maxOpaqueItems_;
 
 		// Need a CBV descriptor for each object for each frame resource.
 		//for (int frameIndex = 0; frameIndex < gNumFrameResources; ++frameIndex)
@@ -628,7 +629,7 @@ namespace render
 				ObjectConstants objConstants;
 				XMStoreFloat4x4(&objConstants.World, XMMatrixTranspose(world));
 		
-				e->ObjectCB[currFrameResourceIndex_]->CopyData(e->ObjCBIndex, objConstants);
+				e->ObjectCB[currFrameResourceIndex_]->CopyData(0, objConstants);
 		
 				// Next FrameResource need to be updated too.
 				e->NumFramesDirty--;
@@ -677,10 +678,10 @@ namespace render
 				cmdList->IASetIndexBuffer(&ri->Geo->IndexBufferView());
 				cmdList->IASetPrimitiveTopology(ri->PrimitiveType);
 
-				// Offset to the CBV in the descriptor heap for this object and for this frame resource.
-				UINT cbvIndex = currFrameResourceIndex_ * (UINT)renderItems_.size() + ri->ObjCBIndex;
+				// Offset to the CBV in the descriptor heap for this object and for this frame resource.				
+				UINT cbvIndex = gNumFrameResources * (ri->ObjCBIndex)  + currFrameResourceIndex_;
 				auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
-				//	cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
+				cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
 
 				cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
 
@@ -689,14 +690,14 @@ namespace render
 		}
 	} 
 
-	int RenderD12::createRenderItem(const vector<math::Vertex>& vertices, const vector<std::uint16_t>& indices, const math::Vector3& position)
+	int RenderD12::createRenderItem(const vector<math::Vertex>& vertices, const vector<uint16_t>& indices, const math::Vector3& position)
 	{
 		auto item = std::make_unique<RenderItem>();
 		DirectX::XMMATRIX rightCylWorld = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f) * DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 		DirectX::XMStoreFloat4x4(&item->World, rightCylWorld);
 
 		const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-		const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+		const UINT ibByteSize = (UINT)indices.size() * sizeof(uint16_t);
 
 		item->Geo = std::make_unique<MeshGeometry>();
 		//geo->Name = name;

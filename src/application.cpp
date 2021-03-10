@@ -115,14 +115,18 @@ namespace app {
 
 	Application::Application() 
 		: scene_(render_), resourceManager_(fileSystem_)
-
 	{
 		assert(app_ == nullptr);
 		app_ = this;
 
 		//auto model = resourceManager_.getModel("skull.txt");
 		auto model = resourceManager_.getObjModel("cube.mdl");
-		scene_.createShape("cube.mdl", model);
+		auto shape_one = scene_.createShape(model);
+		auto shape_two = scene_.createShape(model);
+		auto shape_three = scene_.createShape(model);
+		shape_one->position({ 2, 0, 0 });
+		shape_two->position({ 3, 1, 0 });
+		shape_three->position({ 4, 1, 0 });
 	}
 
 	bool Application::initialize()

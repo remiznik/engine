@@ -13,12 +13,12 @@ namespace render {
 		bool initialize();
 		void draw();
 
-		void createShape(const string& name, const Model& model);
+		shared_ptr<Shape> createShape(const Model& model);
 
 	private:
 		RenderD12& render_;		
 		bool isCreated_ = false;
-		std::unique_ptr<Shape> shape_{ nullptr };
-		string name_;
+
+		set < shared_ptr<Shape> > shapes_;
 	};
 }

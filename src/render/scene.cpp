@@ -6,12 +6,11 @@ namespace render {
 		: render_(render)
 	{}
 
-	void Scene::createShape(const string& name, const Model& model)
+	shared_ptr<Shape> Scene::createShape(const Model& model)
 	{
-		shape_ = std::make_unique<Shape>(model);
-		name_ = name;
+		auto res = shapes_.insert(std::make_unique<Shape>(model));
+		return *res.first;
 	}
-
 	bool Scene::initialize()
 	{	
 		return true;
@@ -21,8 +20,11 @@ namespace render {
 	{
 		if (!isCreated_)
 		{	
+			for (auto& shape : shapes_)
+			{
+				render_.createRenderItem(shape->model().vertices(), shape->model().indices(), shape->position());
+			}
 			isCreated_ = true;
-			render_.createRenderItem(shape_->model().vertices(), shape_->model().indices(), shape_->position());
 		}		
 	}
 }
