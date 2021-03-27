@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math.h>
+
 namespace render {
 namespace math {
 
@@ -20,6 +22,21 @@ namespace math {
 
         Vector3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
         Vector3() = default;
+
+        bool operator==(const Vector3& o) const
+        {
+            return x == o.x && y == o.y && z == o.z;
+        }
+
+        Vector3 operator-(const Vector3& othr) const
+        {
+            return Vector3(x - othr.x, y - othr.y, z - othr.z);
+        }
+
+        Vector3 operator+(const Vector3& o) const
+        {
+            return Vector3(x + o.x, y + o.y, z + o.z);
+        }
     };
 
     struct Vector4
@@ -36,8 +53,11 @@ namespace math {
     struct Vertex
     {
         Vector3 pos;
-        Vector4 color;
+        Vector3 normal;
     };
 
+    Vector3 cross(const Vector3& a, const Vector3& b);    
+    float length(const Vector3& a);    
+    Vector3 normalize(const Vector3& a);
 }
 }

@@ -66,7 +66,7 @@ namespace {
     }
 
 
-void push(Value value)
+void push(Value value) 
 {
     *vm.stackTop = value;
     vm.stackTop++;

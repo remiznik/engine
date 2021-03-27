@@ -43,6 +43,7 @@ namespace render
 
 		std::array<std::unique_ptr<UploadBuffer<ObjectConstants>>, 3> ObjectCB;
 
+		Material* Mat = nullptr;
 		std::unique_ptr<MeshGeometry> Geo{ nullptr };
 
 		// Primitive topology.
@@ -85,12 +86,14 @@ namespace render
 		void BuildRootSignature();
 		void BuildShadersAndInputLayout();
 		void BuildFrameResources();
+		void BuildMaterials();
 		void BuildDescriptorHeaps();
 		void BuildConstantBufferViews();
 		void BuildPSOs();
 
 		void UpdateObjectCBs();
 		void UpdateMainPassCB();
+		void UpdateMaterialCB();
 
 		void DrawRenderItems(ID3D12GraphicsCommandList* cmdList);
 
@@ -165,6 +168,7 @@ namespace render
 		// Render items divided by PSO.
 		const int maxOpaqueItems_ = 3;		
 		vector<std::unique_ptr<RenderItem>> renderItems_;
+		unordered_map<string, std::unique_ptr<Material>> mMaterials;
 
 		UINT objCBIndex_ = 0;
 

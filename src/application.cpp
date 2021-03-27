@@ -124,9 +124,9 @@ namespace app {
 		auto shape_one = scene_.createShape(model);
 		auto shape_two = scene_.createShape(model);
 		auto shape_three = scene_.createShape(model);
-		shape_one->position({ 2, 0, 0 });
-		shape_two->position({ 3, 1, 0 });
-		shape_three->position({ 4, 1, 0 });
+		shape_one->position({ 3, 3, 3 });
+		shape_two->position({ -3, 1, 0 });
+		shape_three->position({ 4, 1, -5 });
 	}
 
 	bool Application::initialize()

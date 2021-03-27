@@ -48,7 +48,7 @@ namespace render {
 
 			math::Vertex v;
 			v.pos = math::Vector3(vertex[0], vertex[1], vertex[2]);
-			v.color = math::Vector4(vertex[3], vertex[4], vertex[5], 0);
+			//v.color = math::Vector4(vertex[3], vertex[4], vertex[5], 0);
 			
 			vertices.push_back(v);			
 		}
@@ -88,8 +88,8 @@ namespace render {
 			float x, y, z;
 			stream >> x >> y >> z >> ss;
 			math::Vertex v;
-			v.pos = math::Vector3(x, y, z);
-			v.color = math::Vector4(1, 1, 1, 0);
+			v.pos = { x, y, z };
+			v.normal = { 1, 1, 1 };
 			vertices.push_back(v);
 		}
 
@@ -124,6 +124,32 @@ namespace render {
 			stream >> ss;
 		}	
 		
+		uint16_t numTriangles = indecses.size() / 3;
+		for (uint16_t i = 0; i < numTriangles; ++i)
+		{
+			auto i0 = indecses[i * 3 + 0];
+			auto i1 = indecses[i * 3 + 1];
+			auto i2 = indecses[i * 3 + 2];
+
+			math::Vertex v0 = vertices[i0];
+			math::Vertex v1 = vertices[i1];
+			math::Vertex v2 = vertices[i2];
+
+			math::Vector3 e0 = v1.pos - v0.pos;
+			math::Vector3 e1 = v2.pos - v0.pos;
+
+			const math::Vector3 faceNormal = math::cross(e0, e1);
+
+			vertices[i0].normal = vertices[i0].normal + faceNormal;
+			vertices[i1].normal = vertices[i1].normal + faceNormal;
+			vertices[i2].normal = vertices[i2].normal + faceNormal;
+		}
+
+		for (uint16_t i = 0; i < vertices.size(); ++i)
+		{
+			vertices[i].normal = math::normalize(vertices[i].normal);
+		}
+
 		
 		return Model(vertices, indecses);
 	}

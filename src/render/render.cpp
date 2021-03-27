@@ -87,6 +87,8 @@ namespace render
 		BuildRootSignature();
 		BuildShadersAndInputLayout();
 
+		BuildMaterials();
+
 		BuildFrameResources();
 		
 		BuildDescriptorHeaps();
@@ -327,6 +329,7 @@ namespace render
 
 		UpdateObjectCBs();
 		UpdateMainPassCB();		
+		UpdateMaterialCB();
 		
 		auto cmdListAlloc = currFrameResource_->CmdListAlloc;
 
@@ -409,13 +412,14 @@ namespace render
 	
 	void RenderD12::BuildShadersAndInputLayout()
 	{
-		shaders_["standardVS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-		shaders_["opaquePS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+		shaders_["standardVS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\Default.hlsl", nullptr, "VS", "vs_5_0");
+		shaders_["opaquePS"] = d3dUtil::CompileShader(L"..\\res\\Shaders\\Default.hlsl", nullptr, "PS", "ps_5_0");
 
 		inputLayout_ =
 		{
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		};
 	}
 
@@ -428,14 +432,15 @@ namespace render
 		cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
 
 		// Root parameter can be a table, root descriptor or root constants.
-		CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+		CD3DX12_ROOT_PARAMETER slotRootParameter[3];
 
 		// Create root CBVs.
 		slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
 		slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
+		slotRootParameter[2].InitAsConstantBufferView(2);
 
 		// A root signature is an array of root parameters.
-		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr,
+		CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr,
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 		// create a root signature with a single slot which points to a descriptor range consisting of a single constant buffer
@@ -457,11 +462,52 @@ namespace render
 			IID_PPV_ARGS(rootSignature_.GetAddressOf())));
 	}
 
+	void RenderD12::BuildMaterials()
+	{
+		auto bricks0 = std::make_unique<Material>();
+		bricks0->Name = "bricks0";
+		bricks0->MatCBIndex = 0;
+		bricks0->DiffuseSrvHeapIndex = 0;
+		bricks0->DiffuseAlbedo = XMFLOAT4(Colors::ForestGreen);
+		bricks0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		bricks0->Roughness = 0.1f;
+
+		auto stone0 = std::make_unique<Material>();
+		stone0->Name = "stone0";
+		stone0->MatCBIndex = 1;
+		stone0->DiffuseSrvHeapIndex = 1;
+		stone0->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
+		stone0->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+		stone0->Roughness = 0.3f;
+
+		auto tile0 = std::make_unique<Material>();
+		tile0->Name = "tile0";
+		tile0->MatCBIndex = 2;
+		tile0->DiffuseSrvHeapIndex = 2;
+		tile0->DiffuseAlbedo = XMFLOAT4(Colors::LightGray);
+		tile0->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+		tile0->Roughness = 0.2f;
+
+		auto skullMat = std::make_unique<Material>();
+		skullMat->Name = "skullMat";
+		skullMat->MatCBIndex = 3;
+		skullMat->DiffuseSrvHeapIndex = 3;
+		skullMat->DiffuseAlbedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		skullMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05);
+		skullMat->Roughness = 0.3f;
+
+		mMaterials["bricks0"] = std::move(bricks0);
+		mMaterials["stone0"] = std::move(stone0);
+		mMaterials["tile0"] = std::move(tile0);
+		mMaterials["skullMat"] = std::move(skullMat);
+	}
+
+
 	void RenderD12::BuildFrameResources()
 	{		
 		for (int i = 0; i < gNumFrameResources; ++i)
 		{
-			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),	1));
+			frameResources_.push_back(std::make_unique<FrameResource>(d3dDevice_.Get(),	1, (UINT)mMaterials.size()));
 		}
 	}
 
@@ -580,7 +626,7 @@ namespace render
 			shaders_["opaquePS"]->GetBufferSize()
 		};
 		opaquePsoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		//opaquePsoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 		opaquePsoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		opaquePsoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 		opaquePsoDesc.SampleMask = UINT_MAX;
@@ -660,14 +706,50 @@ namespace render
 		mainPassCB_.FarZ = 1000.0f;
 		mainPassCB_.TotalTime =0 ;
 		mainPassCB_.DeltaTime = 0;
+		mainPassCB_.AmbientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
+		mainPassCB_.Lights[0].Direction = { 0.f, 0.f, 0.f };
+		mainPassCB_.Lights[0].Strength = { 0.6f, 0.6f, 0.6f };
+		mainPassCB_.Lights[1].Direction = { -0.57735f, -0.57735f, 0.57735f };
+		mainPassCB_.Lights[1].Strength = { 0.3f, 0.4f, 0.3f };
+		mainPassCB_.Lights[2].Direction = { 0.0f, -0.707f, -0.707f };
+		mainPassCB_.Lights[2].Strength = { 0.15f, 0.15f, 0.15f };
+
 
 		auto currPassCB = currFrameResource_->PassCB.get();
 		currPassCB->CopyData(0, mainPassCB_);
 	}
 
+	void RenderD12::UpdateMaterialCB()
+	{
+		auto currMaterialCB = currFrameResource_->MaterialCB.get();
+		for (auto& e : mMaterials)
+		{
+			// Only update the cbuffer data if the constants have changed.  If the cbuffer
+			// data changes, it needs to be updated for each FrameResource.
+			Material* mat = e.second.get();
+			if (mat->NumFramesDirty > 0)
+			{
+				XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+
+				MaterialConstants matConstants;
+				matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+				matConstants.FresnelR0 = mat->FresnelR0;
+				matConstants.Roughness = mat->Roughness;
+				XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+
+				currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+				// Next FrameResource need to be updated too.
+				mat->NumFramesDirty--;
+			}
+		}
+	}
+
 	void RenderD12::DrawRenderItems(ID3D12GraphicsCommandList* cmdList)
 	{
 		UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+		UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+		auto matCB = currFrameResource_->MaterialCB->Resource();
 
 		for (size_t i = 0; i < renderItems_.size(); ++i)
 		{
@@ -683,7 +765,10 @@ namespace render
 				auto cbvHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE(cbvHeap_->GetGPUDescriptorHandleForHeapStart());
 				cbvHandle.Offset(cbvIndex, cbvSrvUavDescriptorSize_);
 
+				D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ri->Mat->MatCBIndex * matCBByteSize;
+
 				cmdList->SetGraphicsRootDescriptorTable(0, cbvHandle);
+				cmdList->SetGraphicsRootConstantBufferView(2, matCBAddress);
 
 				cmdList->DrawIndexedInstanced(ri->IndexCount, 1, ri->StartIndexLocation, ri->BaseVertexLocation, 0);
 			}
@@ -722,6 +807,8 @@ namespace render
 		item->StartIndexLocation = 0;
 		item->BaseVertexLocation = 0;
 		item->canDraw = true;
+
+		item->Mat = mMaterials["bricks0"].get();
 
 		CreateConstantBuffer(item.get());
 
