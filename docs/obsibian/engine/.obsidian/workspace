@@ -1,0 +1,106 @@
+{
+  "main": {
+    "id": "167b779bbe58e722",
+    "type": "split",
+    "children": [
+      {
+        "id": "2f74ec81a4e2cfdd",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Render/Texturing.md",
+            "mode": "source"
+          }
+        }
+      },
+      {
+        "id": "ba8dd5ff39e1f855",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Render/Texturing.md",
+            "mode": "preview"
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1119e7b65b86304c",
+    "type": "split",
+    "children": [
+      {
+        "id": "a6b7a1262ab3e12a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d9267b3eda48af09",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "88b859286581dd4b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "35596b7ddc1a4f57",
+    "type": "split",
+    "children": [
+      {
+        "id": "4fc3adfd84fcbf4b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "de20fa37cd5561e1",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Render/Texturing.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "2f74ec81a4e2cfdd",
+  "lastOpenFiles": [
+    "Render/Texturing.md",
+    "Texturing.md",
+    "Untitled.md"
+  ]
+}
