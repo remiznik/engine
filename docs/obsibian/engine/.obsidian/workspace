@@ -4,23 +4,23 @@
     "type": "split",
     "children": [
       {
-        "id": "2f74ec81a4e2cfdd",
+        "id": "1312cc598a19c54e",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Render/Texturing.md",
+            "file": "links.md",
             "mode": "source"
           }
         }
       },
       {
-        "id": "ba8dd5ff39e1f855",
+        "id": "e4aa7654ace9f994",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Render/Texturing.md",
+            "file": "links.md",
             "mode": "preview"
           }
         }
@@ -79,7 +79,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Render/Texturing.md",
+                "file": "links.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,10 +97,13 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "2f74ec81a4e2cfdd",
+  "active": "1312cc598a19c54e",
   "lastOpenFiles": [
+    "links.md",
+    "Untitled.md",
+    "Dictionary.md",
     "Render/Texturing.md",
-    "Texturing.md",
-    "Untitled.md"
+    "Render/Blending.md",
+    "Texturing.md"
   ]
 }
