@@ -15,7 +15,7 @@
         }
       },
       {
-        "id": "e4aa7654ace9f994",
+        "id": "2e083600998bbf59",
         "type": "leaf",
         "state": {
           "type": "markdown",
@@ -100,6 +100,8 @@
   "active": "1312cc598a19c54e",
   "lastOpenFiles": [
     "links.md",
+    "study/links.md",
+    "engine/Plan.md",
     "Untitled.md",
     "Dictionary.md",
     "Render/Texturing.md",
