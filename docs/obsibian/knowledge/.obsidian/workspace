@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "materials.md",
-            "mode": "source"
+            "file": "study/Dictionary.md",
+            "mode": "preview"
           }
         }
       }
@@ -68,7 +68,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "materials.md",
+                "file": "study/Dictionary.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -88,6 +88,8 @@
   },
   "active": "2e083600998bbf59",
   "lastOpenFiles": [
+    "study/Dictionary.md",
+    "plan.md",
     "materials.md",
     "Plan.md",
     "engine/Plan.md",
@@ -95,8 +97,6 @@
     "unreviewed/Типы ресурсов.md",
     "unreviewed/graphics_pipline_directx_12.png",
     "unreviewed/Fence.md",
-    "unreviewed/GPU Synchonization.md",
-    "unreviewed/DirectX 12.md",
-    "links.md"
+    "unreviewed/GPU Synchonization.md"
   ]
 }
