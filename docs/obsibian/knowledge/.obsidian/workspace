@@ -4,12 +4,23 @@
     "type": "split",
     "children": [
       {
-        "id": "2e083600998bbf59",
+        "id": "54e2b9fd638a33d6",
         "type": "leaf",
         "state": {
           "type": "markdown",
           "state": {
-            "file": "study/Dictionary.md",
+            "file": "materials.md",
+            "mode": "source"
+          }
+        }
+      },
+      {
+        "id": "a82733412a3a707a",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "study/Render/Blending.md",
             "mode": "preview"
           }
         }
@@ -68,7 +79,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "study/Dictionary.md",
+                "file": "study/Render/Blending.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -86,17 +97,17 @@
     "width": 300,
     "collapsed": true
   },
-  "active": "2e083600998bbf59",
+  "active": "a82733412a3a707a",
   "lastOpenFiles": [
+    "study/Render/Blending.md",
     "study/Dictionary.md",
-    "plan.md",
     "materials.md",
+    "plan.md",
     "Plan.md",
     "engine/Plan.md",
     "unreviewed/Graphics Pipeline.md",
     "unreviewed/Типы ресурсов.md",
     "unreviewed/graphics_pipline_directx_12.png",
-    "unreviewed/Fence.md",
-    "unreviewed/GPU Synchonization.md"
+    "unreviewed/Fence.md"
   ]
 }
