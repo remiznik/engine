@@ -14,6 +14,8 @@
 [Cauldron](https://github.com/GPUOpen-LibrariesAndSDKs/Cauldron)
 [MiniEngine Microsoft](https://github.com/microsoft/DirectX-Graphics-Samples/tree/master/MiniEngine)  
 [Directx 12 tutorial](https://www.youtube.com/watch?v=25PSoelCWSo) (video)
+[Компьютерная графика: полигон. модели](https://vk.com/physics_math?w=wall-51126445_86267) (book.rus)
+[Foundations of Game Engine Developmen](https://vk.com/physics_math?w=wall-51126445_86264) (book)
 
 ## Modeling
 
