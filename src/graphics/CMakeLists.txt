@@ -1,13 +1,7 @@
-set(GRAPHICS_SRC 
-    shape.h
-    shape.cpp
-    scene.h
-    scene.cpp
-    rectangle.h
-    rectangle.cpp
+set(GRAPHICS_SRC     
 )
-add_library( graphics ${GRAPHICS_SRC} )
+#add_library( graphics ${GRAPHICS_SRC} )
 
 
-target_include_directories (graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+#target_include_directories (graphics PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

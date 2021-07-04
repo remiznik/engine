@@ -8,10 +8,12 @@ namespace script_system {
 	class Script
 	{
 	public:
-		void init();
+		bool init();
 		void fini();
 
 		bool run(const char* path);
+
+		bool call(const char* name);
 
 		bool registreFunction(const char* name, const shared_ptr<NativeFunction>& function);
 

@@ -66,7 +66,7 @@ namespace {
     }
 
 
-void push(Value value)
+void push(Value value) 
 {
     *vm.stackTop = value;
     vm.stackTop++;
@@ -285,10 +285,6 @@ void initVM()
 
     vm.initString = nullptr;
     vm.initString = copyString("init", 4);
-
-    
-    
-    //defineNative("clock", std::bind(&A::clockNative, &t, std::placeholders::_1, std::placeholders::_2));
 }
 
 void freeVM()
@@ -645,6 +641,26 @@ InterpretResult interpret(const char* source)
     
     return run();
 }   
+
+bool call(const char* name)
+{
+    Value value;
+    ObjString* sringName = copyString(name, strlen(name));
+    if (!tableGet(&vm.globals, sringName, &value))
+    {
+        return false;
+    }
+
+    ObjFunction* function = AS_CLOSURE(value)->function;
+
+    push(OBJ_VAL(function));
+    ObjClosure* closure = newClosure(function);
+    pop();
+    push(OBJ_VAL(closure));
+    callValue(OBJ_VAL(closure), 0);
+
+    return run() == INTERPRET_OK;
+}
 
 }
 }

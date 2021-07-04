@@ -57,7 +57,7 @@ namespace vm {
 #define OBJ_VAL(object)   (Value((Obj*)object))
 
     typedef struct vm_value
-    {
+    {   
         int count;
         int capacity;
         script_system::vm::Value* values;

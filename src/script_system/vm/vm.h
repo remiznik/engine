@@ -56,6 +56,6 @@ Value pop();
 
 InterpretResult interpret(const char* chunk);
 void defineNative(const char* name, NativeFn function);
-	
+bool call(const char* name);
 }
 }

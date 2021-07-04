@@ -23,18 +23,59 @@ https://github.com/bombomby/optick not have gui for Linux.
 ### books
     Physically Based Rendering: From Theory to Implementation\
     https://www.3dgep.com/learning-directx-12-1/ directx 12
+    https://www.academia.edu/39739327/Introduction_to_3D_GAME_PROGRAMMING_WITH_DIRECTX_12
     https://proglib.io/p/best-gamedev-books/ merge
+    https://www.academia.edu/39739327/Introduction_to_3D_GAME_PROGRAMMING_WITH_DIRECTX_12
+
+### articles
+https://habr.com/ru/post/472688/
+https://www.techspot.com/article/1851-3d-game-rendering-explained/
+http://www.adriancourreges.com/blog/2016/09/09/doom-2016-graphics-study/
+
+### tutorial 
+https://www.braynzarsoft.net/viewtutorial/q16390-04-directx-12-braynzar-soft-tutorials
+https://www.3dgep.com/learning-directx-12-2/
+https://triplepointfive.github.io/ogltutor/ opengl
+https://habr.com/en/post/329592/            opengl
+### sites
+http://www.realtimerendering.com/#intro
+http://www.realtimerendering.com/udacity/?load=demo/unit7-view-pipeline.js
+https://www.braynzarsoft.net/
+
+### code 
+https://github.com/microsoft/DirectXTK12/wiki/Getting-Started
+https://github.com/d3dcoder/d3d12book
 
 ### other
 https://codepen.io/tutsplus/pen/OVxXZE?__cf_chl_jschl_tk__=80891a7d8ded5f6d0551a6049aa05bbe6ddabf1d-1590824293-0-ATJ-zyp5rdBAEILBJd4QJwvrzA9iebTShmnCGDDPBOFPz8LdgMAQD4KXLrAe5N8Oe5Emf-6wr7t72fE0bY1QlqRw9-_KcYlusk9NA9UxlFxDfSNiPqOnSdo1ybjG5jUjjYtr_LGf6-FGco1osfA0PadsWu0mEsiE9bup1pnrhR8-b-BhseGobYXoSDHjPUjIl7jDQn4RmmK7Wa1HsDnHDYnnU23j8HbwZKhVwjER_HeRQmgAIG-J8aUpfuik6oEx-4Xm-OIzvNdW0Mrt3FGzMud0O3-cVBxLrrIgcpCDKbpb9R-YvaRNLCRC_aon0tKH2jaiGO0t-fY8o8Hp0hM1WvXDhgx7U6BFFX0ypkhj9EzA
 https://www.shadertoy.com/new
 
 
+### articles
+https://habr.com/ru/post/472688/
+https://www.techspot.com/article/1851-3d-game-rendering-explained/
+http://www.adriancourreges.com/blog/2016/09/09/doom-2016-graphics-study/
+
+### tutorial 
+https://www.braynzarsoft.net/viewtutorial/q16390-04-directx-12-braynzar-soft-tutorials
+https://www.3dgep.com/learning-directx-12-2/
+https://triplepointfive.github.io/ogltutor/ opengl
+https://habr.com/en/post/329592/            opengl
+### sites
+http://www.realtimerendering.com/#intro
+http://www.realtimerendering.com/udacity/?load=demo/unit7-view-pipeline.js
+https://www.braynzarsoft.net/
+
+### code 
+https://github.com/microsoft/DirectXTK12/wiki/Getting-Started
+https://github.com/d3dcoder/d3d12book
+
 ## math 
 https://qna.habr.com/q/269411
 https://habr.com/en/post/131931/
 https://habr.com/en/post/234203/
 Lamot_A_-_Programmirovanie_Trekhmernykh
+
 
 ## engine
     https://www.3dgep.com/cpp-fast-track-17-ai/

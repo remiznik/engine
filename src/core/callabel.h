@@ -9,4 +9,4 @@ namespace core {
     public:
         virtual core::Value call(const vector<Value>& args) = 0;
     };
-};
+}

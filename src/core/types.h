@@ -5,16 +5,25 @@
 #include <memory>
 #include <stack>
 #include <set>
+#include <unordered_map>
 #include <cstdio>
 #include <cstring>
+#include <unordered_map>
+
+
+using uint16_t = std::uint16_t;
 
 using string = std::string;
 
-template<typename T>
-using vector = std::vector<T>;
+
+template<typename T, class _Alloc = std::allocator<T>>
+using vector = std::vector<T, _Alloc>;
 
 template <class Key, class T, class Comparator = std::less<Key>>
 using map = std::map<Key, T, Comparator>;
+
+template <class Key, class T>
+using unordered_map = std::unordered_map<Key, T>;
 
 template <class T, class Comparator = std::less<T>>
 using set = std::set<T, Comparator>;

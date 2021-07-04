@@ -5,6 +5,7 @@ set(TESTS_SRC
     script_system/vm_scanner.cpp
     script_system/vm_interpret.cpp
     script_system/vm_benchmark.cpp
+    math/utils_tests.cpp
 )
 
 
@@ -14,4 +15,4 @@ add_executable(${BINARY} ${TESTS_SRC})
 
 add_test(NAME ${BINARY} COMMAND ${BINARY})
 
-target_link_libraries(${BINARY} PUBLIC script_system core gtest)
+target_link_libraries(${BINARY} PUBLIC script_system core render gtest)

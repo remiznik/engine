@@ -3,10 +3,8 @@ set(CORE_SRC
     types.cpp
     logger.h
     logger.cpp
-    assert.h
-    file_reader.h
-    file_reader.cpp
-    callabel.h
+    file_system.h
+    file_system.cpp
 )
 add_library( core ${CORE_SRC} )
 

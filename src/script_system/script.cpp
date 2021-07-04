@@ -3,15 +3,14 @@
 #include "vm/vm.h"
 #include "script_system/native_function.h"
 
-#include "core/file_reader.h"
-
 #include <functional>
 
 namespace script_system {
 
-	void Script::init()
+	bool Script::init()
 	{
 		vm::initVM();
+		return true;
 	}
 	
 	void Script::fini()
@@ -33,5 +32,10 @@ namespace script_system {
 		vm::defineNative(name, std::bind(&NativeFunction::call, function.get(), std::placeholders::_1, std::placeholders::_2));
 
 		return result.second;
+	}
+
+	bool Script::call(const char* name)
+	{
+		return vm::call(name);
 	}
 }

@@ -3,9 +3,9 @@
 #include "types.h"
 
 namespace core {
-    class FileReader
+    class FileSystem
     {
     public: 
-        string read(const string& patr);
+        string readFile(const string& patr) const;
     };
 }
